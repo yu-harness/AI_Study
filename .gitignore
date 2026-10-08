@@ -32,3 +32,6 @@ qdrant_db/
 # 项目已独立成仓（github.com/yu-harness/tether），笔记库不再重复跟踪
 tether/
 pico/
+
+# 第三方代码副本（嵌套仓库指针）
+code/how-claude-code-works/
