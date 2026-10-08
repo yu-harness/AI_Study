@@ -1,0 +1,18 @@
+# LangChain
+langchain==0.3.27
+langchain-community==0.3.31
+langchain-core==0.3.83
+langchain-openai==0.3.35
+langchain-text-splitters==0.3.11
+
+# 向量库与嵌入
+chromadb==1.4.1
+sentence-transformers==5.1.2
+
+# 模型与推理
+torch==2.8.0
+transformers==4.57.6
+huggingface_hub==0.36.1
+
+# LLM API 客户端
+openai==2.16.0

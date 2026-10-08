@@ -1,0 +1,250 @@
+{
+  "main": {
+    "id": "e6c63f30a35ed11f",
+    "type": "split",
+    "children": [
+      {
+        "id": "53d0ffe6ead01788",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9276e255f93c224a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "1大模型基础/01 Transformer 与 LLM 基础(重要).md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "01 Transformer 与 LLM 基础(重要)"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1322fd611110995f",
+    "type": "split",
+    "children": [
+      {
+        "id": "53be845524e4c5c2",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "42f423b36a030545",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "fecf988d0dd622f0",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "d829513877b1d555",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 374.6059150695801
+  },
+  "right": {
+    "id": "da94ac529f083792",
+    "type": "split",
+    "children": [
+      {
+        "id": "b25b318bc1e37c27",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f200bc6b4b7a7b72",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "project/居丽叶简历项目7：医疗助手/04-Skill系统详解.md",
+                "collapseAll": true,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向链接"
+            }
+          },
+          {
+            "id": "819937ec4faf811e",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "project/居丽叶简历项目7：医疗助手/04-Skill系统详解.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "出链"
+            }
+          },
+          {
+            "id": "425dcb2b31dc8af5",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "5176cb4f93a6d3c9",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "9d4afe9f8c03833b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "code/how-claude-code-works/docs/15-task-system.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大纲"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 268.259033203125,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false,
+      "workspaces:管理工作区布局": false
+    }
+  },
+  "active": "9276e255f93c224a",
+  "lastOpenFiles": [
+    "_fix_semantics.py",
+    "_restore_back.py",
+    "_rename_links.py",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
+    "tether/tmp/platform-verify/workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_subdir_env_anchor/bench_repo_platform/env_outer/sub/proj",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_atomic_write_retry/bench_repo_platform/atomic-runs/run_lock/task_state.json.65gaftjq.tmp",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_atomic_write_retry/bench_repo_platform/atomic-runs/run_lock/task_state.json",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_subdir_env_anchor/bench_repo_platform/env_outer/sub/proj",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_atomic_write_retry/bench_repo_platform/atomic-runs/run_lock/task_state.json.kfl8webp.tmp",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_atomic_write_retry/bench_repo_platform/atomic-runs/run_lock/task_state.json",
+    "tether/artifacts/ci/workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_chinese_path_utf8/bench_repo_platform/中文工作区/README.md",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_chinese_path_utf8/bench_repo_platform/中文工作区/README.md",
+    "tether/artifacts/deepseek-benchmark-workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/workspace_mismatch_resume/bench_repo_readme/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/context_reduction_checkpoint/bench_repo_readme/README.md",
+    "tether/tmp/platform-verify/workspaces/platform_chinese_path_utf8/bench_repo_platform/中文工作区/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/workspace_mismatch_resume/bench_repo_readme/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/readme_schema_note/bench_repo_readme/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/readme_intro_locked/bench_repo_readme/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_thinking_budget_guard/bench_repo_platform/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_subdir_env_anchor/bench_repo_platform/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_dsml_tool_call/bench_repo_platform/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_chinese_path_utf8/bench_repo_platform/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_atomic_write_retry/bench_repo_platform/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/invalid_patch_recovery/bench_repo_readme/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/durable_promotion_reject/bench_repo_readme/README.md",
+    "tether/benchmarks/results/resume-archive/harness-workspaces/durable_promotion_accept/bench_repo_readme/README.md",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/readme_schema_note/bench_repo_readme/README.md",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/readme_intro_locked/bench_repo_readme/README.md",
+    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_subdir_env_anchor/bench_repo_platform/README.md",
+    "tether/tmp/pages-deploy-site/assets/langfuse-trace-list.png",
+    "tether/tmp/pages-deploy-site/assets/trace-timeline.png",
+    "tether/tmp/pages-deploy-site/assets/trace-list.png",
+    "tether/tmp/pages-deploy-site/assets/thread-session.png",
+    "tether/tmp/pages-deploy-site/assets/langfuse-trace-detail.png",
+    "tether/tmp/pages-deploy-site/assets/langfuse-session-detail.png",
+    "tether/tmp/pages-deploy-site/assets/langfuse-session.png",
+    "tether/docs/tracing/thread-session.png",
+    "tether/site/assets/trace-timeline.png",
+    "tether/site/assets/trace-list.png",
+    "rag-kb/vault-dag.canvas",
+    "Redis/05 内存快照：宕机后，Redis如何实现快速恢复？_split/Redis 内存快照.canvas",
+    "RAG篇/3.2 Chunking-free RAG_split/Chunking-Free RAG.canvas",
+    "Redis/02 数据结构：快速的Redis有哪些慢操作？_split/Redis底层数据结构.canvas",
+    "Redis/01 基本架构：一个键值数据库包含什么？_split/键值数据库架构.canvas",
+    "Redis/00 这样学Redis，才能技高一筹_split/Redis学习方法.canvas",
+    "Redis/03 高性能IO模型：为什么单线程Redis能那么快？_split/高性能IO模型.canvas",
+    "Redis/01 基本架构：一个键值数据库包含什么？_split/基本结构.canvas",
+    "Redis/04 AOF日志：宕机了，Redis如何避免数据丢失？_split/AOF.canvas",
+    "Redis/00 这样学Redis，才能技高一筹_split/学习目标.canvas"
+  ]
+}

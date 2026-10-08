@@ -1,0 +1,25 @@
+{
+  "readableLineLength": false,
+  "showLineNumber": true,
+  "promptDelete": false,
+  "attachmentFolderPath": "./附件",
+  "pdfExportSettings": {
+    "includeName": false,
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  },
+  "alwaysUpdateLinks": true,
+  "foldIndent": true,
+  "rightToLeft": false,
+  "strictLineBreaks": false,
+  "foldHeading": true,
+  "showIndentGuide": true,
+  "defaultViewMode": "source",
+  "livePreview": true,
+  "newFileLocation": "root",
+  "newFileFolderPath": "",
+  "newLinkFormat": "shortest",
+  "showInlineTitle": true
+}

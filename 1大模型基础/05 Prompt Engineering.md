@@ -1,0 +1,441 @@
+> **相关**：[[04 幻觉、对齐与指令跟随]]、[[06 Context Engineering]]、[[07 结构化输出与 Function Calling(重要)]]
+
+# 05 Prompt Engineering - 飞书云文档
+
+阅读目标：把 prompt engineering 从“会写几句提示词”提升到“能够稳定约束模型完成任务”的工程能力。
+
+## 一、面试官在考什么
+
+Prompt Engineering 是最容易被低估的一章。很多人觉得它“太浅”，结果一面试就暴露出明显问题：只会写一些自然语言描述，不会做任务建模，不会约束输出，不会排查失败原因，也分不清 prompt、context、tool schema 和 workflow 的边界。
+
+**第一，面试官会看你是不是把 prompt 理解成“和模型聊天的话术”**。这是一个常见误区。真正的 prompt engineering，更像是给概率模型编写运行时程序：你要明确输入、任务目标、约束、输出结构、可用资源、失败边界和评价标准。只是这个程序是用自然语言、示例和 schema 写出来的。
+
+**第二，面试官会看你是否知道 prompt 的影响范围**。一个好的 prompt 不只是让答案“更像人说的”，更重要的是：
+
+- 减少歧义；
+
+- 提高任务完成率；
+
+- 提高格式稳定性；
+
+- 提高工具调用准确率；
+
+- 降低幻觉与越权行为；
+
+- 降低后续解析和回滚成本。
+如果你只从“文案更顺滑”去理解 prompt，那还是停留在使用者视角。
+
+**第三，Prompt Engineering 这章常被用来区分“会试”和“会做”**。会试的人在 playground 里反复改文案；会做的人会先定义验收标准、先做失败分类、先区分不同任务阶段，再去迭代 prompt。真正线上系统里，prompt 改动本质上是一种产品逻辑改动，要能评估、回滚、对比，不是灵机一动的艺术创作。
+
+**第四，到 2025–2026 年，行业对 prompt 的理解也在变化**。OpenAI 的新一代模型提示指导、Anthropic 的 prompt engineering 文档、以及 context engineering/harness engineering 的兴起，都在说明：prompt 仍然重要，但它已经不再只是“写一句更优雅的话”，而是模型接口设计的一部分。
+
+你可以在面试的时候这样讲：
+
+“我们把 prompt 当成应用逻辑的一部分管理。首先按任务类型拆成抽取、问答、工具执行三套模板；然后把规则、示例、输入和输出区分成独立区块；对证据敏感任务显式要求‘无证据返回 cannot_answer’，对结构化任务则强制 JSON schema。上线后不是凭感觉改 prompt，而是根据样本评测看格式合法率、幻觉率和任务完成率，再做小步迭代和版本回滚。”
+
+## 二、什么是 Prompt Engineering
+
+一个更工程化的定义是：
+
+**Prompt engineering 是围绕模型输入进行设计、约束、分层、示例化和迭代的过程，其目标是在给定模型与上下文预算下，稳定地实现特定任务结果。**
+
+这一定义有三个重点。
+
+第一，它强调“围绕模型输入”，说明 prompt 不只是用户输入，还可能包含 system 指令、developer 规则、few-shot 示例、输出 schema、工具说明、检索证据等。
+
+第二，它强调“稳定实现”，说明 prompt 的目标不是偶尔跑出一个好答案，而是在真实流量里稳定、可复现、可评估地完成任务。
+
+第三，它强调“给定模型与上下文预算”，说明 prompt 不能脱离模型家族、token 成本、上下文长度、结构化输出能力、工具协议单独讨论。一个在大模型上可行的 prompt，未必适合 mini/nano 模型；一个在短上下文下有效的 prompt，未必适合 Agent 多轮链路。
+
+## 三、好的 prompt 不是长，而是清楚
+
+![test.jpg](data:text/plain;base64,PHN2ZyBhcmlhLXJvbGVkZXNjcmlwdGlvbj0iZmxvd2NoYXJ0LXYyIiByb2xlPSJncmFwaGljcy1kb2N1bWVudCBkb2N1bWVudCIgdmlld0JveD0iLTggLTggMTQ4IDU2OCIgc3R5bGU9Im1heC13aWR0aDogMTQ4cHg7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDgiIGlkPSJzdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBoZWlnaHQ9IjU2OCI+PHN0eWxlPiNzdmd7Zm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxNnB4O2ZpbGw6IzMzMzt9I3N2ZyAuZXJyb3ItaWNvbntmaWxsOiM1NTIyMjI7fSNzdmcgLmVycm9yLXRleHR7ZmlsbDojNTUyMjIyO3N0cm9rZTojNTUyMjIyO30jc3ZnIC5lZGdlLXRoaWNrbmVzcy1ub3JtYWx7c3Ryb2tlLXdpZHRoOjJweDt9I3N2ZyAuZWRnZS10aGlja25lc3MtdGhpY2t7c3Ryb2tlLXdpZHRoOjMuNXB4O30jc3ZnIC5lZGdlLXBhdHRlcm4tc29saWR7c3Ryb2tlLWRhc2hhcnJheTowO30jc3ZnIC5lZGdlLXBhdHRlcm4tZGFzaGVke3N0cm9rZS1kYXNoYXJyYXk6Mzt9I3N2ZyAuZWRnZS1wYXR0ZXJuLWRvdHRlZHtzdHJva2UtZGFzaGFycmF5OjI7fSNzdmcgLm1hcmtlcntmaWxsOiMzMzMzMzM7c3Ryb2tlOiMzMzMzMzM7fSNzdmcgLm1hcmtlci5jcm9zc3tzdHJva2U6IzMzMzMzMzt9I3N2ZyBzdmd7Zm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxNnB4O30jc3ZnIC5sYWJlbHtmb250LWZhbWlseToidHJlYnVjaGV0IG1zIix2ZXJkYW5hLGFyaWFsLHNhbnMtc2VyaWY7Y29sb3I6IzMzMzt9I3N2ZyAuY2x1c3Rlci1sYWJlbCB0ZXh0e2ZpbGw6IzMzMzt9I3N2ZyAuY2x1c3Rlci1sYWJlbCBzcGFuLCNzdmcgcHtjb2xvcjojMzMzO30jc3ZnIC5sYWJlbCB0ZXh0LCNzdmcgc3Bhbiwjc3ZnIHB7ZmlsbDojMzMzO2NvbG9yOiMzMzM7fSNzdmcgLm5vZGUgcmVjdCwjc3ZnIC5ub2RlIGNpcmNsZSwjc3ZnIC5ub2RlIGVsbGlwc2UsI3N2ZyAubm9kZSBwb2x5Z29uLCNzdmcgLm5vZGUgcGF0aHtmaWxsOiNFQ0VDRkY7c3Ryb2tlOiM5MzcwREI7c3Ryb2tlLXdpZHRoOjFweDt9I3N2ZyAuZmxvd2NoYXJ0LWxhYmVsIHRleHR7dGV4dC1hbmNob3I6bWlkZGxlO30jc3ZnIC5ub2RlIC5rYXRleCBwYXRoe2ZpbGw6IzAwMDtzdHJva2U6IzAwMDtzdHJva2Utd2lkdGg6MXB4O30jc3ZnIC5ub2RlIC5sYWJlbHt0ZXh0LWFsaWduOmNlbnRlcjt9I3N2ZyAubm9kZS5jbGlja2FibGV7Y3Vyc29yOnBvaW50ZXI7fSNzdmcgLmFycm93aGVhZFBhdGh7ZmlsbDojMzMzMzMzO30jc3ZnIC5lZGdlUGF0aCAucGF0aHtzdHJva2U6IzMzMzMzMztzdHJva2Utd2lkdGg6Mi4wcHg7fSNzdmcgLmZsb3djaGFydC1saW5re3N0cm9rZTojMzMzMzMzO2ZpbGw6bm9uZTt9I3N2ZyAuZWRnZUxhYmVse2JhY2tncm91bmQtY29sb3I6I2U4ZThlODt0ZXh0LWFsaWduOmNlbnRlcjt9I3N2ZyAuZWRnZUxhYmVsIHJlY3R7b3BhY2l0eTowLjU7YmFja2dyb3VuZC1jb2xvcjojZThlOGU4O2ZpbGw6I2U4ZThlODt9I3N2ZyAubGFiZWxCa2d7YmFja2dyb3VuZC1jb2xvcjpyZ2JhKDIzMiwgMjMyLCAyMzIsIDAuNSk7fSNzdmcgLmNsdXN0ZXIgcmVjdHtmaWxsOiNmZmZmZGU7c3Ryb2tlOiNhYWFhMzM7c3Ryb2tlLXdpZHRoOjFweDt9I3N2ZyAuY2x1c3RlciB0ZXh0e2ZpbGw6IzMzMzt9I3N2ZyAuY2x1c3RlciBzcGFuLCNzdmcgcHtjb2xvcjojMzMzO30jc3ZnIGRpdi5tZXJtYWlkVG9vbHRpcHtwb3NpdGlvbjphYnNvbHV0ZTt0ZXh0LWFsaWduOmNlbnRlcjttYXgtd2lkdGg6MjAwcHg7cGFkZGluZzoycHg7Zm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxMnB4O2JhY2tncm91bmQ6aHNsKDgwLCAxMDAlLCA5Ni4yNzQ1MDk4MDM5JSk7Ym9yZGVyOjFweCBzb2xpZCAjYWFhYTMzO2JvcmRlci1yYWRpdXM6MnB4O3BvaW50ZXItZXZlbnRzOm5vbmU7ei1pbmRleDoxMDA7fSNzdmcgLmZsb3djaGFydFRpdGxlVGV4dHt0ZXh0LWFuY2hvcjptaWRkbGU7Zm9udC1zaXplOjE4cHg7ZmlsbDojMzMzO30jc3ZnIC50b2RheXtkaXNwbGF5Om5vbmU7fSNzdmcgLmxhYmVsIGZvcmVpZ25PYmplY3R7b3ZlcmZsb3c6dmlzaWJsZTt9I3N2ZyA6cm9vdHstLW1lcm1haWQtZm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO308L3N0eWxlPjxnPjxtYXJrZXIgb3JpZW50PSJhdXRvIiBtYXJrZXJIZWlnaHQ9IjEyIiBtYXJrZXJXaWR0aD0iMTIiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcmVmWT0iNSIgcmVmWD0iNiIgdmlld0JveD0iMCAwIDEwIDEwIiBjbGFzcz0ibWFya2VyIGZsb3djaGFydCIgaWQ9InN2Z19mbG93Y2hhcnQtcG9pbnRFbmQiPjxwYXRoIHN0eWxlPSJzdHJva2Utd2lkdGg6IDE7IHN0cm9rZS1kYXNoYXJyYXk6IDEsIDA7IiBjbGFzcz0iYXJyb3dNYXJrZXJQYXRoIiBkPSJNIDAgMCBMIDEwIDUgTCAwIDEwIHoiPjwvcGF0aD48L21hcmtlcj48bWFya2VyIG9yaWVudD0iYXV0byIgbWFya2VySGVpZ2h0PSIxMiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIHJlZlk9IjUiIHJlZlg9IjQuNSIgdmlld0JveD0iMCAwIDEwIDEwIiBjbGFzcz0ibWFya2VyIGZsb3djaGFydCIgaWQ9InN2Z19mbG93Y2hhcnQtcG9pbnRTdGFydCI+PHBhdGggc3R5bGU9InN0cm9rZS13aWR0aDogMTsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIGQ9Ik0gMCA1IEwgMTAgMTAgTCAxMCAwIHoiPjwvcGF0aD48L21hcmtlcj48bWFya2VyIG9yaWVudD0iYXV0byIgbWFya2VySGVpZ2h0PSIxMSIgbWFya2VyV2lkdGg9IjExIiBtYXJrZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIHJlZlk9IjUiIHJlZlg9IjExIiB2aWV3Qm94PSIwIDAgMTAgMTAiIGNsYXNzPSJtYXJrZXIgZmxvd2NoYXJ0IiBpZD0ic3ZnX2Zsb3djaGFydC1jaXJjbGVFbmQiPjxjaXJjbGUgc3R5bGU9InN0cm9rZS13aWR0aDogMTsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIHI9IjUiIGN5PSI1IiBjeD0iNSI+PC9jaXJjbGU+PC9tYXJrZXI+PG1hcmtlciBvcmllbnQ9ImF1dG8iIG1hcmtlckhlaWdodD0iMTEiIG1hcmtlcldpZHRoPSIxMSIgbWFya2VyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiByZWZZPSI1IiByZWZYPSItMSIgdmlld0JveD0iMCAwIDEwIDEwIiBjbGFzcz0ibWFya2VyIGZsb3djaGFydCIgaWQ9InN2Z19mbG93Y2hhcnQtY2lyY2xlU3RhcnQiPjxjaXJjbGUgc3R5bGU9InN0cm9rZS13aWR0aDogMTsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIHI9IjUiIGN5PSI1IiBjeD0iNSI+PC9jaXJjbGU+PC9tYXJrZXI+PG1hcmtlciBvcmllbnQ9ImF1dG8iIG1hcmtlckhlaWdodD0iMTEiIG1hcmtlcldpZHRoPSIxMSIgbWFya2VyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiByZWZZPSI1LjIiIHJlZlg9IjEyIiB2aWV3Qm94PSIwIDAgMTEgMTEiIGNsYXNzPSJtYXJrZXIgY3Jvc3MgZmxvd2NoYXJ0IiBpZD0ic3ZnX2Zsb3djaGFydC1jcm9zc0VuZCI+PHBhdGggc3R5bGU9InN0cm9rZS13aWR0aDogMjsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIGQ9Ik0gMSwxIGwgOSw5IE0gMTAsMSBsIC05LDkiPjwvcGF0aD48L21hcmtlcj48bWFya2VyIG9yaWVudD0iYXV0byIgbWFya2VySGVpZ2h0PSIxMSIgbWFya2VyV2lkdGg9IjExIiBtYXJrZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIHJlZlk9IjUuMiIgcmVmWD0iLTEiIHZpZXdCb3g9IjAgMCAxMSAxMSIgY2xhc3M9Im1hcmtlciBjcm9zcyBmbG93Y2hhcnQiIGlkPSJzdmdfZmxvd2NoYXJ0LWNyb3NzU3RhcnQiPjxwYXRoIHN0eWxlPSJzdHJva2Utd2lkdGg6IDI7IHN0cm9rZS1kYXNoYXJyYXk6IDEsIDA7IiBjbGFzcz0iYXJyb3dNYXJrZXJQYXRoIiBkPSJNIDEsMSBsIDksOSBNIDEwLDEgbCAtOSw5Ij48L3BhdGg+PC9tYXJrZXI+PGcgY2xhc3M9InJvb3QiPjxnIGNsYXNzPSJjbHVzdGVycyI+PC9nPjxnIGNsYXNzPSJlZGdlUGF0aHMiPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjc3ZnX2Zsb3djaGFydC1wb2ludEVuZCkiIHN0eWxlPSJmaWxsOm5vbmU7IiBjbGFzcz0iZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBmbG93Y2hhcnQtbGluayBMUy1BIExFLUIiIGlkPSJMLUEtQi0wIiBkPSJNNjYsMzZMNjYsNDAuMTY3QzY2LDQ0LjMzMyw2Niw1Mi42NjcsNjYsNjAuMTE3QzY2LDY3LjU2Nyw2Niw3NC4xMzMsNjYsNzcuNDE3TDY2LDgwLjciPjwvcGF0aD48cGF0aCBtYXJrZXItZW5kPSJ1cmwoI3N2Z19mbG93Y2hhcnQtcG9pbnRFbmQpIiBzdHlsZT0iZmlsbDpub25lOyIgY2xhc3M9ImVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsgTFMtQiBMRS1DIiBpZD0iTC1CLUMtMCIgZD0iTTY2LDEyMkw2NiwxMjYuMTY3QzY2LDEzMC4zMzMsNjYsMTM4LjY2Nyw2NiwxNDYuMTE3QzY2LDE1My41NjcsNjYsMTYwLjEzMyw2NiwxNjMuNDE3TDY2LDE2Ni43Ij48L3BhdGg+PHBhdGggbWFya2VyLWVuZD0idXJsKCNzdmdfZmxvd2NoYXJ0LXBvaW50RW5kKSIgc3R5bGU9ImZpbGw6bm9uZTsiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGZsb3djaGFydC1saW5rIExTLUMgTEUtRCIgaWQ9IkwtQy1ELTAiIGQ9Ik02NiwyMDhMNjYsMjEyLjE2N0M2NiwyMTYuMzMzLDY2LDIyNC42NjcsNjYsMjMyLjExN0M2NiwyMzkuNTY3LDY2LDI0Ni4xMzMsNjYsMjQ5LjQxN0w2NiwyNTIuNyI+PC9wYXRoPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjc3ZnX2Zsb3djaGFydC1wb2ludEVuZCkiIHN0eWxlPSJmaWxsOm5vbmU7IiBjbGFzcz0iZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBmbG93Y2hhcnQtbGluayBMUy1EIExFLUUiIGlkPSJMLUQtRS0wIiBkPSJNNjYsMjk0TDY2LDI5OC4xNjdDNjYsMzAyLjMzMyw2NiwzMTAuNjY3LDY2LDMxOC4xMTdDNjYsMzI1LjU2Nyw2NiwzMzIuMTMzLDY2LDMzNS40MTdMNjYsMzM4LjciPjwvcGF0aD48cGF0aCBtYXJrZXItZW5kPSJ1cmwoI3N2Z19mbG93Y2hhcnQtcG9pbnRFbmQpIiBzdHlsZT0iZmlsbDpub25lOyIgY2xhc3M9ImVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsgTFMtRSBMRS1GIiBpZD0iTC1FLUYtMCIgZD0iTTY2LDM4MEw2NiwzODQuMTY3QzY2LDM4OC4zMzMsNjYsMzk2LjY2Nyw2Niw0MDQuMTE3QzY2LDQxMS41NjcsNjYsNDE4LjEzMyw2Niw0MjEuNDE3TDY2LDQyNC43Ij48L3BhdGg+PHBhdGggbWFya2VyLWVuZD0idXJsKCNzdmdfZmxvd2NoYXJ0LXBvaW50RW5kKSIgc3R5bGU9ImZpbGw6bm9uZTsiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGZsb3djaGFydC1saW5rIExTLUYgTEUtRyIgaWQ9IkwtRi1HLTAiIGQ9Ik02Niw0NjZMNjYsNDcwLjE2N0M2Niw0NzQuMzMzLDY2LDQ4Mi42NjcsNjYsNDkwLjExN0M2Niw0OTcuNTY3LDY2LDUwNC4xMzMsNjYsNTA3LjQxN0w2Niw1MTAuNyI+PC9wYXRoPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVscyI+PGcgY2xhc3M9ImVkZ2VMYWJlbCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwgMCkiIGNsYXNzPSJsYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIwIiB3aWR0aD0iMCI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyB3aGl0ZS1zcGFjZTogbm93cmFwOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJlZGdlTGFiZWwiPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVsIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLCAwKSIgY2xhc3M9ImxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjAiIHdpZHRoPSIwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWwiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIiBjbGFzcz0ibGFiZWwiPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMCIgd2lkdGg9IjAiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0iZWRnZUxhYmVsIj48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgY2xhc3M9ImVkZ2VMYWJlbCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwgMCkiIGNsYXNzPSJsYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIwIiB3aWR0aD0iMCI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyB3aGl0ZS1zcGFjZTogbm93cmFwOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJlZGdlTGFiZWwiPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVsIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLCAwKSIgY2xhc3M9ImxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjAiIHdpZHRoPSIwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWwiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIiBjbGFzcz0ibGFiZWwiPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMCIgd2lkdGg9IjAiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0iZWRnZUxhYmVsIj48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PC9nPjxnIGNsYXNzPSJub2RlcyI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNjYsIDE4KSIgZGF0YS1pZD0iQSIgZGF0YS1ub2RlPSJ0cnVlIiBpZD0iZmxvd2NoYXJ0LUEtMCIgY2xhc3M9Im5vZGUgZGVmYXVsdCBkZWZhdWx0IGZsb3djaGFydC1sYWJlbCI+PHJlY3QgaGVpZ2h0PSIzNiIgd2lkdGg9Ijc5IiB5PSItMTgiIHg9Ii0zOS41IiByeT0iMCIgcng9IjAiIHN0eWxlPSIiIGNsYXNzPSJiYXNpYyBsYWJlbC1jb250YWluZXIiPjwvcmVjdD48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMzIsIC0xMC41KSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdD48L3JlY3Q+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyMSIgd2lkdGg9IjY0Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+5Lu75Yqh55uu5qCHPC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDY2LCAxMDQpIiBkYXRhLWlkPSJCIiBkYXRhLW5vZGU9InRydWUiIGlkPSJmbG93Y2hhcnQtQi0xIiBjbGFzcz0ibm9kZSBkZWZhdWx0IGRlZmF1bHQgZmxvd2NoYXJ0LWxhYmVsIj48cmVjdCBoZWlnaHQ9IjM2IiB3aWR0aD0iNzkiIHk9Ii0xOCIgeD0iLTM5LjUiIHJ5PSIwIiByeD0iMCIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciI+PC9yZWN0PjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0zMiwgLTEwLjUpIiBzdHlsZT0iIiBjbGFzcz0ibGFiZWwiPjxyZWN0PjwvcmVjdD48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjIxIiB3aWR0aD0iNjQiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj7ovpPlhaXor7TmmI48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNjYsIDE5MCkiIGRhdGEtaWQ9IkMiIGRhdGEtbm9kZT0idHJ1ZSIgaWQ9ImZsb3djaGFydC1DLTMiIGNsYXNzPSJub2RlIGRlZmF1bHQgZGVmYXVsdCBmbG93Y2hhcnQtbGFiZWwiPjxyZWN0IGhlaWdodD0iMzYiIHdpZHRoPSI3OSIgeT0iLTE4IiB4PSItMzkuNSIgcnk9IjAiIHJ4PSIwIiBzdHlsZT0iIiBjbGFzcz0iYmFzaWMgbGFiZWwtY29udGFpbmVyIj48L3JlY3Q+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTMyLCAtMTAuNSkiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3Q+PC9yZWN0Pjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjEiIHdpZHRoPSI2NCI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyB3aGl0ZS1zcGFjZTogbm93cmFwOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPue6puadn+adoeS7tjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg2NiwgMjc2KSIgZGF0YS1pZD0iRCIgZGF0YS1ub2RlPSJ0cnVlIiBpZD0iZmxvd2NoYXJ0LUQtNSIgY2xhc3M9Im5vZGUgZGVmYXVsdCBkZWZhdWx0IGZsb3djaGFydC1sYWJlbCI+PHJlY3QgaGVpZ2h0PSIzNiIgd2lkdGg9IjEzMiIgeT0iLTE4IiB4PSItNjYiIHJ5PSIwIiByeD0iMCIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciI+PC9yZWN0PjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01OC41LCAtMTAuNSkiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3Q+PC9yZWN0Pjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjEiIHdpZHRoPSIxMTciPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj7lj6/nlKjkuIrkuIvmlocv5bel5YW3PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDY2LCAzNjIpIiBkYXRhLWlkPSJFIiBkYXRhLW5vZGU9InRydWUiIGlkPSJmbG93Y2hhcnQtRS03IiBjbGFzcz0ibm9kZSBkZWZhdWx0IGRlZmF1bHQgZmxvd2NoYXJ0LWxhYmVsIj48cmVjdCBoZWlnaHQ9IjM2IiB3aWR0aD0iNzkiIHk9Ii0xOCIgeD0iLTM5LjUiIHJ5PSIwIiByeD0iMCIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciI+PC9yZWN0PjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0zMiwgLTEwLjUpIiBzdHlsZT0iIiBjbGFzcz0ibGFiZWwiPjxyZWN0PjwvcmVjdD48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjIxIiB3aWR0aD0iNjQiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj7ovpPlh7rmoLzlvI88L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNjYsIDQ0OCkiIGRhdGEtaWQ9IkYiIGRhdGEtbm9kZT0idHJ1ZSIgaWQ9ImZsb3djaGFydC1GLTkiIGNsYXNzPSJub2RlIGRlZmF1bHQgZGVmYXVsdCBmbG93Y2hhcnQtbGFiZWwiPjxyZWN0IGhlaWdodD0iMzYiIHdpZHRoPSI5NSIgeT0iLTE4IiB4PSItNDcuNSIgcnk9IjAiIHJ4PSIwIiBzdHlsZT0iIiBjbGFzcz0iYmFzaWMgbGFiZWwtY29udGFpbmVyIj48L3JlY3Q+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTQwLCAtMTAuNSkiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3Q+PC9yZWN0Pjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjEiIHdpZHRoPSI4MCI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyB3aGl0ZS1zcGFjZTogbm93cmFwOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPuekuuS+i+S4juWPjeS+izwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg2NiwgNTM0KSIgZGF0YS1pZD0iRyIgZGF0YS1ub2RlPSJ0cnVlIiBpZD0iZmxvd2NoYXJ0LUctMTEiIGNsYXNzPSJub2RlIGRlZmF1bHQgZGVmYXVsdCBmbG93Y2hhcnQtbGFiZWwiPjxyZWN0IGhlaWdodD0iMzYiIHdpZHRoPSIxMjciIHk9Ii0xOCIgeD0iLTYzLjUiIHJ5PSIwIiByeD0iMCIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciI+PC9yZWN0PjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01NiwgLTEwLjUpIiBzdHlsZT0iIiBjbGFzcz0ibGFiZWwiPjxyZWN0PjwvcmVjdD48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjIxIiB3aWR0aD0iMTEyIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+6Ieq5qOA5LiO5YGc5q2i5p2h5Lu2PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg==)
+
+一个强 prompt 通常至少包含六类信息。
+
+### 1. 任务目标
+
+模型到底要做什么。
+是总结、抽取、分类、改写、SQL 生成、规划任务、写代码，还是从证据中回答问题？
+目标必须可操作，不能只是“帮我处理一下”。
+
+差的写法：
+“请分析下面内容。”
+好的写法：
+“请从下面病历文本中抽取患者姓名、主诉、诊断、用药，并输出为 JSON。”
+
+### 2. 输入边界
+
+模型应该把哪部分内容当输入，哪部分当规则，哪部分是例子，哪部分是背景。
+分隔符、标题、小节标签、XML/JSON 包裹、Markdown heading 等都属于输入边界设计。很多模型失败，不是不会做，而是没分清“正文”和“指令”。
+
+### 3. 约束条件
+
+包括：
+
+- 不要输出什么；
+
+- 不允许编造什么；
+
+- 遇到信息不足怎么办；
+
+- 是否允许调用工具；
+
+- 是否必须严格按 schema 输出；
+
+- 是否要先提取证据再回答。
+
+约束越明确，模型越不容易自由发挥到错误方向。
+
+### 4. 输出格式
+
+这是最常被忽略，却最容易直接提升工程可用性的部分。
+你要告诉模型输出是：
+
+- 一段自然语言；
+
+- Markdown 列表；
+
+- 表格；
+
+- JSON；
+
+- 函数参数；
+
+- 带字段的多段结构。
+
+没有格式约束，后续解析和自动化都很难稳定。
+
+### 5. 示例与反例
+
+few-shot 示例不是“给模型看几个漂亮答案”，而是在告诉模型：
+
+- 任务分布长什么样；
+
+- 边界情况怎么处理；
+
+- 输出风格应该对齐什么模板；
+
+- 哪些答案算错。
+
+尤其在小模型、抽取任务、分类任务、结构化输出任务里，示例常常比空泛指令更有用。
+
+### 6. 自检与停止条件
+
+在复杂任务里，你可以让模型在输出前做一轮检查，例如：
+
+- 是否覆盖所有必填字段；
+
+- 是否所有结论都有证据；
+
+- 是否工具结果已回填；
+
+- 是否最终输出是合法 JSON。
+
+这类“轻量自检”在很多任务里比单纯写“请仔细思考”更有效。
+
+## 四、Prompt 的常见模式：面试最爱问这些
+
+### 1. Zero-shot
+
+不给示例，只给任务说明。适合规则清楚、分布简单、模型本身能力足够强的任务。
+面试里如果问 zero-shot 为什么越来越强，你可以回答：模型规模提升和 instruction tuning 让它在很多常见任务上不再严重依赖 few-shot。
+
+### 2. Few-shot
+
+给少量输入输出示例，帮助模型理解任务模式。
+它尤其适合：
+
+- label space 容易混淆的分类；
+
+- 抽取字段边界不清的任务；
+
+- 特定写作风格；
+
+- 复杂 schema 生成；
+
+- 小模型或成本敏感模型。
+
+Few-shot 的关键不是越多越好，而是示例要覆盖真实边界。
+
+### 3. Chain-of-thought / 分步提示
+
+传统做法是显式让模型“逐步思考”。它在数学、逻辑、多步决策中可能有帮助，但 2025–2026 年的一个明显趋势是：对很多新一代 reasoning 模型，不必事无巨细规定中间步骤。更好的做法往往是明确任务、约束、验收标准，把内部推理留给模型。
+所以面试里不要把 “let’s think step by step” 当成银弹，要强调：是否显式展示步骤，要看模型家族、任务类型、安全要求和成本。
+
+### 4. ReAct / 工具调用提示
+
+当模型需要“先思考、再决定是否调用工具、再根据工具结果继续”时，prompt 需要明确：
+
+- 何时调用工具；
+
+- 工具的用途和边界；
+
+- 工具失败怎么办；
+
+- 返回结果后怎么整合；
+
+- 最终给用户什么格式。
+这类 prompt 已经不是“问答文案”，而是执行逻辑说明。
+
+### 5. Critique-Revise / Self-check
+
+让模型先给草稿，再做自检和修订。
+它适合：
+
+- 长文生成；
+
+- 复杂格式输出；
+
+- 有多个验收维度的任务；
+
+- 需要降低明显遗漏的场景。
+不过注意，这种模式会增加 token 成本和延迟，不适合所有任务。
+
+## 五、Prompt Engineering 的核心原则：校招回答要讲得像工程
+
+### 原则 1：把目标写成可验收的任务
+
+“写得更专业一点”“帮我优化一下”这种描述不够可操作。
+更好的方式是把目标写成：
+
+- 目标对象；
+
+- 成功标准；
+
+- 不允许事项；
+
+- 输出格式。
+
+### 原则 2：减少隐含假设
+
+模型擅长补全，但不代表你的隐含假设都会被正确补全。
+如果读者、语气、长度、字段、格式、失败边界都不说，模型只能猜。
+Prompt 工程的本质之一，就是把你原本放在脑子里的假设尽量显式写出来。
+
+### 原则 3：分离规则、数据和示例
+
+强烈建议把 prompt 中不同性质的信息分块写：
+
+- 规则区；
+
+- 输入数据区；
+
+- 示例区；
+
+- 输出区；
+这样不仅效果更稳，也更容易维护和测试。
+
+### 原则 4：把“不知道怎么办”也写进去
+
+这是降低幻觉和错误执行的关键。
+你应该明确写：
+
+- 若证据不足，返回 cannot_answer；
+
+- 若字段缺失，返回 null 而不是编造；
+
+- 若工具失败，输出 error_reason；
+
+- 若请求越权，拒绝并说明原因。
+
+好的 prompt 不是只定义成功路径，也定义失败路径。
+
+### 原则 5：Prompt 是要测的，不是要信的
+
+真正做过项目的人都知道，prompt 看起来很合理，不代表线上就稳定。
+你需要用代表性样本去测：
+
+- 任务成功率；
+
+- 格式合法率；
+
+- 幻觉率；
+
+- 工具调用准确率；
+
+- 平均 token 和延迟；
+
+- 对边界输入的鲁棒性。
+所以 prompt engineering 本质上是 eval-driven iteration。
+
+## 六、2025–2026 的新变化：Prompt 还重要，但它不再是全部
+
+### 1. OpenAI：更强调模型家族差异与提示模式迁移
+
+OpenAI 的 reasoning best practices 和 GPT-5.4 prompt guidance 一再强调：不同模型家族行为差异明显。reasoning model 适合更明确目标与验收标准，而不是过细控制每一步；小模型则往往更需要显式约束与更具体提示。
+这意味着“一个万能 prompt 走天下”的时代已经过去，prompt 设计必须与模型选型联动。
+
+### 2. Anthropic：从 prompt engineering 走向 context engineering / harness
+
+Anthropic 在 2025 年后连续发布 prompt engineering、effective context engineering、effective harnesses for long-running agents、advanced tool use 等文章，明显在传递一个信号：
+单条 prompt 仍重要，但真正决定 Agent 表现的，是上下文怎么组织、工具怎么设计、长期任务怎么压缩状态。
+所以今天谈 prompt，不能孤立谈“这句话怎么写”，而要连同上下文、工具和任务循环一起看。
+
+### 3. Gemini：参数与提示经验开始出现家族差异
+
+Gemini 3 文档多次强调 temperature 保持 1.0 是推荐设置，低温不一定更稳。这是一个很好的提醒：prompt 和参数经验都要看模型家族，不能机械套用旧经验。
+对于多模态与结构化任务，Gemini 还把 structured output、function calling、files、long context 放在一个统一开发体系里，说明 prompt 早已不是孤立文本，而是 API 配置与上下文资产的一部分。
+
+## 七、几个非常实用的 prompt 模板思路
+
+### 1. 抽取型模板
+
+适合信息抽取、简历解析、票据解析、工单解析。
+
+关键要素：
+
+- 字段列表；
+
+- 字段含义；
+
+- 缺失时输出 null；
+
+- 不允许编造；
+
+- 输出 JSON Schema。
+
+这类任务通常温度更低、格式约束更强。
+
+### 2. 证据问答模板
+
+适合 RAG、文档问答、知识库问答。
+
+关键要素：
+
+- 只能依据给定证据回答；
+
+- 先定位证据，再形成结论；
+
+- 若证据不足明确返回无法回答；
+
+- 最终附 evidence_ids / source list。
+
+这类模板对减少幻觉特别有效。
+
+### 3. 工具调用模板
+
+适合 Agent、函数调用、自动化工作流。
+
+关键要素：
+
+- 工具说明；
+
+- 调用时机；
+
+- 输入参数约束；
+
+- 工具失败处理；
+
+- 禁止在未调用工具时假装已执行。
+
+这类模板对于降低“虚报已完成”非常关键。
+
+### 4. 评审/打分模板
+
+适合 LLM-as-a-Judge、简历评分、内容审核。
+
+关键要素：
+
+- 评分维度；
+
+- 评分等级定义；
+
+- 先列观察，再给分；
+
+- 输出 JSON 或表格；
+
+- 禁止越过给定标准自由发挥。
+
+评分任务最怕标准漂移，所以 prompt 里必须把 rubric 写清楚。
+
+## 八、高频面试题与答题要点
+
+### 问题 1：Prompt Engineering 到底是什么？
+
+它不是“和模型聊天的技巧”，而是围绕模型输入进行任务定义、约束、示例化和迭代的工程过程。
+
+### 问题 2：好的 prompt 最重要的部分是什么？
+
+最重要的是明确任务目标、约束边界和输出格式，而不是把 prompt 写得特别长或特别像自然对话。
+
+### 问题 3：Few-shot 一定比 zero-shot 好吗？
+
+不一定。强模型在常规任务上 zero-shot 已经很好；few-shot 更适合边界复杂、标签容易混淆、输出格式特殊、小模型场景。
+
+### 问题 4：为什么 prompt 要分块写？
+
+因为规则、数据、示例、输出区分清楚后，模型更容易正确解释输入，你也更容易维护和调试。
+
+### 问题 5：如何降低 prompt 导致的幻觉？
+
+显式写明证据边界、缺证据处理方式、字段缺失输出规则，并尽量提供结构化证据和输出 schema。
+
+### 问题 6：为什么不能只靠 prompt 解决一切？
+
+因为模型能力、上下文质量、工具设计、缓存预算、评测闭环同样重要。prompt 是大杠杆，但不是唯一杠杆。
+
+### 问题 7：reasoning model 的 prompt 和普通模型有什么不同？
+
+复杂 reasoning model 往往更适合明确目标和验收标准，而不是过细 micromanage；小模型则更需要显式步骤和例子。
+
+### 问题 8：prompt 改动为什么要配合评测？
+
+因为它本质上会改变模型行为，需要用数据看成功率、鲁棒性、格式合法率和成本是否真的变好。
+
+### 问题 9：Prompt Engineering 和 Context Engineering 的区别是什么？
+
+前者更偏单次提示设计与任务表达，后者更偏整个运行时上下文的选择、压缩、排序和生命周期管理。
+
+### 问题 10：项目里 prompt 一般怎么迭代？
+
+先定义数据集与指标，分析失败类型，再定向修改任务描述、约束、示例或结构化输出要求，而不是盲改措辞。
+
+## 九、常见误区
+
+第一个误区，是以为 prompt 越长越好。实际上很多长 prompt 只是把歧义放大了。
+
+第二个误区，是只会改措辞，不会改任务结构。真正有效的优化往往是重新定义目标、加格式约束、补 few-shot、改失败边界。
+
+第三个误区，是把 prompt 结果不好直接归咎于模型太弱。很多时候是任务没写清、上下文没分块、输出没约束。
+
+第四个误区，是把 prompt 视为一次性工作。生产上 prompt 必须版本化、评测化、可回滚。
+
+## 十、我的一些观点
+
+**Prompt engineering 的核心不是“写一句更聪明的话”，而是把任务、约束、证据和输出结构清楚地编排成模型能稳定执行的输入。**
+**Prompt 是要靠评测驱动迭代的产品逻辑，不应该是黑箱。**
+
+## 资料来源与延伸阅读
+
+### 官方文档
+
+1. OpenAI Prompt Engineering
+[https://developers.openai.com/api/docs/guides/prompt-engineering/](https://developers.openai.com/api/docs/guides/prompt-engineering/)
+
+2. OpenAI Prompt Guidance for GPT-5.4
+[https://developers.openai.com/api/docs/guides/prompt-guidance/](https://developers.openai.com/api/docs/guides/prompt-guidance/)
+
+3. OpenAI Best Practices for Prompt Engineering
+[https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api](https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api)
+
+4. OpenAI Reasoning Best Practices
+[https://developers.openai.com/api/docs/guides/reasoning-best-practices/](https://developers.openai.com/api/docs/guides/reasoning-best-practices/)
+
+5. Anthropic Prompt Engineering Overview
+[https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
+
+6. Gemini Prompting Strategies
+[https://ai.google.dev/gemini-api/docs/prompting-strategies](https://ai.google.dev/gemini-api/docs/prompting-strategies)
+
+7. Gemini Text Generation / Gemini 3 Guide
+[https://ai.google.dev/gemini-api/docs/text-generation](https://ai.google.dev/gemini-api/docs/text-generation)
+[https://ai.google.dev/gemini-api/docs/gemini-3](https://ai.google.dev/gemini-api/docs/gemini-3)
+
+### 论文与补充
+
+1. Brown et al., *Language Models are Few-Shot Learners*
+[https://arxiv.org/abs/2005.14165](https://arxiv.org/abs/2005.14165)
+
+2. OpenAI Cookbook: GPT-5 Prompting Guide
+[https://developers.openai.com/cookbook/examples/gpt-5/gpt-5_prompting_guide/](https://developers.openai.com/cookbook/examples/gpt-5/gpt-5_prompting_guide/)

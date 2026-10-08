@@ -1,0 +1,23 @@
+{
+  "skill_name": "knowledge-base-search",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我在学习 Python，想了解一下装饰器（decorator）是什么、怎么用。帮我从知识库里查一下。知识库在 knowledge-base-search-workspace/test-kb/ 目录下。",
+      "expected_output": "从 python/decorators.md 中找到装饰器的定义、基本语法、常见应用场景（日志、权限校验、计时、缓存），并给出代码示例。回答应标注来源文件。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "我的 MySQL 数据库查询很慢，帮我查查知识库里有关于 SQL 查询优化的内容吗？知识库路径是 knowledge-base-search-workspace/test-kb/",
+      "expected_output": "综合 sql-optimization.md 和 indexing.md 的内容，涵盖慢查询定位（EXPLAIN）、索引优化（联合索引、覆盖索引、避免索引失效）、B+树原理等。回答应引用两个来源文件。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "React Hooks 怎么用？帮我在 knowledge-base-search-workspace/test-kb/ 知识库里搜一下",
+      "expected_output": "知识库中没有 React 相关内容（只有 Vue 相关），应诚实告知未找到，给出更换关键词的建议，并提示知识库中有 Vue Composition API 的内容可能相关。",
+      "files": []
+    }
+  ]
+}

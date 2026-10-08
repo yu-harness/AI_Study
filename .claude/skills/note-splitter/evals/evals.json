@@ -1,0 +1,21 @@
+{
+  "skill_name": "note-splitter",
+  "evals": [
+    {
+      "id": 0,
+      "name": "redis-cache-split",
+      "prompt": "帮我拆分这篇笔记，拆成最小化的知识点md文件，格式跟面试题那种一样：每个文件有自测区、参考答案、相关笔记",
+      "files": [
+        ".claude/skills/note-splitter/test-inputs/Redis缓存核心知识.md"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "short-note-split",
+      "prompt": "把这篇关于Redis的笔记按知识点拆成多个md文件，要带自测和答案那种格式",
+      "files": [
+        ".claude/skills/note-splitter/test-inputs/Redis缓存核心知识.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "cssTheme": "Dracula for Obsidian",
+  "baseFontSize": 18,
+  "baseFontSizeAction": true,
+  "accentColor": "#e3e3e3",
+  "theme": "system",
+  "showRibbon": true,
+  "showViewHeader": true
+}

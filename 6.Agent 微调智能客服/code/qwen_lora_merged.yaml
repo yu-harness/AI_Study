@@ -1,0 +1,4 @@
+model_name_or_path: /root/autodl-tmp/checkpoints/agent_lora_merged/
+template: qwen
+infer_backend: vllm
+vllm_enforce_eager: true

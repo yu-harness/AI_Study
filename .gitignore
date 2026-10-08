@@ -1,0 +1,34 @@
+# 编辑器与工具配置
+.idea/
+.vscode/
+.trash/
+.codegraph/
+.reasonix/
+.claudian/
+
+# 本地二进制与大文件
+*.db
+*.pdf
+*.zip
+_docx_work/
+
+# 个人隐私材料：不纳入公开仓库
+简历/
+日记/
+
+# 简历项目素材包与笔试材料
+project/
+题目/
+D题*.docx
+
+# 第三方代码副本与本地数据
+OpenHarness/
+qdrant_db/
+
+# 付费内容与第三方文章
+读书/孙宇晨/
+知乎/
+
+# 项目已独立成仓（github.com/yu-harness/tether），笔记库不再重复跟踪
+tether/
+pico/

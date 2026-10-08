@@ -1,0 +1,283 @@
+
+# 03 上下文窗口、KV Cache 与长上下文问题 - 飞书云文档
+
+阅读目标：不仅知道context window 是什么，还要知道它为什么**贵**、为什么长上下文不等于会用长上下文，以及 KV Cache / prompt cache / context cache 各自解决什么问题。
+
+## 一、这篇在面试里考什么
+
+问上下文窗口，很多同学张口就是它表示模型一次能处理多少 token。这句话没错，但不够。面试官真正想知道的是：**你是否理解上下文预算会同时决定质量、成本、延迟和系统设计（最爱考的trade-off类问题）**。
+
+**第一，面试官会看你是否区分能放进去和能用得好**。主流商用模型到 2026 年已经普遍支持几十万到百万级上下文，但学术和工业实践都在提醒我们：长窗口能力不等于对长窗口中每一段信息都**同等**敏感。Lost in the Middle 这类研究说明，把关键信息放在长上下文中间位置时，模型利用效果可能明显下降。也就是说，长上下文是容量问题，长上下文**利用率**是**检索与注意力分配**问题，这两者不能混为一谈。
+
+**第二，面试官想看你是否知道推理时最贵的部分之一是什么**。很多人只关心模型参数量，却忽略了**序列越长，前缀计算与 KV Cache 占用**也越重。特别是在线推理服务里，长上下文不仅提高 token 账单，还会拉高**首 token 延迟，压缩并发能力**。所以上下文越大越好的说法非常外行。
+
+**第三，这一题常常被用来过渡到缓存与优化**。真正做过系统的同学会知道，长上下文时代最重要的工程技巧之一就是不要**重复算同样的前缀**。这背后就牵涉 **KV Cache、prefix caching、prompt caching、context caching**。它们名字像，但层次不同：有的是模型解码时的内部状态缓存，有的是服务端对重复前缀的复用策略，有的是应用层显式把大块上下文缓存成可复用对象。面试官问你这些概念，就是在看你有没有把推理服务、应用接口和成本控制串起来。
+
+**第四，长上下文问题还会自然连到 RAG、memory、context engineering**。因为一旦你真正理解上下文预算有限、注意力分布不均、缓存成本可观，你就会知道为什么不能把整个知识库一股脑塞进 prompt，为什么需要**检索、重排、摘要、压缩和按需加载**。
+
+你可以这样结合项目描述，让面试官觉得你是对这一块有独立思考的：
+
+我们的业务一开始尝试把整篇文档直接塞进模型，但发现首 token 延迟明显上升，而且回答对中间章节引用不稳定。后来我们把**系统 prompt、工具定义、产品规则做成稳定前缀**，通过 prompt caching 提高**命中率**；知识内容则走**检索与重排**，只把高相关片段放进本轮上下文。多轮会话里再把**早期历史压缩成结构化 summary/state**，避免上下文越聊越脏。这样做后，质量、延迟和成本都更可控。
+
+## 二、先建立一个工程视角的全景图
+
+理解长上下文，最关键是区分 **prefill 和 decode**。
+- **Prefill**：模型先把整段已有上下文都读一遍，为每一层生成 **K/V 状态**。上下文越长，prefill 通常越重，TTFT（首 token 延迟）越高。
+- **Decode**：之后每生成一个新 token，只需要基于历史缓存继续算新增部分。这个阶段 KV Cache 会极大降低重复计算。
+
+所以如果面试官问为什么超长 prompt 首 token 慢，你就从 prefill 讲起；如果问为什么 KV Cache 能提速，你就从 decode 阶段避免重复计算讲起。把这两部分分清楚，回答会非常专业。
+
+## 三、什么是上下文窗口，为什么它不是一个单纯的数字
+
+### 1. 定义：一次请求中模型可处理的总 token 预算
+
+上下文窗口（context window）通常指模型在一次请求中能处理的 token 总预算。这个预算一般同时**覆盖输入和输出**，某些平台还会受到 reasoning token、工具消息、系统提示等隐性成本影响。很多初学者只记住某模型是 128k/400k/1M，但真正线上做系统时，你要问的是：
+
+- **系统提示词**占了多少；
+- **历史对话**占了多少；
+- **检索资料**占了多少；
+- **工具 schema** 和**工具结果**占了多少；
+- 还要给输**出预留多少**。
+
+也就是说，context window 不是你能塞进去的文档大小，而是整个会话状态的**预算上限**。
+
+### 2. Token 预算是系统资源，不是无成本便利
+
+OpenAI、Anthropic、Gemini 等平台都在文档里强调 token 成本；Gemini 与 Anthropic 还分别提供 context/prompt caching 机制，OpenAI 则在新文档里强调 prompt caching 与 compaction。为什么大家都在做这些事？因为长上下文太贵了，而且越来越成为真实应用的主要瓶颈之一。
+
+你在面试里最好能明确指出两个成本：
+
+- **显性成本**：**token 计费**；
+- **隐性成本**：**显存占用**、**并发下降**、**首 token 延迟增加**。
+
+只会说会更贵是不够的，更好的表达是：更长输入不仅提高计费，还增加 prefill 计算与 KV Cache 占用，影响 TTFT 和吞吐，因此长上下文设计一定是**质量与性能**的平衡问题。
+
+
+## 四、KV Cache 到底是什么
+
+### 1. 直觉解释
+
+在自回归生成中，如果每生成一个新 token 都把前面全部上下文从头算一遍，那代价会极大。KV Cache 的核心思想就是：在 previous tokens 已经算过的情况下，把各层 attention 需要的 Key 和 Value 状态缓存起来。下一步只需要为新 token 计算 Query，并与历史的 K/V 交互，就能继续生成。
+
+你可以把它理解成：
+历史读过的书页先做成索引，下次不再整本重读，只增量读新的一页。
+
+### 2. 为什么它重要
+
+KV Cache 直接决定：
+
+- 解码速度；
+
+- 显存占用；
+
+- 最大并发；
+
+- 可支持的有效上下文长度。
+
+Google 关于 tiered KV cache 的工程文章直接指出，KV Cache 的 GPU 显存占用会成为上下文长度、并发度和总体吞吐的关键瓶颈。Hugging Face 的缓存文档也把动态缓存、静态缓存、量化缓存、offloading 等策略作为生成性能优化的重要主题。也就是说，今天的推理服务优化，很多时候已经不是算力够不够，而是KV Cache 怎么放、怎么复用、怎么迁移的问题。
+
+### 3. KV Cache 与 Prompt Caching 不是一回事
+
+这是面试非常爱问的点。
+
+- **KV Cache**：通常指单次生成或持续会话中的模型内部状态缓存，主要优化 decode 过程。
+
+- **Prefix / Prompt Caching**：通常指当不同请求共享相同前缀时，服务端或框架复用已算过的前缀结果，避免重复 prefill。
+
+- **Context Caching**：更多是应用层或 API 层对大块上下文的显式缓存引用，例如 Google Gemini/Vertex 的 cache object。
+
+你如果能清楚地区分模型内部状态缓存和跨请求前缀复用，面试官一般会默认你看过推理框架或官方文档。
+
+## 五、Prefix Caching / Prompt Caching / Context Caching的区别
+
+![test.jpg](data:text/plain;base64,PHN2ZyBhcmlhLXJvbGVkZXNjcmlwdGlvbj0iZmxvd2NoYXJ0LXYyIiByb2xlPSJncmFwaGljcy1kb2N1bWVudCBkb2N1bWVudCIgdmlld0JveD0iLTggLTggMzI4IDQ4MiIgc3R5bGU9Im1heC13aWR0aDogMzI4cHg7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMjgiIGlkPSJzdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBoZWlnaHQ9IjQ4MiI+PHN0eWxlPiNzdmd7Zm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxNnB4O2ZpbGw6IzMzMzt9I3N2ZyAuZXJyb3ItaWNvbntmaWxsOiM1NTIyMjI7fSNzdmcgLmVycm9yLXRleHR7ZmlsbDojNTUyMjIyO3N0cm9rZTojNTUyMjIyO30jc3ZnIC5lZGdlLXRoaWNrbmVzcy1ub3JtYWx7c3Ryb2tlLXdpZHRoOjJweDt9I3N2ZyAuZWRnZS10aGlja25lc3MtdGhpY2t7c3Ryb2tlLXdpZHRoOjMuNXB4O30jc3ZnIC5lZGdlLXBhdHRlcm4tc29saWR7c3Ryb2tlLWRhc2hhcnJheTowO30jc3ZnIC5lZGdlLXBhdHRlcm4tZGFzaGVke3N0cm9rZS1kYXNoYXJyYXk6Mzt9I3N2ZyAuZWRnZS1wYXR0ZXJuLWRvdHRlZHtzdHJva2UtZGFzaGFycmF5OjI7fSNzdmcgLm1hcmtlcntmaWxsOiMzMzMzMzM7c3Ryb2tlOiMzMzMzMzM7fSNzdmcgLm1hcmtlci5jcm9zc3tzdHJva2U6IzMzMzMzMzt9I3N2ZyBzdmd7Zm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxNnB4O30jc3ZnIC5sYWJlbHtmb250LWZhbWlseToidHJlYnVjaGV0IG1zIix2ZXJkYW5hLGFyaWFsLHNhbnMtc2VyaWY7Y29sb3I6IzMzMzt9I3N2ZyAuY2x1c3Rlci1sYWJlbCB0ZXh0e2ZpbGw6IzMzMzt9I3N2ZyAuY2x1c3Rlci1sYWJlbCBzcGFuLCNzdmcgcHtjb2xvcjojMzMzO30jc3ZnIC5sYWJlbCB0ZXh0LCNzdmcgc3Bhbiwjc3ZnIHB7ZmlsbDojMzMzO2NvbG9yOiMzMzM7fSNzdmcgLm5vZGUgcmVjdCwjc3ZnIC5ub2RlIGNpcmNsZSwjc3ZnIC5ub2RlIGVsbGlwc2UsI3N2ZyAubm9kZSBwb2x5Z29uLCNzdmcgLm5vZGUgcGF0aHtmaWxsOiNFQ0VDRkY7c3Ryb2tlOiM5MzcwREI7c3Ryb2tlLXdpZHRoOjFweDt9I3N2ZyAuZmxvd2NoYXJ0LWxhYmVsIHRleHR7dGV4dC1hbmNob3I6bWlkZGxlO30jc3ZnIC5ub2RlIC5rYXRleCBwYXRoe2ZpbGw6IzAwMDtzdHJva2U6IzAwMDtzdHJva2Utd2lkdGg6MXB4O30jc3ZnIC5ub2RlIC5sYWJlbHt0ZXh0LWFsaWduOmNlbnRlcjt9I3N2ZyAubm9kZS5jbGlja2FibGV7Y3Vyc29yOnBvaW50ZXI7fSNzdmcgLmFycm93aGVhZFBhdGh7ZmlsbDojMzMzMzMzO30jc3ZnIC5lZGdlUGF0aCAucGF0aHtzdHJva2U6IzMzMzMzMztzdHJva2Utd2lkdGg6Mi4wcHg7fSNzdmcgLmZsb3djaGFydC1saW5re3N0cm9rZTojMzMzMzMzO2ZpbGw6bm9uZTt9I3N2ZyAuZWRnZUxhYmVse2JhY2tncm91bmQtY29sb3I6I2U4ZThlODt0ZXh0LWFsaWduOmNlbnRlcjt9I3N2ZyAuZWRnZUxhYmVsIHJlY3R7b3BhY2l0eTowLjU7YmFja2dyb3VuZC1jb2xvcjojZThlOGU4O2ZpbGw6I2U4ZThlODt9I3N2ZyAubGFiZWxCa2d7YmFja2dyb3VuZC1jb2xvcjpyZ2JhKDIzMiwgMjMyLCAyMzIsIDAuNSk7fSNzdmcgLmNsdXN0ZXIgcmVjdHtmaWxsOiNmZmZmZGU7c3Ryb2tlOiNhYWFhMzM7c3Ryb2tlLXdpZHRoOjFweDt9I3N2ZyAuY2x1c3RlciB0ZXh0e2ZpbGw6IzMzMzt9I3N2ZyAuY2x1c3RlciBzcGFuLCNzdmcgcHtjb2xvcjojMzMzO30jc3ZnIGRpdi5tZXJtYWlkVG9vbHRpcHtwb3NpdGlvbjphYnNvbHV0ZTt0ZXh0LWFsaWduOmNlbnRlcjttYXgtd2lkdGg6MjAwcHg7cGFkZGluZzoycHg7Zm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO2ZvbnQtc2l6ZToxMnB4O2JhY2tncm91bmQ6aHNsKDgwLCAxMDAlLCA5Ni4yNzQ1MDk4MDM5JSk7Ym9yZGVyOjFweCBzb2xpZCAjYWFhYTMzO2JvcmRlci1yYWRpdXM6MnB4O3BvaW50ZXItZXZlbnRzOm5vbmU7ei1pbmRleDoxMDA7fSNzdmcgLmZsb3djaGFydFRpdGxlVGV4dHt0ZXh0LWFuY2hvcjptaWRkbGU7Zm9udC1zaXplOjE4cHg7ZmlsbDojMzMzO30jc3ZnIC50b2RheXtkaXNwbGF5Om5vbmU7fSNzdmcgLmxhYmVsIGZvcmVpZ25PYmplY3R7b3ZlcmZsb3c6dmlzaWJsZTt9I3N2ZyA6cm9vdHstLW1lcm1haWQtZm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO308L3N0eWxlPjxnPjxtYXJrZXIgb3JpZW50PSJhdXRvIiBtYXJrZXJIZWlnaHQ9IjEyIiBtYXJrZXJXaWR0aD0iMTIiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcmVmWT0iNSIgcmVmWD0iNiIgdmlld0JveD0iMCAwIDEwIDEwIiBjbGFzcz0ibWFya2VyIGZsb3djaGFydCIgaWQ9InN2Z19mbG93Y2hhcnQtcG9pbnRFbmQiPjxwYXRoIHN0eWxlPSJzdHJva2Utd2lkdGg6IDE7IHN0cm9rZS1kYXNoYXJyYXk6IDEsIDA7IiBjbGFzcz0iYXJyb3dNYXJrZXJQYXRoIiBkPSJNIDAgMCBMIDEwIDUgTCAwIDEwIHoiPjwvcGF0aD48L21hcmtlcj48bWFya2VyIG9yaWVudD0iYXV0byIgbWFya2VySGVpZ2h0PSIxMiIgbWFya2VyV2lkdGg9IjEyIiBtYXJrZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIHJlZlk9IjUiIHJlZlg9IjQuNSIgdmlld0JveD0iMCAwIDEwIDEwIiBjbGFzcz0ibWFya2VyIGZsb3djaGFydCIgaWQ9InN2Z19mbG93Y2hhcnQtcG9pbnRTdGFydCI+PHBhdGggc3R5bGU9InN0cm9rZS13aWR0aDogMTsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIGQ9Ik0gMCA1IEwgMTAgMTAgTCAxMCAwIHoiPjwvcGF0aD48L21hcmtlcj48bWFya2VyIG9yaWVudD0iYXV0byIgbWFya2VySGVpZ2h0PSIxMSIgbWFya2VyV2lkdGg9IjExIiBtYXJrZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIHJlZlk9IjUiIHJlZlg9IjExIiB2aWV3Qm94PSIwIDAgMTAgMTAiIGNsYXNzPSJtYXJrZXIgZmxvd2NoYXJ0IiBpZD0ic3ZnX2Zsb3djaGFydC1jaXJjbGVFbmQiPjxjaXJjbGUgc3R5bGU9InN0cm9rZS13aWR0aDogMTsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIHI9IjUiIGN5PSI1IiBjeD0iNSI+PC9jaXJjbGU+PC9tYXJrZXI+PG1hcmtlciBvcmllbnQ9ImF1dG8iIG1hcmtlckhlaWdodD0iMTEiIG1hcmtlcldpZHRoPSIxMSIgbWFya2VyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiByZWZZPSI1IiByZWZYPSItMSIgdmlld0JveD0iMCAwIDEwIDEwIiBjbGFzcz0ibWFya2VyIGZsb3djaGFydCIgaWQ9InN2Z19mbG93Y2hhcnQtY2lyY2xlU3RhcnQiPjxjaXJjbGUgc3R5bGU9InN0cm9rZS13aWR0aDogMTsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIHI9IjUiIGN5PSI1IiBjeD0iNSI+PC9jaXJjbGU+PC9tYXJrZXI+PG1hcmtlciBvcmllbnQ9ImF1dG8iIG1hcmtlckhlaWdodD0iMTEiIG1hcmtlcldpZHRoPSIxMSIgbWFya2VyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiByZWZZPSI1LjIiIHJlZlg9IjEyIiB2aWV3Qm94PSIwIDAgMTEgMTEiIGNsYXNzPSJtYXJrZXIgY3Jvc3MgZmxvd2NoYXJ0IiBpZD0ic3ZnX2Zsb3djaGFydC1jcm9zc0VuZCI+PHBhdGggc3R5bGU9InN0cm9rZS13aWR0aDogMjsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIGQ9Ik0gMSwxIGwgOSw5IE0gMTAsMSBsIC05LDkiPjwvcGF0aD48L21hcmtlcj48bWFya2VyIG9yaWVudD0iYXV0byIgbWFya2VySGVpZ2h0PSIxMSIgbWFya2VyV2lkdGg9IjExIiBtYXJrZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIHJlZlk9IjUuMiIgcmVmWD0iLTEiIHZpZXdCb3g9IjAgMCAxMSAxMSIgY2xhc3M9Im1hcmtlciBjcm9zcyBmbG93Y2hhcnQiIGlkPSJzdmdfZmxvd2NoYXJ0LWNyb3NzU3RhcnQiPjxwYXRoIHN0eWxlPSJzdHJva2Utd2lkdGg6IDI7IHN0cm9rZS1kYXNoYXJyYXk6IDEsIDA7IiBjbGFzcz0iYXJyb3dNYXJrZXJQYXRoIiBkPSJNIDEsMSBsIDksOSBNIDEwLDEgbCAtOSw5Ij48L3BhdGg+PC9tYXJrZXI+PGcgY2xhc3M9InJvb3QiPjxnIGNsYXNzPSJjbHVzdGVycyI+PC9nPjxnIGNsYXNzPSJlZGdlUGF0aHMiPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjc3ZnX2Zsb3djaGFydC1wb2ludEVuZCkiIHN0eWxlPSJmaWxsOm5vbmU7IiBjbGFzcz0iZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBmbG93Y2hhcnQtbGluayBMUy1BIExFLUIiIGlkPSJMLUEtQi0wIiBkPSJNMTU2LDM2TDE1Niw0MC4xNjdDMTU2LDQ0LjMzMywxNTYsNTIuNjY3LDE1Niw2MC4xMTdDMTU2LDY3LjU2NywxNTYsNzQuMTMzLDE1Niw3Ny40MTdMMTU2LDgwLjciPjwvcGF0aD48cGF0aCBtYXJrZXItZW5kPSJ1cmwoI3N2Z19mbG93Y2hhcnQtcG9pbnRFbmQpIiBzdHlsZT0iZmlsbDpub25lOyIgY2xhc3M9ImVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsgTFMtQiBMRS1DIiBpZD0iTC1CLUMtMCIgZD0iTTE1NiwxMjJMMTU2LDEyNi4xNjdDMTU2LDEzMC4zMzMsMTU2LDEzOC42NjcsMTU2LDE0Ni4xMTdDMTU2LDE1My41NjcsMTU2LDE2MC4xMzMsMTU2LDE2My40MTdMMTU2LDE2Ni43Ij48L3BhdGg+PHBhdGggbWFya2VyLWVuZD0idXJsKCNzdmdfZmxvd2NoYXJ0LXBvaW50RW5kKSIgc3R5bGU9ImZpbGw6bm9uZTsiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGZsb3djaGFydC1saW5rIExTLUMgTEUtRCIgaWQ9IkwtQy1ELTAiIGQ9Ik0xNTYsMjA4TDE1NiwyMTIuMTY3QzE1NiwyMTYuMzMzLDE1NiwyMjQuNjY3LDE1NiwyMzIuMTE3QzE1NiwyMzkuNTY3LDE1NiwyNDYuMTMzLDE1NiwyNDkuNDE3TDE1NiwyNTIuNyI+PC9wYXRoPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjc3ZnX2Zsb3djaGFydC1wb2ludEVuZCkiIHN0eWxlPSJmaWxsOm5vbmU7IiBjbGFzcz0iZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBmbG93Y2hhcnQtbGluayBMUy1EIExFLUUiIGlkPSJMLUQtRS0wIiBkPSJNMTU2LDI5NEwxNTYsMjk4LjE2N0MxNTYsMzAyLjMzMywxNTYsMzEwLjY2NywxNTYsMzE4LjExN0MxNTYsMzI1LjU2NywxNTYsMzMyLjEzMywxNTYsMzM1LjQxN0wxNTYsMzM4LjciPjwvcGF0aD48cGF0aCBtYXJrZXItZW5kPSJ1cmwoI3N2Z19mbG93Y2hhcnQtcG9pbnRFbmQpIiBzdHlsZT0iZmlsbDpub25lOyIgY2xhc3M9ImVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsgTFMtRSBMRS1GIiBpZD0iTC1FLUYtMCIgZD0iTTE1NiwzODBMMTU2LDM4NC4xNjdDMTU2LDM4OC4zMzMsMTU2LDM5Ni42NjcsMTU2LDQwNC4xMTdDMTU2LDQxMS41NjcsMTU2LDQxOC4xMzMsMTU2LDQyMS40MTdMMTU2LDQyNC43Ij48L3BhdGg+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWxzIj48ZyBjbGFzcz0iZWRnZUxhYmVsIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLCAwKSIgY2xhc3M9ImxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjAiIHdpZHRoPSIwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWwiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIiBjbGFzcz0ibGFiZWwiPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMCIgd2lkdGg9IjAiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0iZWRnZUxhYmVsIj48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgY2xhc3M9ImVkZ2VMYWJlbCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwgMCkiIGNsYXNzPSJsYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIwIiB3aWR0aD0iMCI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyB3aGl0ZS1zcGFjZTogbm93cmFwOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJlZGdlTGFiZWwiPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVsIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLCAwKSIgY2xhc3M9ImxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjAiIHdpZHRoPSIwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWwiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIiBjbGFzcz0ibGFiZWwiPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMCIgd2lkdGg9IjAiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0iZWRnZUxhYmVsIj48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PC9nPjxnIGNsYXNzPSJub2RlcyI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTU2LCAxOCkiIGRhdGEtaWQ9IkEiIGRhdGEtbm9kZT0idHJ1ZSIgaWQ9ImZsb3djaGFydC1BLTAiIGNsYXNzPSJub2RlIGRlZmF1bHQgZGVmYXVsdCBmbG93Y2hhcnQtbGFiZWwiPjxyZWN0IGhlaWdodD0iMzYiIHdpZHRoPSIzMTIiIHk9Ii0xOCIgeD0iLTE1NiIgcnk9IjAiIHJ4PSIwIiBzdHlsZT0iIiBjbGFzcz0iYmFzaWMgbGFiZWwtY29udGFpbmVyIj48L3JlY3Q+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTE0OC41LCAtMTAuNSkiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3Q+PC9yZWN0Pjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjEiIHdpZHRoPSIyOTciPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj7lm7rlrprns7vnu5/mj5DnpLror40v5bel5YW3c2NoZW1hL+mVv+aWh+aho+WJjee8gDwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTYsIDEwNCkiIGRhdGEtaWQ9IkIiIGRhdGEtbm9kZT0idHJ1ZSIgaWQ9ImZsb3djaGFydC1CLTEiIGNsYXNzPSJub2RlIGRlZmF1bHQgZGVmYXVsdCBmbG93Y2hhcnQtbGFiZWwiPjxyZWN0IGhlaWdodD0iMzYiIHdpZHRoPSIxNDUiIHk9Ii0xOCIgeD0iLTcyLjUiIHJ5PSIwIiByeD0iMCIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciI+PC9yZWN0PjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC02NSwgLTEwLjUpIiBzdHlsZT0iIiBjbGFzcz0ibGFiZWwiPjxyZWN0PjwvcmVjdD48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjIxIiB3aWR0aD0iMTMwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+6aaW5qyh6K+35rGC5YGaIFByZWZpbGw8L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTU2LCAxOTApIiBkYXRhLWlkPSJDIiBkYXRhLW5vZGU9InRydWUiIGlkPSJmbG93Y2hhcnQtQy0zIiBjbGFzcz0ibm9kZSBkZWZhdWx0IGRlZmF1bHQgZmxvd2NoYXJ0LWxhYmVsIj48cmVjdCBoZWlnaHQ9IjM2IiB3aWR0aD0iMjIzIiB5PSItMTgiIHg9Ii0xMTEuNSIgcnk9IjAiIHJ4PSIwIiBzdHlsZT0iIiBjbGFzcz0iYmFzaWMgbGFiZWwtY29udGFpbmVyIj48L3JlY3Q+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTEwNCwgLTEwLjUpIiBzdHlsZT0iIiBjbGFzcz0ibGFiZWwiPjxyZWN0PjwvcmVjdD48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjIxIiB3aWR0aD0iMjA4Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+55Sf5oiQ57yT5a2Y5a+56LGh5oiW5YmN57yAIEtWIOeKtuaAgTwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTYsIDI3NikiIGRhdGEtaWQ9IkQiIGRhdGEtbm9kZT0idHJ1ZSIgaWQ9ImZsb3djaGFydC1ELTUiIGNsYXNzPSJub2RlIGRlZmF1bHQgZGVmYXVsdCBmbG93Y2hhcnQtbGFiZWwiPjxyZWN0IGhlaWdodD0iMzYiIHdpZHRoPSIxOTEiIHk9Ii0xOCIgeD0iLTk1LjUiIHJ5PSIwIiByeD0iMCIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciI+PC9yZWN0PjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC04OCwgLTEwLjUpIiBzdHlsZT0iIiBjbGFzcz0ibGFiZWwiPjxyZWN0PjwvcmVjdD48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjIxIiB3aWR0aD0iMTc2Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IHdoaXRlLXNwYWNlOiBub3dyYXA7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+5ZCO57ut6K+35rGC6Iul5YWx5Lqr55u45ZCM5YmN57yAPC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE1NiwgMzYyKSIgZGF0YS1pZD0iRSIgZGF0YS1ub2RlPSJ0cnVlIiBpZD0iZmxvd2NoYXJ0LUUtNyIgY2xhc3M9Im5vZGUgZGVmYXVsdCBkZWZhdWx0IGZsb3djaGFydC1sYWJlbCI+PHJlY3QgaGVpZ2h0PSIzNiIgd2lkdGg9IjE0MyIgeT0iLTE4IiB4PSItNzEuNSIgcnk9IjAiIHJ4PSIwIiBzdHlsZT0iIiBjbGFzcz0iYmFzaWMgbGFiZWwtY29udGFpbmVyIj48L3JlY3Q+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTY0LCAtMTAuNSkiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3Q+PC9yZWN0Pjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjEiIHdpZHRoPSIxMjgiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IGlubGluZS1ibG9jazsgd2hpdGUtc3BhY2U6IG5vd3JhcDsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj7ot7Pov4fph43lpI3liY3nvIDorqHnrpc8L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTU2LCA0NDgpIiBkYXRhLWlkPSJGIiBkYXRhLW5vZGU9InRydWUiIGlkPSJmbG93Y2hhcnQtRi05IiBjbGFzcz0ibm9kZSBkZWZhdWx0IGRlZmF1bHQgZmxvd2NoYXJ0LWxhYmVsIj48cmVjdCBoZWlnaHQ9IjM2IiB3aWR0aD0iMTI3IiB5PSItMTgiIHg9Ii02My41IiByeT0iMCIgcng9IjAiIHN0eWxlPSIiIGNsYXNzPSJiYXNpYyBsYWJlbC1jb250YWluZXIiPjwvcmVjdD48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNTYsIC0xMC41KSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdD48L3JlY3Q+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyMSIgd2lkdGg9IjExMiI+PGRpdiBzdHlsZT0iZGlzcGxheTogaW5saW5lLWJsb2NrOyB3aGl0ZS1zcGFjZTogbm93cmFwOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPuWPquiuoeeul+aWsOWinumDqOWIhjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48L2c+PC9nPjwvZz48L3N2Zz4=)
+
+### 1. Prefix Caching
+
+vLLM 文档把 automatic prefix caching 解释得非常直接：如果新请求与历史请求共享同样的前缀，就可以直接复用前缀对应的 KV 块，跳过共享部分的计算。vLLM 甚至明确指出，这种复用已经被很多公有端点和开源推理框架广泛使用，因为它几乎不改变输出，却能显著降延迟。
+
+这对应用开发的启示是：
+如果你的系统 prompt、工具 schema、产品规范、长文档前言高度稳定，就应该尽量把稳定前缀做成可缓存结构，而不是每次重新拼接一大坨略有差异的文本，白白浪费缓存命中率。
+
+### 2. OpenAI Prompt Caching
+
+OpenAI 文档已把 Prompt Caching 作为正式指南，说明 recent models 会自动启用缓存，并在 pricing 中区分 input 与 cached input 价格。这意味着从产品角度看，提示词工程不再只是怎么写得对，还变成怎么写得能命中缓存。比如频繁改动系统提示词、随机插入无关 metadata、把稳定前缀和用户动态输入混在一起，都可能降低缓存收益。
+
+### 3. Anthropic Prompt Caching
+
+Anthropic 文档在 2025–2026 年进一步细化了 prompt caching，支持 automatic caching，并明确说明 tools、system、user/assistant content、图像与文档、tool use/result 等大量内容都可以成为缓存对象。这个设计非常适合 Agent：因为 Agent 的系统提示、工具定义、权限说明、项目背景等通常都比较稳定，真正变化的是用户请求和局部上下文。
+
+### 4. Gemini / Vertex Context Caching
+
+Google Gemini 和 Vertex AI 文档强调 explicit caching：你可以先把一大块文本、音频、视频或文档缓存起来，后续请求引用该缓存对象，并只附加少量本轮输入。它更像把大上下文存成一个可复用资产，适合多轮围绕同一大文档做问答、分析或生成。Gemini 还支持 TTL 概念，说明 cache 不是永久资产，而是受生命周期管理的资源。
+
+## 六、长上下文为什么不一定真的有用
+
+### 1. Lost in the Middle：中间位置的信息最容易被忽略
+
+《Lost in the Middle》是长上下文讨论里最经典的论文之一。它指出，很多长上下文模型在需要从很长输入中找到关键信息时，效果对位置信息非常敏感：开头和结尾的内容往往更容易被利用，而中间部分可能被显著忽略。这个现象对应用设计的启发非常直接：
+
+- 不要把最关键证据埋在长 prompt 正中间；
+
+- 长文档问答不要只靠整篇塞入，最好结合检索和重排；
+
+- 最重要的信息应该尽量靠前、靠后或被显式标记；
+
+- 单纯扩大窗口不能替代检索质量。
+
+面试里如果问为什么 1M context 还要做 RAG，这就是最标准的回答素材。
+
+### 2. 上下文污染与注意力稀释
+
+上下文太长会带来另一个问题：噪声变多。无关历史对话、重复片段、失效工具结果、多个版本冲突的业务规则，都可能污染模型判断。很多线上系统不是上下文不够，而是上下文太脏。这时候真正需要的不是更大窗口，而是更好的上下文治理。
+
+### 3. 长上下文与多轮会话并不等价
+
+有些同学以为模型有百万窗口，就可以无限聊。但多轮会话除了窗口上限，还有状态漂移、历史冲突、旧指令污染、缓存失效、工具结果过时等问题。到 2025–2026 年，OpenAI 的 Responses compaction、Anthropic 的 context management、Gemini Live 的 session summary 等新能力都在说明：长会话要靠摘要、压缩、状态管理，不是简单无限堆历史消息。
+
+## 七、长上下文的常见优化思路
+
+### 1. 检索优先，而不是全量塞入
+
+如果任务是从几十万字文档中找特定证据，最优策略往往是先检索、再精选片段、再按顺序组织，而不是把整本文件直接塞给模型。大窗口降低了必须极致裁剪的压力，但并没有消灭检索与重排的必要性。
+
+### 2. 结构化组织比原文堆叠更重要
+
+把上下文分成：
+
+- 任务目标；
+
+- 关键事实；
+
+- 规则约束；
+
+- few-shot 示例；
+
+- 工具列表；
+
+- 候选证据；
+
+- 输出 schema；
+
+通常比把十段文档原文依次贴上去效果更好。这其实已经进入 context engineering 的范畴：不是喂更多，而是喂得更有结构。
+
+### 3. 显式压缩与会话总结
+
+对于多轮对话，保留全部历史往往既贵又脏。更常见做法是：
+
+- 只保留最近若干轮原文；
+
+- 早期历史压缩成 summary/state；
+
+- 把已完成的步骤用户偏好待办约束提取成结构化状态；
+
+- 必要时做 compaction。
+
+### 4. 让前缀稳定，提高缓存命中率
+
+这是一条非常工程化、也非常容易在面试中脱颖而出的经验。
+很多系统 prompt、权限说明、工具 schema、产品规则明明是稳定的，却每轮都加时间戳、随机 request id、无意义换行或顺序扰动，导致 prompt cache 很难命中。
+真正懂系统的人会主动把稳定前缀和动态后缀拆开设计。
+
+## 八、高频面试题与答题要点
+
+### 问题 1：什么是 context window？
+
+一次请求里模型可处理的总 token 预算，通常覆盖输入与输出，也会受到系统提示、工具消息、历史对话等共同占用。
+
+### 问题 2：上下文窗口越大越好吗？
+
+不一定。更大窗口意味着更高成本、更高首 token 延迟、更大缓存压力，而且模型对长上下文的利用率未必线性提升。
+
+### 问题 3：为什么长 prompt 首 token 会慢？
+
+因为 prefill 需要先对整段前缀做计算并生成各层缓存，上下文越长，prefill 通常越慢。
+
+### 问题 4：KV Cache 是什么？
+
+是自回归生成时缓存历史 token 的 Key/Value 状态，避免每一步都从头计算历史上下文。
+
+### 问题 5：KV Cache 和 prompt cache 有什么区别？
+
+KV Cache 更偏单次生成内部状态；prompt/prefix cache 更偏跨请求前缀复用；context cache 则常是 API 层显式缓存大块输入。
+
+### 问题 6：为什么有了 1M context 还要做 RAG？
+
+因为长上下文并不保证高效利用，关键证据可能被埋没；而 RAG 能减少噪声、提升证据密度、降低成本。
+
+### 问题 7：Lost in the Middle 说明了什么？
+
+说明模型对长上下文中不同位置的信息利用并不均衡，中间位置的关键信息更可能被忽略。
+
+### 问题 8：为什么缓存能降成本？
+
+因为重复前缀不必重新 prefill，既减少计算也减少部分输入计费，并改善延迟。
+
+### 问题 9：长会话为什么需要 compaction / summary？
+
+因为无限保留原始历史会带来窗口占用、噪声累积、旧状态污染和成本上升。
+
+### 问题 10：项目里如何提高缓存命中率？
+
+稳定 system prompt 和工具 schema，减少无意义动态字段，把固定前缀与用户动态输入分离。
+
+## 十、常见误区
+
+第一个误区，是把上下文窗口当成模型记忆力指标。窗口只是可处理容量，不等于稳定记忆与长期状态。
+
+第二个误区，是把 KV Cache 说成把之前答案缓存住。其实它缓存的是中间 attention 所需状态，不是自然语言文本本身。
+
+第三个误区，是认为 prompt 越长越充分。实际上很多任务在关键信息密度更高、噪声更低时效果更好。
+
+第四个误区，是只看 token 费用，不看并发与显存。真正线上服务常常先被 KV Cache 和 TTFT 拖垮，而不是先被账单拖垮。
+
+## 十一、截至 2026-04 的现代趋势
+
+截至 2026 年，长上下文已经从模型参数表上的卖点变成应用系统的常规约束。OpenAI 模型页面已经把数十万到百万级 context window 作为新一代模型的常见能力，并提供 prompt caching 与 compaction 相关能力；Anthropic 不仅提供 prompt caching，还在模型能力描述里暴露 context management/compact 支持；Google Gemini 则同时把 long context、thinking、structured outputs、function calling、context caching 放进第一层开发文档中。行业在告诉你一件事：
+**大窗口不是终点，围绕大窗口做状态治理、缓存复用、按需加载与压缩，才是现代 LLM/Agent 系统的日常。**
+
+## 十二、你应该记住的结论
+
+如果这篇只记一句话，那就是：
+**长上下文解决的是放得下，而检索、重排、压缩、缓存解决的是用得好、用得省、用得快。**
+
+再补一句：
+**KV Cache 解决单次生成的重复计算，prompt/context caching 解决跨请求共享前缀的重复 prefill，它们是长上下文时代的核心工程武器。**
+
+## 资料来源与延伸阅读
+
+### 官方与框架文档
+
+1. OpenAI Models / Prompt Caching / Pricing / Changelog
+[https://developers.openai.com/api/docs/models](https://developers.openai.com/api/docs/models)
+[https://developers.openai.com/api/docs/guides/prompt-caching/](https://developers.openai.com/api/docs/guides/prompt-caching/)
+[https://developers.openai.com/api/docs/pricing/](https://developers.openai.com/api/docs/pricing/)
+[https://developers.openai.com/api/docs/changelog/](https://developers.openai.com/api/docs/changelog/)
+
+2. Anthropic Prompt Caching / Models Overview / List Models
+[https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
+[https://docs.anthropic.com/en/docs/about-claude/models](https://docs.anthropic.com/en/docs/about-claude/models)
+[https://docs.anthropic.com/en/api/models-list](https://docs.anthropic.com/en/api/models-list)
+
+3. Gemini Long Context / Context Caching / Models / Changelog
+[https://ai.google.dev/gemini-api/docs/long-context](https://ai.google.dev/gemini-api/docs/long-context)
+[https://ai.google.dev/gemini-api/docs/caching](https://ai.google.dev/gemini-api/docs/caching)
+[https://ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)
+[https://ai.google.dev/gemini-api/docs/changelog](https://ai.google.dev/gemini-api/docs/changelog)
+
+4. Vertex AI Context Cache
+[https://docs.cloud.google.com/vertex-ai/generative-ai/docs/context-cache/context-cache-overview](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/context-cache/context-cache-overview)
+
+5. vLLM Automatic Prefix Caching
+[https://docs.vllm.ai/en/latest/design/prefix_caching/](https://docs.vllm.ai/en/latest/design/prefix_caching/)
+
+6. Hugging Face KV Cache / Cache Strategies
+[https://huggingface.co/docs/transformers/en/kv_cache](https://huggingface.co/docs/transformers/en/kv_cache)
+
+### 论文
+
+1. Liu et al., *Lost in the Middle: How Language Models Use Long Contexts*
+[https://arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172)
+
+2. Google Cloud: Tiered KV Cache 工程文章
+[https://cloud.google.com/blog/topics/developers-practitioners/boosting-llm-performance-with-tiered-kv-cache-on-google-kubernetes-engine](https://cloud.google.com/blog/topics/developers-practitioners/boosting-llm-performance-with-tiered-kv-cache-on-google-kubernetes-engine)
