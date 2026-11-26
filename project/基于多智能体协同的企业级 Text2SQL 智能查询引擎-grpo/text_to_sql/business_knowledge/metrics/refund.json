@@ -1,0 +1,33 @@
+{
+  "id": "refund_metrics",
+  "type": "metrics",
+  "question_patterns": ["退款率", "退货率", "退款金额", "退款订单", "退货数量"],
+  "keywords": ["退款", "退货", "售后", "退款率", "退款金额", "退款订单数", "退货率"],
+  "definition": "退款/退货指标以 orders 和 payments 表为主，退款订单指 orders.status = 'refunded'。",
+  "metrics": [
+    {
+      "name": "退款率",
+      "alias": ["退款订单占比", "退货率"],
+      "sql_template": "COUNT(CASE WHEN status = 'refunded' THEN 1 END) * 100.0 / COUNT(*) FROM orders",
+      "unit": "%"
+    },
+    {
+      "name": "退款金额",
+      "alias": ["退款总额", "已退款金额"],
+      "sql_template": "SUM(amount) FROM orders WHERE status = 'refunded'",
+      "unit": "元"
+    },
+    {
+      "name": "退款订单数",
+      "alias": ["退款订单量", "已退款订单数量"],
+      "sql_template": "COUNT(*) FROM orders WHERE status = 'refunded'",
+      "unit": "单"
+    },
+    {
+      "name": "退款手续费",
+      "alias": ["退款损失"],
+      "sql_template": "SUM(amount) - SUM(refund_amount) FROM payments WHERE refund_amount > 0",
+      "unit": "元"
+    }
+  ]
+}

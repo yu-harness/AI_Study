@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 410" width="100%" role="img" aria-labelledby="lora-title lora-desc">
+<title id="lora-title">全量微调与 LoRA 的对照</title>
+<desc id="lora-desc">全量微调用一个 d×d 矩阵把输入变一次；LoRA 把输入分两路，一路过冻结的 W，一路过 d×r 再 r×d，两路按 α/r 缩放后相加。</desc>
+<defs>
+<marker id="lora-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="720" height="410" fill="#2d3142"/>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<line x1="360" y1="24" x2="360" y2="350" stroke="#f5f5f5" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="40" y="24" font-size="13" font-weight="600" fill="#f5f5f5">全量微调</text>
+<text x="400" y="24" font-size="13" font-weight="600" fill="#f5f5f5">LoRA</text>
+<rect x="140" y="44" width="110" height="34" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="195" y="66" text-anchor="middle" font-size="12" fill="#f5f5f5">输入　1 × d</text>
+<path d="M195 78 L195 104" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#lora-arrow)"/>
+<rect x="110" y="108" width="170" height="58" rx="6" fill="#3F4353" stroke="#f5f5f5" stroke-opacity="0.5" stroke-width="1"/>
+<text x="195" y="134" text-anchor="middle" font-size="14" font-weight="600" fill="#f5f5f5">W　d × d</text>
+<text x="195" y="154" text-anchor="middle" font-size="12" fill="#949eb2">全部参数参与训练</text>
+<path d="M195 166 L195 196" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#lora-arrow)"/>
+<rect x="140" y="200" width="110" height="34" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="195" y="222" text-anchor="middle" font-size="12" fill="#f5f5f5">输出　1 × d</text>
+<text x="40" y="272" font-size="12" fill="#949eb2">d² 个参数全部要训练</text>
+<text x="40" y="294" font-size="12" fill="#949eb2">每个参数都要存梯度与优化器状态</text>
+<rect x="480" y="44" width="110" height="34" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="535" y="66" text-anchor="middle" font-size="12" fill="#f5f5f5">输入　1 × d</text>
+<path d="M535 78 L535 88 L440 88 L440 104" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#lora-arrow)"/>
+<path d="M535 78 L535 88 L652 88 L652 104" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#lora-arrow)"/>
+<rect x="380" y="108" width="120" height="52" rx="6" fill="#3F4353" stroke="#949eb2" stroke-width="1" stroke-dasharray="5,4"/>
+<text x="440" y="132" text-anchor="middle" font-size="14" font-weight="600" fill="#f5f5f5">W　d × d</text>
+<text x="440" y="151" text-anchor="middle" font-size="12" fill="#949eb2">冻结</text>
+<rect x="608" y="108" width="88" height="36" rx="4" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="652" y="131" text-anchor="middle" font-size="12" fill="#f08a59">A　d × r</text>
+<rect x="608" y="164" width="88" height="36" rx="4" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="652" y="187" text-anchor="middle" font-size="12" fill="#f08a59">B　r × d</text>
+<path d="M652 144 L652 160" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#lora-arrow)"/>
+<path d="M440 160 L440 206" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#lora-arrow)"/>
+<path d="M652 200 L652 206" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#lora-arrow)"/>
+<rect x="380" y="210" width="120" height="32" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="440" y="231" text-anchor="middle" font-size="12" fill="#f5f5f5">1 × d</text>
+<rect x="608" y="210" width="88" height="32" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="652" y="231" text-anchor="middle" font-size="12" fill="#f5f5f5">1 × d</text>
+<path d="M440 242 L440 268 L652 268 L652 242" fill="none" stroke="#bfc0c0" stroke-width="1"/>
+<path d="M546 268 L546 292" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#lora-arrow)"/>
+<text x="558" y="284" font-size="12" fill="#f08a59">＋　× α / r</text>
+<rect x="490" y="296" width="112" height="34" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="546" y="318" text-anchor="middle" font-size="12" fill="#f5f5f5">输出　1 × d</text>
+<text x="400" y="352" font-size="12" fill="#949eb2">只训 A 与 B，共 2dr 个参数</text>
+<text x="400" y="374" font-size="12" fill="#949eb2">W 冻结，不产生梯度</text>
+<text x="24" y="398" font-size="12" fill="#949eb2">左边把整个 W 重写一遍，右边给 W 加一个低秩修正项；两路相加之后，输出的形状仍是 1 × d。</text>
+</g>
+</svg>

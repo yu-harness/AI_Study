@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 440" width="100%" role="img" aria-labelledby="pi-title pi-desc">
+<title id="pi-title">外推与内插的对照</title>
+<desc id="pi-desc">上排把位置算到 4096，后一半落在训练范围之外；下排把 0 到 4096 压进 0 到 2048，整条曲线都留在训练范围里。</desc>
+<rect x="0" y="0" width="720" height="440" fill="#2d3142"/>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<text x="24" y="30" font-size="12" font-weight="600" fill="#f5f5f5">上：外推</text>
+<rect x="60" y="46" width="300" height="106" rx="3" fill="#2A3844" stroke="#7FA3C0" stroke-opacity="0.5" stroke-width="1"/>
+<rect x="360" y="46" width="300" height="106" rx="3" fill="#403A44" stroke="#f08a59" stroke-opacity="0.5" stroke-width="1"/>
+<text x="76" y="68" font-size="12" fill="#949eb2">训练见过的范围</text>
+<text x="376" y="68" font-size="12" fill="#f08a59">Unseen Range，没训过</text>
+<path d="M60 108 Q97 78 135 108 Q172 138 210 108 Q247 78 285 108 Q322 138 360 108" fill="none" stroke="#7FA3C0" stroke-width="1.6"/>
+<path d="M360 108 Q397 78 435 108 Q472 138 510 108 Q547 78 585 108 Q622 138 660 108" fill="none" stroke="#f08a59" stroke-width="1.6"/>
+<line x1="60" y1="164" x2="660" y2="164" stroke="#f5f5f5" stroke-opacity="0.15" stroke-width="1"/>
+<text x="60" y="182" font-size="12" fill="#949eb2">0</text>
+<text x="360" y="182" text-anchor="middle" font-size="12" fill="#949eb2">2048</text>
+<text x="660" y="182" text-anchor="end" font-size="12" fill="#949eb2">4096</text>
+<text x="24" y="240" font-size="12" font-weight="600" fill="#f5f5f5">下：内插</text>
+<text x="700" y="240" text-anchor="end" font-family="Georgia,'Cambria Math',serif" font-style="italic" font-size="13" fill="#f5f5f5">f′(x, m) = f(x, m/2)</text>
+<rect x="60" y="256" width="300" height="106" rx="3" fill="#2A3844" stroke="#7FA3C0" stroke-opacity="0.5" stroke-width="1"/>
+<rect x="360" y="256" width="300" height="106" rx="3" fill="#2d3142" stroke="#949eb2" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="76" y="278" font-size="12" fill="#949eb2">整条曲线都压在这里</text>
+<path d="M60 318 Q78 292 97 318 Q116 344 135 318 Q154 292 172 318 Q191 344 210 318 Q228 292 247 318 Q266 344 285 318 Q304 292 322 318 Q341 344 360 318" fill="none" stroke="#7FA3C0" stroke-width="1.6"/>
+<text x="510" y="312" text-anchor="middle" font-size="12" fill="#949eb2">这一段空出来，不再需要</text>
+<line x1="60" y1="374" x2="660" y2="374" stroke="#f5f5f5" stroke-opacity="0.15" stroke-width="1"/>
+<text x="60" y="392" font-size="12" fill="#949eb2">0</text>
+<text x="360" y="392" text-anchor="middle" font-size="12" fill="#949eb2">2048</text>
+<text x="660" y="392" text-anchor="end" font-size="12" fill="#949eb2">4096</text>
+<text x="24" y="420" font-size="12" fill="#949eb2">上排把位置一路算到 4096，后一半是模型没见过的数值；下排把 0 到 4096 压进 0 到 2048，波形不变，横轴压缩一半。</text>
+</g>
+</svg>

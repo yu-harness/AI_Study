@@ -1,0 +1,179 @@
+{
+  "conversations": [
+    {
+      "id": "fed68b2f-f807-4086-a3ae-1980826dd04d",
+      "title": "打招呼问候",
+      "sessionId": "46a9ab88-b65c-4a0f-9e45-bbdd5fcee149",
+      "messages": [
+        {
+          "id": "b5ca7dab-1f58-467b-8970-06caeeabe789",
+          "role": "user",
+          "content": "你好",
+          "timestamp": 1794112476334
+        },
+        {
+          "id": "5370d922-51c2-4ac8-b420-365f0c4a60b3",
+          "role": "assistant",
+          "content": "你好，有什么想聊的？",
+          "timestamp": 1794112476335
+        },
+        {
+          "id": "c9beae23-e4e3-4f42-9b60-c86e0ffb75db",
+          "role": "user",
+          "content": "这是为啥啊",
+          "timestamp": 1794113117345
+        },
+        {
+          "id": "155b6f70-8ad7-451c-ab32-cb0c993885ac",
+          "role": "assistant",
+          "content": "关键就一步：把 `∇P = P·∇log P` 反过来用。\n\n于是 `∇_θ E[R(τ)] = Σ R(τ)∇P_θ(τ) = Σ P_θ(τ)R(τ)∇log P_θ(τ)`，也就是把梯度改写成「在策略分布下取期望」，这样才能用采样估计。\n\n第二步的约等号是 Monte Carlo：用 N 条实际采样出来的轨迹 `τ~P_θ` 求平均，替代真实期望，这就是 REINFORCE 的无偏梯度。\n\n再往下用 `log P_θ(τ)=Σ_t log π(a_t|s_t)+const`，环境动力学跟 θ 无关，常数项求导为 0，所以最后只剩 `R(τ)·Σ_t ∇log π(a_t|s_t)`。\n\n这套推导你笔记 `[[2.2.8 Policy gradient策略梯度]]` 里走的是按状态分布展开的版本，两条路殊途同归。",
+          "timestamp": 1794113117348
+        },
+        {
+          "id": "8e9a0dcd-85e1-48db-be07-22e7757f1680",
+          "role": "user",
+          "content": "记住输出 符合Obsidian的公式格式 $$$$",
+          "timestamp": 1794113153569
+        },
+        {
+          "id": "45c9b910-5d7f-48da-9a05-b65eb32a734f",
+          "role": "assistant",
+          "content": "已记住，以后公式都写成 Obsidian 的 $$ 块级格式。重贴一下刚才那段：\n\n$$\n\\nabla_\\theta \\mathbb{E}\\big[R(\\tau)\\big]\n=\\sum_{\\tau}P_\\theta(\\tau)R(\\tau)\\nabla_\\theta\\log P_\\theta(\\tau)\n\\approx\\frac{1}{N}\\sum_{n=1}^{N}R(\\tau^n)\\nabla_\\theta\\log P_\\theta(\\tau^n)\n$$\n\n核心还是那句 `∇P = P·∇log P`：把梯度塞回概率分布内部，期望才能用采样估出来。",
+          "timestamp": 1794113153574
+        },
+        {
+          "id": "0cea1c0a-fd8f-4699-9940-0791ea87f7f0",
+          "role": "user",
+          "content": "$$\n\\nabla_\\theta \\mathbb{E}\\big[R(\\tau)\\big]\n=\\sum_{\\tau}P_\\theta(\\tau)R(\\tau)\\nabla_\\theta\\log P_\\theta(\\tau)\n\\approx\\frac{1}{N}\\sum_{n=1}^{N}R(\\tau^n)\\nabla_\\theta\\log P_\\theta(\\tau^n)\n$$\n解释为啥啊",
+          "timestamp": 1794113178133
+        },
+        {
+          "id": "f62e60d6-80a1-4fe7-921f-0d6877e71217",
+          "role": "assistant",
+          "content": "核心难点在于 $R(\\tau)$ 本身不依赖 $\\theta$，所以梯度只能落在概率 $P_\\theta(\\tau)$ 上，但 $P_\\theta(\\tau)$ 又没法求导函数形式。用 log 技巧绕开：\n\n$$\n\\nabla_\\theta P_\\theta(\\tau)=P_\\theta(\\tau)\\,\\nabla_\\theta\\log P_\\theta(\\tau)\n$$\n\n这样梯度就变回「在 $P_\\theta$ 分布下的期望」，可以直接抽样：\n\n$$\n\\nabla_\\theta \\mathbb{E}[R(\\tau)]=\\mathbb{E}\\big[R(\\tau)\\nabla_\\theta\\log P_\\theta(\\tau)\\big]\n$$\n\n于是用 $N$ 条真实采样轨迹求平均，就得到约等号那行——这就是 REINFORCE 的无偏梯度估计，好处是不需要知道环境动力学，只要能在环境里跑就行。",
+          "timestamp": 1794113178248
+        },
+        {
+          "id": "6c596055-da55-432c-a7f6-1ae1c226b70e",
+          "role": "user",
+          "content": "于是用 𝑁 条真实采样轨迹求平均，就得到约等号那行\n这是为啥啊",
+          "timestamp": 1794113218642
+        },
+        {
+          "id": "a2e752c7-7de7-43c5-94ec-7fb1df917f53",
+          "role": "assistant",
+          "content": "因为「期望」本身就是按概率加权的求和，而按真实分布采样后，样本出现的频率自然就近似等于它的概率：\n\n$$\n\\mathbb{E}\\big[f(\\tau)\\big]=\\sum_{\\tau}P_\\theta(\\tau)f(\\tau)\\;\\approx\\;\\frac{1}{N}\\sum_{n=1}^{N}f(\\tau^n),\\quad \\tau^n\\sim P_\\theta\n$$\n\n把 $f(\\tau)$ 换成 $R(\\tau)\\nabla_\\theta\\log P_\\theta(\\tau)$ 就是那行式子。这是无偏估计，期望上等于真梯度，但单次有噪声，所以只能写 $\\approx$；按大数定律 $N$ 越大越准，误差大概按 $1/\\sqrt{N}$ 收敛。",
+          "timestamp": 1794113218873
+        },
+        {
+          "id": "3b0ddf73-c747-44b2-bf50-690aec6500f5",
+          "role": "user",
+          "content": "看下你的记忆",
+          "timestamp": 1794114483352
+        },
+        {
+          "id": "72804c64-4d1d-4539-ac1f-2b3b1b4853fc",
+          "role": "assistant",
+          "content": "目前记忆里只有 5 条，都是你给过的输出习惯：\n\n1. 回答控制在 3–5 句，先结论后理由，不画图不铺版式\n2. 回答前先查 vault 笔记，已有内容直接引用章节\n3. 结尾不要问「要不要写成笔记」\n4. 没说「插入／填入／写进笔记」就只回答，不动 md 文件\n5. 公式统一用 Obsidian 的 $$ 块级格式\n\n没有关于你身份或项目背景的记忆，需要的话可以告诉我。",
+          "timestamp": 1794114483700
+        },
+        {
+          "id": "c343b1f2-fee5-4c46-8c4c-809e05408bef",
+          "role": "user",
+          "content": "你好",
+          "timestamp": 1794115470545
+        },
+        {
+          "id": "e7687883-beb5-471f-9657-28eb3edf2e50",
+          "role": "assistant",
+          "content": "你好，有什么想问的？",
+          "timestamp": 1794115470886
+        },
+        {
+          "id": "6c732b99-6489-413c-a569-47e548bb7f1b",
+          "role": "user",
+          "content": "根据期望的定义，转成采样 $N$ 次求平均： 这是为啥啊",
+          "timestamp": 1794115500599
+        },
+        {
+          "id": "290c56a8-926d-4d4c-81fa-81e91a524b8e",
+          "role": "assistant",
+          "content": "期望的定义本来就是「按概率加权求和」：\n\n$$\n\\mathbb{E}[f(x)]=\\sum_x p(x)f(x)\n$$\n\n但分布复杂时这个 sum 根本算不了。换个角度，从 $p(x)$ 里真采样，某结果出现的频率自然趋近它的概率，于是求和就退化成了平均：\n\n$$\n\\mathbb{E}[f(x)]\\approx\\frac{1}{N}\\sum_{n=1}^{N}f(x^n),\\quad x^n\\sim p(x)\n$$\n\n依据是大数定律：这是无偏估计，$N$ 越大越准，误差按 $1/\\sqrt{N}$ 收敛，所以只能写约等号。",
+          "timestamp": 1794115500956
+        },
+        {
+          "id": "476660dc-5a61-49d5-95b9-e02ba1377440",
+          "role": "user",
+          "content": "$$\n\\begin{aligned}\nA_\\theta^{GAE}(s_t,a)\n&=(1-\\lambda)\\big(A_\\theta^1+\\lambda A_\\theta^2+\\lambda^2A_\\theta^3+\\cdots\\big)\\\\\n&=(1-\\lambda)\\Big(\\delta_t^V+\\lambda\\big(\\delta_t^V+\\gamma\\delta_{t+1}^V\\big)+\\lambda^2\\big(\\delta_t^V+\\gamma\\delta_{t+1}^V+\\gamma^2\\delta_{t+2}^V\\big)+\\cdots\\Big)\\\\\n&=(1-\\lambda)\\left(\\delta_t^V\\frac{1}{1-\\lambda}+\\gamma\\delta_{t+1}^V\\frac{\\lambda}{1-\\lambda}+\\cdots\\right)\\\\\n&=\\sum_{b=0}^{\\infty}(\\gamma\\lambda)^b\\delta_{t+b}^V\n\\end{aligned}\n$$\n\n这个没看懂",
+          "timestamp": 1794115927846
+        },
+        {
+          "id": "99ef8478-1ba7-4467-a98c-4ee604ff3fd7",
+          "role": "assistant",
+          "content": "关键就一件事：**把所有 $\\delta$ 按「滞后步数」重新归类**。\n\n第 $k$ 步优势展开是 $A^k=\\delta_t+\\gamma\\delta_{t+1}+\\cdots+\\gamma^{k-1}\\delta_{t+k-1}$，所以滞后 $b$ 步的 $\\delta_{t+b}$（系数 $\\gamma^b$）只出现在 $k\\ge b+1$ 的那些 $A^k$ 里，权重加起来是\n\n$$\n(1-\\lambda)\\gamma^b\\sum_{k=b+1}^{\\infty}\\lambda^{k-1}=(1-\\lambda)\\gamma^b\\cdot\\frac{\\lambda^b}{1-\\lambda}=(\\gamma\\lambda)^b\n$$\n\n那个 $1-\\lambda$ 正好被等比级数 $\\frac{1}{1-\\lambda}$ 约掉，于是只剩\n\n$$\nA^{GAE}_t=\\sum_{b=0}^{\\infty}(\\gamma\\lambda)^b\\delta_{t+b}\n$$\n\n本质就是**指数加权移动平均**：$\\lambda=0$ 退化成单步 TD（低方差高偏差），$\\lambda=1$ 退化成 MC（无偏高方差）。工程上不真做这个无穷求和，用等价递推 $A_t=\\delta_t+\\gamma\\lambda A_{t+1}$ 从后往前扫一遍即可，你笔记 `[[2.2.9 PPO]]` 里用的就是这行。",
+          "timestamp": 1794115928308
+        },
+        {
+          "id": "9f53fc08-a3b1-4736-9318-8dd8e33d157d",
+          "role": "user",
+          "content": "对 $\\theta$ 求梯度，用 log trick：\nlog trick 啥意思啊",
+          "timestamp": 1794116643139
+        },
+        {
+          "id": "dc2b0f8e-b3c4-4cf4-b5a8-20ab3f2d081b",
+          "role": "assistant",
+          "content": "就是换一下求导对象。利用链式法则有\n\n$$\n\\nabla_\\theta\\log P_\\theta(\\tau)=\\frac{\\nabla_\\theta P_\\theta(\\tau)}{P_\\theta(\\tau)}\n\\;\\Longrightarrow\\;\n\\nabla_\\theta P_\\theta(\\tau)=P_\\theta(\\tau)\\nabla_\\theta\\log P_\\theta(\\tau)\n$$\n\n本来要对 $P_\\theta$ 求导，但它多半是很多项连乘（每步的 $\\pi(a_t|s_t)$），直接求导会得到一堆乘积项。取 log 后连乘变连加，$\\log P_\\theta(\\tau)=\\sum_t\\log\\pi_\\theta(a_t|s_t)$，求导简单得多。\n\n同时那个 $P_\\theta$ 因子刚好构成期望的权重，于是梯度变成「在策略分布下对 $\\nabla\\log P$ 求期望」，就能用采样估计——这才是它对策略梯度的意义。",
+          "timestamp": 1794116643709
+        },
+        {
+          "id": "6d737af4-247d-4897-baa5-17c998465c92",
+          "role": "user",
+          "content": "在 outcome supervision 下\n\noutcome supervision 啥意思啊",
+          "timestamp": 1794116741932
+        },
+        {
+          "id": "4def39ed-88bd-44eb-94bf-5d9c60a5cf37",
+          "role": "assistant",
+          "content": "结果监督指的是**只在最终答案上给分**，中间每个推理步骤都没有独立标签。\n\n对应 ORM（Outcome Reward Model）：对同一个问题采 $G$ 条回答，每条只拿到一个末尾奖励 $r_i$，然后整条回答的优势被复制给它所有的 token：\n\n$$\nA_{i,t}=\\frac{r_i-\\mathrm{mean}(r)}{\\mathrm{std}(r)}\\quad\\forall t\n$$\n\n反面是**过程监督**（PRM），每一步都有 reward，能定位到具体哪一步错了，但标注成本极高。GRPO/PPO 做 RLHF 基本都是 outcome 监督，你笔记 `[[2.2.9 PPO]]` 的「优势函数设计」一节两种都写了。",
+          "timestamp": 1794116742603
+        }
+      ],
+      "createdAt": 1794110031496,
+      "updatedAt": 1794116756013,
+      "workspace": {
+        "model": "deepseek-v4.1-flash"
+      },
+      "acpSessionId": "46a9ab88-b65c-4a0f-9e45-bbdd5fcee149",
+      "lastUsage": {
+        "inputTokens": 42001
+      }
+    }
+  ],
+  "settings": {
+    "codebuddyPath": "D:\\home\\administrator\\.npm-global\\node_modules\\@tencent-ai\\codebuddy-code\\bin\\codebuddy",
+    "cliTimeoutMinutes": 5,
+    "nodePath": "",
+    "injectVaultContext": true,
+    "injectCurrentNoteLink": false,
+    "model": "auto",
+    "primaryColor": "",
+    "contextWindowSize": 200000,
+    "permissionMode": "default",
+    "language": "auto",
+    "customInstruction": "",
+    "pastedImageKeep": 20,
+    "mcpServersJson": "",
+    "customAgentsJson": "",
+    "thoughtLevel": "enabled",
+    "autoTitle": true,
+    "backend": "codebuddy",
+    "hermesGatewayUrl": "",
+    "hermesApiKey": "",
+    "hermesCliPath": "",
+    "inputAutoResize": true,
+    "inputMinHeight": 30,
+    "inputMaxHeight": 200,
+    "allowedExternalPaths": [],
+    "version": 15
+  }
+}

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" width="100%" role="img" aria-labelledby="fpbits-title fpbits-desc">
+<title id="fpbits-title">四种浮点格式的位宽对照</title>
+<desc id="fpbits-desc">fp32 是 1+8+23；tf32 保留 8 位指数、尾数砍到 10 位；fp16 指数缩到 5 位、尾数 10 位；bf16 指数仍是 8 位、尾数 7 位；fp8 是 1+4+3。</desc>
+<rect x="0" y="0" width="720" height="480" fill="#2d3142"/>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<text x="200" y="62" text-anchor="middle" font-size="13" font-weight="600" fill="#f08a59">Range　指数</text>
+<text x="392" y="62" text-anchor="middle" font-size="13" font-weight="600" fill="#86B39A">Precision　尾数</text>
+<line x1="140" y1="74" x2="140" y2="418" stroke="#f5f5f5" stroke-opacity="0.12" stroke-width="1"/>
+<line x1="248" y1="74" x2="248" y2="418" stroke="#f5f5f5" stroke-opacity="0.12" stroke-width="1"/>
+<text x="100" y="122" text-anchor="end" font-size="14" font-weight="600" fill="#f5f5f5">fp32</text>
+<text x="158" y="88" font-size="12" fill="#f08a59">e8</text>
+<text x="256" y="88" font-size="12" fill="#86B39A">m23</text>
+<rect x="140" y="100" width="12" height="32" fill="#5B6070"/>
+<rect x="152" y="100" width="96" height="32" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="248" y="100" width="276" height="32" fill="#86B39A" stroke="#2d3142" stroke-width="1"/>
+<text x="100" y="190" text-anchor="end" font-size="14" font-weight="600" fill="#f5f5f5">tf32</text>
+<text x="158" y="156" font-size="12" fill="#f08a59">e8</text>
+<text x="256" y="156" font-size="12" fill="#86B39A">m10</text>
+<rect x="140" y="168" width="12" height="32" fill="#5B6070"/>
+<rect x="152" y="168" width="96" height="32" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="248" y="168" width="120" height="32" fill="#86B39A" stroke="#2d3142" stroke-width="1"/>
+<rect x="368" y="168" width="156" height="32" fill="#2d3142" stroke="#5B6070" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="536" y="190" font-size="12" fill="#949eb2">这 13 位空着，但仍占 32 位</text>
+<text x="100" y="258" text-anchor="end" font-size="14" font-weight="600" fill="#f5f5f5">fp16</text>
+<text x="158" y="224" font-size="12" fill="#f08a59">e5</text>
+<text x="220" y="224" font-size="12" fill="#86B39A">m10</text>
+<rect x="140" y="236" width="12" height="32" fill="#5B6070"/>
+<rect x="152" y="236" width="60" height="32" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="212" y="236" width="120" height="32" fill="#86B39A" stroke="#2d3142" stroke-width="1"/>
+<text x="346" y="258" font-size="12" fill="#949eb2">共 16 位</text>
+<text x="100" y="326" text-anchor="end" font-size="14" font-weight="600" fill="#f5f5f5">bf16</text>
+<text x="158" y="292" font-size="12" fill="#f08a59">e8</text>
+<text x="256" y="292" font-size="12" fill="#86B39A">m7</text>
+<rect x="140" y="304" width="12" height="32" fill="#5B6070"/>
+<rect x="152" y="304" width="96" height="32" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="248" y="304" width="84" height="32" fill="#86B39A" stroke="#2d3142" stroke-width="1"/>
+<text x="346" y="326" font-size="12" fill="#949eb2">共 16 位</text>
+<text x="100" y="394" text-anchor="end" font-size="14" font-weight="600" fill="#f5f5f5">fp8</text>
+<text x="158" y="360" font-size="12" fill="#f08a59">e4</text>
+<text x="212" y="360" font-size="12" fill="#86B39A">m3</text>
+<rect x="140" y="372" width="12" height="32" fill="#5B6070"/>
+<rect x="152" y="372" width="48" height="32" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="200" y="372" width="36" height="32" fill="#86B39A" stroke="#2d3142" stroke-width="1"/>
+<text x="248" y="394" font-size="12" fill="#949eb2">共 8 位，E4M3 这一种的分配</text>
+<text x="24" y="446" font-size="12" fill="#949eb2">五个格式排在同一把尺子上：橙色是指数，决定能表示多大；绿色是尾数，决定能表示多准。</text>
+<text x="24" y="468" font-size="12" fill="#949eb2">tf32 与 fp32 共用 8 位指数，只砍尾数；fp16 压指数；bf16 指数不动、尾数砍到 7；fp8 两头都短。</text>
+</g>
+</svg>

@@ -1,0 +1,27 @@
+{
+  "id": "payment_metrics",
+  "type": "metrics",
+  "question_patterns": ["支付方式", "支付占比", "银行卡支付", "钱包支付", "优惠券支付", "各渠道支付"],
+  "keywords": ["支付方式", "银行卡", "钱包", "银行转账", "优惠券", "支付占比", "各支付"],
+  "definition": "支付方式分析以 payments 表为主，按 method 字段分组统计。",
+  "metrics": [
+    {
+      "name": "各支付方式占比",
+      "alias": ["支付方式占比", "支付途径占比"],
+      "sql_template": "SELECT method, COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() FROM payments GROUP BY method",
+      "unit": "%"
+    },
+    {
+      "name": "各支付方式金额",
+      "alias": ["支付金额分布"],
+      "sql_template": "SELECT method, SUM(paid_amount) FROM payments GROUP BY method",
+      "unit": "元"
+    },
+    {
+      "name": "优惠券使用率",
+      "alias": ["券支付占比", "coupon支付占比"],
+      "sql_template": "COUNT(CASE WHEN method = 'coupon' THEN 1 END) * 100.0 / COUNT(*) FROM payments",
+      "unit": "%"
+    }
+  ]
+}

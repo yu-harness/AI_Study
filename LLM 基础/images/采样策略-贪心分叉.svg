@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 320" role="img" aria-label="贪心与更优路径的分叉">
+      <defs>
+        <marker id="arg1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#2c6a57" />
+        </marker>
+        <marker id="arg2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#b06a2c" />
+        </marker>
+      </defs>
+
+      <text x="62" y="26" text-anchor="middle" font-size="11.5" fill="#968c7f">t1</text>
+      <text x="222" y="26" text-anchor="middle" font-size="11.5" fill="#968c7f">t2</text>
+      <text x="392" y="26" text-anchor="middle" font-size="11.5" fill="#968c7f">t3</text>
+      <text x="580" y="26" text-anchor="middle" font-size="11.5" fill="#968c7f">t4</text>
+
+      <rect x="30" y="138" width="64" height="44" rx="6" fill="#faf4e9" stroke="#dbd1be" />
+      <text x="62" y="166" text-anchor="middle" font-size="14" fill="#2e2a23">A</text>
+
+      <rect x="190" y="64" width="64" height="44" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+      <text x="222" y="92" text-anchor="middle" font-size="14" fill="#2c6a57">B</text>
+
+      <rect x="190" y="210" width="64" height="44" rx="6" fill="#fdf6ec" stroke="#b06a2c" stroke-dasharray="4 3" />
+      <text x="222" y="238" text-anchor="middle" font-size="14" fill="#96602a">C</text>
+
+      <rect x="360" y="64" width="64" height="44" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+      <text x="392" y="92" text-anchor="middle" font-size="14" fill="#2c6a57">C</text>
+
+      <rect x="360" y="210" width="64" height="44" rx="6" fill="#fdf6ec" stroke="#b06a2c" stroke-dasharray="4 3" />
+      <text x="392" y="238" text-anchor="middle" font-size="14" fill="#96602a">C</text>
+
+      <rect x="530" y="64" width="110" height="44" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+      <text x="585" y="84" text-anchor="middle" font-size="12.5" fill="#2c6a57">eos</text>
+      <text x="585" y="101" text-anchor="middle" font-size="12" fill="#4f7d6c">0.048</text>
+
+      <rect x="530" y="210" width="110" height="44" rx="6" fill="#fdf6ec" stroke="#b06a2c" />
+      <text x="585" y="230" text-anchor="middle" font-size="12.5" fill="#96602a">eos</text>
+      <text x="585" y="247" text-anchor="middle" font-size="12" fill="#a97a45">0.122，2.5 倍</text>
+
+      <line x1="94" y1="150" x2="184" y2="92" stroke="#2c6a57" stroke-width="2.2" marker-end="url(#arg1)" />
+      <text x="126" y="112" font-size="11.5" fill="#2c6a57">0.4</text>
+
+      <line x1="94" y1="170" x2="184" y2="228" stroke="#b06a2c" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arg2)" />
+      <text x="126" y="214" font-size="11.5" fill="#96602a">0.3</text>
+
+      <line x1="254" y1="86" x2="354" y2="86" stroke="#2c6a57" stroke-width="2.2" marker-end="url(#arg1)" />
+      <text x="296" y="78" font-size="11.5" fill="#2c6a57">0.4</text>
+
+      <line x1="254" y1="232" x2="354" y2="232" stroke="#b06a2c" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arg2)" />
+      <text x="296" y="224" font-size="11.5" fill="#96602a">0.9</text>
+
+      <line x1="424" y1="86" x2="524" y2="86" stroke="#2c6a57" stroke-width="2.2" marker-end="url(#arg1)" />
+      <text x="458" y="78" font-size="11.5" fill="#2c6a57">×0.6</text>
+
+      <line x1="424" y1="232" x2="524" y2="232" stroke="#b06a2c" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arg2)" />
+      <text x="458" y="224" font-size="11.5" fill="#96602a">×0.9</text>
+
+      <text x="30" y="290" font-size="12" fill="#2c6a57">实线：贪心实际走的路线</text>
+      <text x="250" y="290" font-size="12" fill="#96602a">虚线：在 t2 被丢掉、整句却更高的路线</text>
+    </svg>

@@ -1,0 +1,51 @@
+{
+  "id": "user_metrics",
+  "type": "metrics",
+  "question_patterns": ["用户数量", "用户数", "新用户", "流失用户", "留存", "ARPU", "LTV"],
+  "keywords": ["用户数", "新用户", "流失", "留存率", "活跃", "ARPU", "LTV", "人均"],
+  "definition": "用户类指标默认以 users 为主表，关联 orders 计算消费行为指标。",
+  "metrics": [
+    {
+      "name": "注册用户数",
+      "alias": ["总用户数", "注册人数"],
+      "sql_template": "COUNT(*) FROM users",
+      "unit": "人"
+    },
+    {
+      "name": "新增用户数",
+      "alias": ["新注册用户", "新用户数"],
+      "sql_template": "COUNT(*) FROM users WHERE signup_date >= DATE('now', '-30 days')",
+      "unit": "人"
+    },
+    {
+      "name": "活跃用户数",
+      "alias": ["DAU", "MAU", "日活", "月活"],
+      "sql_template": "COUNT(DISTINCT user_id) FROM orders WHERE created_at >= DATE('now', '-30 days')",
+      "unit": "人"
+    },
+    {
+      "name": "流失用户数",
+      "alias": ["流失人数"],
+      "sql_template": "COUNT(*) FROM users WHERE id NOT IN (SELECT DISTINCT user_id FROM orders WHERE created_at >= DATE('now', '-60 days'))",
+      "unit": "人"
+    },
+    {
+      "name": "用户留存率",
+      "alias": ["留存率", "次留", "七日留存"],
+      "sql_template": "COUNT(DISTINCT CASE WHEN has_next_order THEN user_id END) * 100.0 / COUNT(DISTINCT user_id)",
+      "unit": "%"
+    },
+    {
+      "name": "ARPU",
+      "alias": ["人均收入", "单用户价值"],
+      "sql_template": "SUM(amount) / COUNT(DISTINCT user_id) FROM orders",
+      "unit": "元"
+    },
+    {
+      "name": "LTV",
+      "alias": ["用户生命周期价值", "终身价值"],
+      "sql_template": "SUM(amount) / COUNT(DISTINCT user_id) FROM orders GROUP BY user_id 后取平均",
+      "unit": "元"
+    }
+  ]
+}

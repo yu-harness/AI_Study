@@ -1,0 +1,18 @@
+{
+  "id": "conversion_metrics",
+  "type": "metrics",
+  "metrics": [
+    {
+      "name": "转化率",
+      "alias": ["购买转化率", "下单转化率"],
+      "sql_template": "COUNT(DISTINCT buyer_id) / COUNT(DISTINCT visitor_id) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "复购率",
+      "alias": ["重复购买率"],
+      "sql_template": "COUNT(DISTINCT CASE WHEN order_count > 1 THEN user_id END) / COUNT(DISTINCT user_id) * 100",
+      "unit": "%"
+    }
+  ]
+}

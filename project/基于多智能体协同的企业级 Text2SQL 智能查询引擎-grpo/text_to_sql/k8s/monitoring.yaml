@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: text2sql-api
+spec:
+  selector:
+    matchLabels:
+      app: text2sql-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

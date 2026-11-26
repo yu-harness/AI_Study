@@ -2,8 +2,14 @@
   "cssTheme": "Dracula for Obsidian",
   "baseFontSize": 18,
   "baseFontSizeAction": true,
-  "accentColor": "#e3e3e3",
+  "accentColor": "#7a3838",
   "theme": "system",
   "showRibbon": true,
-  "showViewHeader": true
+  "showViewHeader": true,
+  "nativeMenus": false,
+  "textFontFamily": "",
+  "enabledCssSnippets": [
+    "dracula-font-scale",
+    "workbuddian-font-scale"
+  ]
 }

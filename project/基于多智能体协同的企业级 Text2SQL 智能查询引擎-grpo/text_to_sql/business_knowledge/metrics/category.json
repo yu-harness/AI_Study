@@ -1,0 +1,33 @@
+{
+  "id": "category_metrics",
+  "type": "metrics",
+  "question_patterns": ["品类销售额", "品类占比", "类目销售", "按品类统计", "各品类", "类别排名"],
+  "keywords": ["品类", "类目", "分类", "品类占比", "品类排名", "各品类"],
+  "definition": "品类分析以 products.category 和 order_items 为主表，通过 order_items.product_id 关联 products 表。",
+  "metrics": [
+    {
+      "name": "品类销售额",
+      "alias": ["类目销售额", "分类销售额"],
+      "sql_template": "SELECT category, SUM(quantity * unit_price * (1 - discount)) FROM products JOIN order_items ON products.id = order_items.product_id GROUP BY category",
+      "unit": "元"
+    },
+    {
+      "name": "品类销量",
+      "alias": ["类目销量", "分类销量"],
+      "sql_template": "SELECT category, SUM(quantity) FROM products JOIN order_items ON products.id = order_items.product_id GROUP BY category",
+      "unit": "件"
+    },
+    {
+      "name": "品类销售占比",
+      "alias": ["类目占比"],
+      "sql_template": "品类销售额 / SUM(品类销售额) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "品类SKU数",
+      "alias": ["类目商品数", "分类商品数"],
+      "sql_template": "SELECT category, COUNT(*) FROM products GROUP BY category",
+      "unit": "个"
+    }
+  ]
+}

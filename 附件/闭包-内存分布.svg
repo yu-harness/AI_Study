@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 560" width="100%" role="img" aria-labelledby="memclos-title memclos-desc">
+<title id="memclos-title">闭包的内存分布</title>
+<desc id="memclos-desc">栈里是每次函数调用留下的临时区域，用完就销毁；方法区里放着 fn_outer 与 fn_inner 两个函数对象，num1 被内部函数引用着，所以两次调用都算得出 11。</desc>
+<rect x="0" y="0" width="720" height="560" fill="#2d3142"/>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<rect x="24" y="56" width="300" height="236" rx="8" fill="#2A3844" stroke="#7FA3C0" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="40" y="78" font-size="13" font-weight="600" fill="#7FA3C0">栈</text>
+<rect x="40" y="88" width="268" height="54" rx="6" fill="#33424F" stroke="#7FA3C0" stroke-opacity="0.55" stroke-width="1"/>
+<text x="56" y="108" font-size="12" font-weight="500" fill="#f5f5f5">fn_outer(10)</text>
+<text x="56" y="126" font-size="12" fill="#bfc0c0">num1 = 10</text>
+<text x="56" y="142" font-size="12" fill="#bfc0c0">return fn_inner　→　0x02</text>
+<rect x="40" y="152" width="268" height="58" rx="6" fill="#33424F" stroke="#7FA3C0" stroke-opacity="0.55" stroke-width="1"/>
+<text x="56" y="172" font-size="12" font-weight="500" fill="#f5f5f5">fn_inner(1)　第 1 次</text>
+<text x="56" y="190" font-size="12" fill="#bfc0c0">sum = 10 + 1 = 11</text>
+<text x="56" y="206" font-size="12" fill="#bfc0c0">print → 11</text>
+<rect x="40" y="220" width="268" height="58" rx="6" fill="#33424F" stroke="#7FA3C0" stroke-opacity="0.55" stroke-width="1"/>
+<text x="56" y="240" font-size="12" font-weight="500" fill="#f5f5f5">fn_inner(1)　第 2 次</text>
+<text x="56" y="258" font-size="12" fill="#bfc0c0">sum = 10 + 1 = 11</text>
+<text x="56" y="274" font-size="12" fill="#bfc0c0">print → 11</text>
+<text x="40" y="312" font-size="12" fill="#949eb2">这两帧用完就销毁，num1 却还在，因为 0x02 引着它</text>
+<rect x="352" y="56" width="344" height="96" rx="8" fill="#332F44" stroke="#9C8FC0" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="368" y="78" font-size="13" font-weight="600" fill="#9C8FC0">堆</text>
+<text x="368" y="112" font-size="12" fill="#949eb2">这个例子没有 new 出对象，空着</text>
+<rect x="352" y="172" width="344" height="300" rx="8" fill="#2C3A33" stroke="#86B39A" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="368" y="194" font-size="13" font-weight="600" fill="#86B39A">方法区</text>
+<rect x="368" y="208" width="312" height="248" rx="6" fill="#35473C" stroke="#86B39A" stroke-opacity="0.5" stroke-width="1"/>
+<text x="384" y="230" font-size="12" font-weight="500" fill="#f08a59">0x01　fn_outer 的函数体</text>
+<text x="384" y="252" font-size="12" fill="#f5f5f5">参数 num1 = 10，被内部函数引用</text>
+<rect x="384" y="268" width="280" height="172" rx="6" fill="#26332C" stroke="#86B39A" stroke-opacity="0.5" stroke-width="1"/>
+<text x="400" y="290" font-size="12" font-weight="500" fill="#f08a59">0x02　fn_inner 的函数体</text>
+<text x="400" y="316" font-size="12" fill="#f5f5f5">sum = num1 + num2</text>
+<text x="400" y="338" font-size="12" fill="#f5f5f5">print(f'求和结果: {sum}')</text>
+<text x="400" y="368" font-size="12" fill="#949eb2">num1 从 0x01 里取，所以 0x02</text>
+<text x="400" y="390" font-size="12" fill="#949eb2">活着的时候 10 也活着</text>
+<rect x="24" y="322" width="300" height="180" rx="8" fill="#3B352D" stroke="#C0A882" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="40" y="344" font-size="13" font-weight="600" fill="#C0A882">主函数</text>
+<text x="40" y="372" font-size="12" fill="#f5f5f5">fn_inner = fn_outer(10)</text>
+<text x="40" y="392" font-size="12" fill="#bfc0c0">调 0x01，拿回 0x02 存进 fn_inner</text>
+<text x="40" y="420" font-size="12" fill="#f5f5f5">fn_inner(1)　→　11</text>
+<text x="40" y="444" font-size="12" fill="#f5f5f5">fn_inner(1)　→　11</text>
+<text x="40" y="478" font-size="12" fill="#bfc0c0">两次都是 11，说明 10 一直留着</text>
+<text x="24" y="536" font-size="12" fill="#949eb2">临时帧用完就清，函数对象留在方法区；闭包就是让函数对象一直握着外层的变量。</text>
+</g>
+</svg>

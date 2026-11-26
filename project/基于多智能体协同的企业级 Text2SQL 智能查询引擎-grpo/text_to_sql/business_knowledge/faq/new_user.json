@@ -1,0 +1,10 @@
+{
+  "id": "new_user_def",
+  "type": "faq",
+  "question_patterns": ["新用户", "新注册用户", "首次下单用户", "新客", "新增用户"],
+  "definition": "注册时间在最近30天内的用户，或完成了首次下单的用户",
+  "filters": {
+    "signup_days": 30,
+    "first_order": true
+  }
+}

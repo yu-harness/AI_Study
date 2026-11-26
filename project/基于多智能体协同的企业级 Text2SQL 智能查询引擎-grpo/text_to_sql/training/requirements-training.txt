@@ -1,0 +1,3 @@
+# Deprecated compatibility entry point for SFT/DPO only.
+# GRPO must use requirements-grpo.txt inside the frozen veRL uv environment.
+-r requirements-sft-dpo.txt

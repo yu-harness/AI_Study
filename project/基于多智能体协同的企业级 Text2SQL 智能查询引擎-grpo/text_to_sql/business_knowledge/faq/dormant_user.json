@@ -1,0 +1,11 @@
+{
+  "id": "dormant_user_def",
+  "type": "faq",
+  "question_patterns": ["沉睡用户", "静默用户", "不活跃用户", "休眠用户"],
+  "definition": "有过下单记录但最近30天无任何下单行为的用户",
+  "filters": {
+    "has_history_order": true,
+    "inactive_days": 30,
+    "no_recent_order": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "promotional_order_def",
+  "type": "faq",
+  "question_patterns": ["促销订单", "折扣订单", "优惠订单", "打折订单", "活动订单"],
+  "definition": "包含折扣的订单，即 order_items.discount > 0 的订单",
+  "filters": {
+    "has_discount": true,
+    "discount_min": 0.01
+  }
+}

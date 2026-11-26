@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 560" width="100%" role="img" aria-labelledby="memnonlocal-title memnonlocal-desc">
+<title id="memnonlocal-title">nonlocal 改动的是方法区里那份 a</title>
+<desc id="memnonlocal-desc">两次调用 fn_inner 分别打印 101 与 102，因为 nonlocal 让内层的赋值改到 fn_outer 函数体里的 a 上，a 没有每次从 100 重新开始。</desc>
+<rect x="0" y="0" width="720" height="560" fill="#2d3142"/>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<rect x="24" y="56" width="300" height="250" rx="8" fill="#2A3844" stroke="#7FA3C0" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="40" y="78" font-size="13" font-weight="600" fill="#7FA3C0">栈</text>
+<rect x="40" y="88" width="268" height="58" rx="6" fill="#33424F" stroke="#7FA3C0" stroke-opacity="0.55" stroke-width="1"/>
+<text x="56" y="108" font-size="12" font-weight="500" fill="#f5f5f5">fn_inner()　第 1 次</text>
+<text x="56" y="126" font-size="12" fill="#f08a59">nonlocal a</text>
+<text x="56" y="142" font-size="12" fill="#bfc0c0">a = a + 1　→　101</text>
+<rect x="40" y="156" width="268" height="58" rx="6" fill="#33424F" stroke="#7FA3C0" stroke-opacity="0.55" stroke-width="1"/>
+<text x="56" y="176" font-size="12" font-weight="500" fill="#f5f5f5">fn_inner()　第 2 次</text>
+<text x="56" y="194" font-size="12" fill="#f08a59">nonlocal a</text>
+<text x="56" y="210" font-size="12" fill="#bfc0c0">a = a + 1　→　102</text>
+<rect x="40" y="224" width="268" height="64" rx="6" fill="#33424F" stroke="#7FA3C0" stroke-opacity="0.55" stroke-width="1"/>
+<text x="56" y="244" font-size="12" font-weight="500" fill="#f5f5f5">fn_outer()</text>
+<text x="56" y="262" font-size="12" fill="#bfc0c0">a = 100，真正被改的是方法区那份</text>
+<text x="56" y="280" font-size="12" fill="#bfc0c0">return fn_inner　→　0x02</text>
+<text x="40" y="326" font-size="12" fill="#949eb2">两帧用完即销毁，a 的值却留在 0x01 里</text>
+<rect x="24" y="336" width="300" height="154" rx="8" fill="#3B352D" stroke="#C0A882" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="40" y="358" font-size="13" font-weight="600" fill="#C0A882">主函数</text>
+<text x="40" y="386" font-size="12" fill="#f5f5f5">fn_inner = fn_outer()</text>
+<text x="40" y="406" font-size="12" fill="#bfc0c0">调 0x01，拿回 0x02</text>
+<text x="40" y="432" font-size="12" fill="#f5f5f5">fn_inner()　→　101</text>
+<text x="40" y="456" font-size="12" fill="#f5f5f5">fn_inner()　→　102</text>
+<rect x="352" y="56" width="344" height="96" rx="8" fill="#332F44" stroke="#9C8FC0" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="368" y="78" font-size="13" font-weight="600" fill="#9C8FC0">堆</text>
+<text x="368" y="112" font-size="12" fill="#949eb2">这里没有对象，空着</text>
+<rect x="352" y="172" width="344" height="318" rx="8" fill="#2C3A33" stroke="#86B39A" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="368" y="194" font-size="13" font-weight="600" fill="#86B39A">方法区</text>
+<rect x="368" y="208" width="312" height="266" rx="6" fill="#35473C" stroke="#86B39A" stroke-opacity="0.5" stroke-width="1"/>
+<text x="384" y="230" font-size="12" font-weight="500" fill="#f08a59">0x01　fn_outer 的函数体</text>
+<text x="384" y="252" font-size="12" fill="#f5f5f5">a = 100</text>
+<text x="384" y="272" font-size="12" fill="#f08a59">被改成 101，再改成 102</text>
+<rect x="384" y="288" width="280" height="168" rx="6" fill="#26332C" stroke="#86B39A" stroke-opacity="0.5" stroke-width="1"/>
+<text x="400" y="310" font-size="12" font-weight="500" fill="#f08a59">0x02　fn_inner 的函数体</text>
+<text x="400" y="336" font-size="12" fill="#f08a59">nonlocal a</text>
+<text x="400" y="358" font-size="12" fill="#f5f5f5">a = a + 1</text>
+<text x="400" y="380" font-size="12" fill="#f5f5f5">print(f'a: {a}')</text>
+<text x="400" y="410" font-size="12" fill="#949eb2">赋值落到 0x01 那份 a 上，</text>
+<text x="400" y="430" font-size="12" fill="#949eb2">不是新建一个属于自己的 a</text>
+<text x="24" y="516" font-size="12" fill="#949eb2">内部函数要改外部函数的变量，就得用 nonlocal 修饰，否则内层会自己新建一个 a，</text>
+<text x="24" y="536" font-size="12" fill="#949eb2">外面那份一直停在 100，每次调用都从 100 相加。</text>
+</g>
+</svg>

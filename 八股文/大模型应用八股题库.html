@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大模型应用八股题库</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+    max-width: 820px; margin: 40px auto; padding: 0 24px; color: #1f2329; line-height: 1.7; }
+  h1,h2,h3,h4 { line-height: 1.3; margin: 1.4em 0 .6em; }
+  img { max-width: 100%; height: auto; }
+  pre { background: #f6f8fa; padding: 12px 16px; border-radius: 6px; overflow: auto; }
+  code { font-family: Consolas, Monaco, monospace; font-size: .92em; }
+  pre code { background: none; padding: 0; }
+  blockquote { margin: 1em 0; padding: .4em 1em; border-left: 4px solid #d0d7de; color: #57606a; }
+  table { border-collapse: collapse; } td,th { border: 1px solid #d0d7de; padding: 6px 12px; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 2em 0; }
+  @media print { body { margin: 0; max-width: none; } }
+</style>
+</head>
+<body>
+<blockquote>
+<p>🔗 原文链接： <a href="https://bcn5frq2z1qn.feishu.cn/docx/Lyjqw6ZlkisWNYkuP7TcgKMAngf">大模型应用八股题库</a>
+⏰ 转存时间： 2026/11/16 21:08:15
+✂️ 本文档由 <a href="https://yifs.cn">易飞书</a> 整理生成</p>
+</blockquote>
+<hr>
+<h2>LLM 基础八股</h2>
+<h3>Q1. Transformer 为什么适合大模型？</h3>
+<p>先答并行和长距离依赖。Transformer 用 self-attention 让任意两个 token 直接交互，不像 RNN 逐步传递状态，所以训练并行度高；路径更短，也更适合长文本依赖。补充公式：<code>Attention(Q,K,V)=softmax(QK^T/sqrt(d_k))V</code>。</p>
+<h3>Q2. Self-Attention 的 Q/K/V 分别是什么？</h3>
+<p><code>Q</code> 表示当前位置想找什么信息，<code>K</code> 表示每个位置能被匹配的特征，<code>V</code> 是最终被加权聚合的信息。面试里可以用检索类比：Q 是查询，K 是索引，V 是内容。</p>
+<h3>Q3. 为什么 Attention 要除以 <code>sqrt(d_k)</code>？</h3>
+<p>点积维度越大，logits 方差越大，softmax 越容易饱和，梯度会变小。除以 <code>sqrt(d_k)</code> 是为了稳定数值范围，让训练更平稳。</p>
+<h3>Q4. Multi-Head Attention 的意义是什么？</h3>
+<p>多头让模型在多个子空间学习不同关系，比如局部语法、实体关系、长距离依赖。不是 head 越多越好，head 太多会降低单头维度，也会增加调度和显存压力。</p>
+<h3>Q5. Causal mask 是什么？为什么 decoder-only 模型需要它？</h3>
+<p>Causal mask 保证当前位置只能看到过去 token，不能看到未来 token。decoder-only 模型训练目标是预测下一个 token，如果能看到未来，就会信息泄露。</p>
+<h3>Q6. Encoder-only、decoder-only、encoder-decoder 怎么区别？</h3>
+<p>Encoder-only 适合理解任务，如分类、匹配、抽取；decoder-only 适合自回归生成，是聊天和代码模型主流；encoder-decoder 适合输入到输出转换，如翻译、摘要、结构化改写。</p>
+<h3>Q7. 位置编码和 RoPE 解决什么问题？</h3>
+<p>Self-attention 本身不感知顺序，位置编码给模型注入顺序和距离信息。RoPE 把位置信息编码进 Q/K 的旋转关系中，现代 LLM 常用，长上下文扩展时也更常被讨论。</p>
+<h3>Q8. Pre-LN 和 Post-LN 有什么区别？</h3>
+<p>Post-LN 把 LayerNorm 放在残差之后，原始 Transformer 常见；Pre-LN 放在子层之前，大模型训练更稳定，梯度更容易传到底层。面试里重点答“深层模型训练稳定性”。</p>
+<h3>Q9. Tokenizer 为什么会影响中文大模型效果？</h3>
+<p>中文没有空格分词边界，代码和数字也容易被切碎。Tokenizer 会影响 token 数、上下文成本、复制能力、格式保持和中文压缩率。国内面试常追问：同样 8k context，中文能放多少内容取决于 tokenizer。</p>
+<h3>Q10. BPE、WordPiece、Unigram 有什么区别？</h3>
+<p>BPE 从字符开始合并高频片段；WordPiece 常用最长匹配，BERT 系列常见；Unigram 用概率模型选择子词集合。答题重点是“子词切分能处理未登录词，但会影响成本和效果”。</p>
+<h3>Q11. LLM 为什么会幻觉？</h3>
+<p>训练目标是预测下一个 token，不是验证事实真伪；模型参数记忆不完整，解码有随机性，prompt 或检索证据也可能诱导错误。缓解要分场景：事实问题用 RAG 和引用，推理问题用工具、验证和评测。</p>
+<h3>Q12. 长上下文能替代 RAG 吗？</h3>
+<p>不能简单替代。长上下文能放更多材料，但会带来成本、延迟、lost-in-the-middle、权限隔离和噪声问题。RAG 更适合可更新知识、权限过滤和引用溯源。国内面试常问“为什么不直接把文档全塞进去”。</p>
+<h3>Q13. SFT、RLHF、DPO 分别解决什么问题？</h3>
+<p>SFT 让模型学会按指令和格式回答；RLHF 用人类偏好训练奖励模型再优化策略；DPO 直接用偏好对优化，工程上比 PPO 式 RLHF 简化。国内面试常追问：DPO 为什么更容易落地。</p>
+<h3>Q14. LoRA 为什么省显存？</h3>
+<p>LoRA 冻结原模型权重，只训练低秩增量矩阵 <code>Delta W = BA</code>。训练参数、优化器状态和梯度显存都少很多，适合领域适配和多 adapter 管理。</p>
+<h3>Q15. QLoRA 和 LoRA 有什么区别？</h3>
+<p>QLoRA 把基座模型 4-bit 量化冻结，再训练 LoRA adapter，核心包括 NF4、double quantization、paged optimizer。它主要解决“显存不够但想微调更大模型”的问题。</p>
+<h3>Q16. 微调、Prompt、RAG 怎么取舍？</h3>
+<p>缺知识、知识更新快、需要引用，优先 RAG；格式、风格、分类标准不稳定，可以微调；简单任务先 prompt。企业项目通常先做 prompt/RAG/评估闭环，再决定是否 LoRA。</p>
+<h2>RAG 国内高频题</h2>
+<h3>Q17. RAG 的完整链路是什么？</h3>
+<p>文档解析 -&gt; 清洗 -&gt; chunk -&gt; embedding -&gt; 索引 -&gt; query rewrite -&gt; 检索 -&gt; rerank -&gt; 上下文组装 -&gt; 生成 -&gt; 引用 -&gt; 评估。国内面试忌讳只答“向量库 + prompt”，要说出每一步的取舍。</p>
+<h3>Q18. Chunk 怎么切？chunk size 和 overlap 怎么调？</h3>
+<p>按标题、段落、语义边界优先，固定长度只是兜底。chunk 太小丢上下文，太大召回不准且浪费窗口；overlap 可防边界断裂，但过大会重复召回。最终用 Recall@k、答案正确率和引用准确率调。</p>
+<h3>Q19. PDF、表格、扫描件怎么做 RAG？</h3>
+<p>文本 PDF 保留页码、标题和章节；扫描件先 OCR 并记录置信度；表格不要粗暴按行切碎，可转 Markdown/HTML 或结构化存储；复杂版式要用 parser，并把表格问答纳入评测集。</p>
+<h3>Q20. 向量检索和 BM25 有什么区别？</h3>
+<p>BM25 擅长关键词、编号、术语、错误码；向量检索擅长语义相似和同义表达。企业知识库通常做 hybrid retrieval，再用 reranker 排序。</p>
+<h3>Q21. 为什么 RAG 经常要 reranker？</h3>
+<p>第一阶段 retriever 追求召回率，容易带入噪声；reranker 对 query-document pair 做更精细相关性判断，把真正有用的证据排到前面。代价是延迟和成本增加。</p>
+<h3>Q22. 向量数据库一定要用吗？Milvus/ES/FAISS 怎么选？</h3>
+<p>不一定。小数据可用 FAISS 或内存索引；关键词和过滤强可用 Elasticsearch/OpenSearch；大规模向量、metadata filter、在线更新可考虑 Milvus、Qdrant 等。选型看规模、延迟、更新频率、过滤条件和运维能力。</p>
+<h3>Q23. RAG 准确率低怎么排查？</h3>
+<p>先分桶：没召回、召回但排序低、进了上下文但模型没用、标准答案错、文档本身缺失。对应优化：重切 chunk、hybrid、query rewrite、rerank、context packing、prompt 证据约束、补文档和修解析。</p>
+<h3>Q24. 召回不到答案怎么办？</h3>
+<p>检查文档是否入库、解析是否丢失、chunk 是否切坏、embedding 模型是否适配中文、query 是否需要改写、metadata filter 是否过严。不要一上来调 prompt，召回不到时 prompt 救不了。</p>
+<h3>Q25. query rewrite 有什么用？有什么风险？</h3>
+<p>它把用户问题改写成更适合检索的 query，适合多轮对话、口语化、省略主语的问题。风险是改写错用户意图，所以生产中常保留原 query 一路召回，并记录 rewrite 日志。</p>
+<h3>Q26. 多轮 RAG 怎么做？</h3>
+<p>把当前问题结合必要历史改写成独立问题，同时维护对话状态。不要把完整历史都塞进检索 query；旧轮错误可能污染新一轮，历史摘要也要可控。</p>
+<h3>Q27. RAG 怎么做权限隔离？</h3>
+<p>权限必须在检索前过滤，不能让模型看到越权内容后再“要求它别说”。索引 metadata 要带 tenant、user、role、ACL、密级、有效期；缓存、日志、引用也要按权限隔离。</p>
+<h3>Q28. RAG 怎么防 prompt injection？</h3>
+<p>检索文档是不可信输入，不能让文档里的“忽略系统指令”覆盖高优先级指令。做法：指令分层、工具最小权限、内容过滤、引用校验、敏感操作人工确认、审计和红队集。</p>
+<h3>Q29. RAG 如何评估？</h3>
+<p>检索看 Recall@k、MRR、nDCG、命中率、权限过滤正确率；生成看 faithfulness、引用准确率、答案完整性、拒答准确率、人工满意度。必须有 golden set，不然优化只是感觉。</p>
+<h3>Q30. RAG 答案有引用，但引用不对怎么办？</h3>
+<p>上下文片段要有 source id，生成时要求逐条引用；生成后做 citation checking，检查答案事实是否真的能从引用片段推出。关键业务加人工抽检和引用准确率监控。</p>
+<h3>Q31. 知识库更新后索引怎么同步？</h3>
+<p>做增量索引、删除同步、版本号、生效时间、缓存失效和回滚机制。冲突文档要按来源可信度、更新时间、生效范围排序，必要时回答“资料冲突，无法确定”。</p>
+<h3>Q32. RAG 延迟高怎么优化？</h3>
+<p>预计算 embedding、ANN 索引、缓存热门 query、并行多路召回、控制 top-k、轻量 reranker、上下文压缩、流式输出。不能只砍 top-k，要监控 recall 和答案正确率。</p>
+<h3>Q33. Lost in the middle 是什么？怎么缓解？</h3>
+<p>长上下文中模型可能忽略中间信息。缓解：rerank 后把关键证据放前面或靠近问题，分段摘要，map-reduce，多跳检索，减少无关 chunk。</p>
+<h3>Q34. GraphRAG / Self-RAG / CRAG / RAFT 了解吗？</h3>
+<p>GraphRAG 强调实体关系和图结构检索；Self-RAG 让模型判断何时检索和自我评价；CRAG 做检索质量纠错；RAFT 让模型训练时学会在干扰文档中使用正确证据。答题重点是“解决传统 RAG 检索不稳、证据利用不稳的问题”。</p>
+<h2>Agent 国内高频题</h2>
+<h3>Q35. Agent 和普通 LLM 应用有什么区别？</h3>
+<p>普通 LLM 多是一轮输入输出；Agent 会围绕目标做计划、调用工具、观察结果、更新状态并继续行动。核心组件：模型、工具、状态/记忆、规划、执行循环、guardrails、trace。</p>
+<h3>Q36. ReAct 是什么？</h3>
+<p>ReAct 把 reasoning 和 acting 交替起来：想一步、调工具、看结果、再决定下一步。适合搜索、查库、API 调用等需要外部信息的任务。生产中通常记录 action/observation trace，而不一定暴露完整推理链。</p>
+<h3>Q37. Function calling / tool calling 是什么？</h3>
+<p>模型输出工具名和结构化参数，应用服务端执行工具，再把结果返回模型。模型不是工具执行者，服务端必须做参数校验、鉴权、幂等、审计和失败处理。</p>
+<h3>Q38. 工具 schema 怎么设计？</h3>
+<p>工具名清晰，参数少而明确，类型和枚举严格，描述写清边界；危险操作拆成 preview/confirm；返回结构化结果，包括状态、错误码、摘要、可引用 ID。不要把万能工具暴露给模型。</p>
+<h3>Q39. Agent 乱调工具怎么办？</h3>
+<p>原因可能是工具描述模糊、工具太多、prompt 边界不清、没有停止条件、工具结果格式差。解决：工具分组/路由、严格 schema、few-shot 示例、调用预算、结果校验、trace 分析和高风险人工审批。</p>
+<h3>Q40. Agent 无限循环怎么防？</h3>
+<p>设置最大步骤、最大工具次数、最大 token/费用、超时、重复动作检测、无进展检测和明确停止条件。每轮记录 state diff，多轮无新信息就总结失败退出。</p>
+<h3>Q41. Agent memory 分哪些？</h3>
+<p>短期记忆是当前对话和任务上下文；长期记忆是用户偏好、项目事实、知识条目；工作记忆是计划、待办、工具结果和中间状态。长期记忆要可删除、可审计，不要无脑塞历史。</p>
+<h3>Q42. Agent state / checkpoint 有什么用？</h3>
+<p>state 存消息、计划、工具结果和业务变量；checkpoint 用于失败恢复、暂停继续、审计和回放。没有状态管理，长任务 Agent 很难稳定运行。</p>
+<h3>Q43. Multi-agent 什么时候有必要？</h3>
+<p>任务天然可拆分、需要不同角色/工具/权限、可并行执行或需要审阅制衡时使用。不要为了炫技上多 Agent，它会带来协调成本、上下文丢失和评估复杂度。</p>
+<h3>Q44. Agent 怎么做评估？</h3>
+<p>不只看最终回答，还要看任务成功率、步骤数、工具选择准确率、参数正确率、错误恢复率、越权拦截率、成本、延迟和人工满意度。测试集要覆盖工具失败、权限不足、模糊需求和恶意输入。</p>
+<h3>Q45. Agent trace / span 为什么重要？</h3>
+<p>Trace 是一次任务完整轨迹，span 是一次模型调用、检索、工具调用或业务操作。Agent 多步执行，没 trace 就很难定位失败发生在计划、工具参数、工具返回还是模型理解。</p>
+<h3>Q46. Agent 怎么做人机协同 HITL？</h3>
+<p>高影响、不可逆、昂贵或合规敏感动作前加人工确认，例如发邮件、删数据、转账、提交审批、生产变更。HITL 应拦风险节点，不要把所有步骤都人工化。</p>
+<h3>Q47. Agent 怎么控制成本和延迟？</h3>
+<p>小模型做分类/路由，强模型做复杂规划；限制最大步骤和上下文；缓存工具结果；并行独立工具；长任务异步执行。上线看 cost per successful task，而不是只看单次 token 价格。</p>
+<h3>Q48. Agent 和 RAG 怎么结合？</h3>
+<p>普通 RAG 是固定链路，Agentic RAG 让模型决定何时检索、检索哪里、是否改写 query、是否二次检索、是否调用计算/数据库工具。优势是灵活，代价是可控性、成本和评估难度上升。</p>
+<h2>部署与工程追问</h2>
+<h3>Q49. KV cache 是什么？为什么推理时重要？</h3>
+<p>自回归生成时，历史 token 的 K/V 不变，可以缓存下来，下一步只算新 token。KV cache 用显存换计算，长上下文和大 batch 下会成为显存大头。</p>
+<h3>Q50. vLLM / PagedAttention 解决什么问题？</h3>
+<p>推理服务中 KV cache 动态增长且容易碎片化，PagedAttention 借鉴分页思想管理 KV cache，减少浪费并提升 batch 调度效率。国内部署面试常把它和吞吐、显存利用率一起问。</p>
+<h3>Q51. FlashAttention 为什么快？</h3>
+<p>标准 attention 瓶颈不只是计算量，还有 HBM 与 SRAM 间读写。FlashAttention 用 tiling 等 IO-aware 设计减少显存读写，在保持 exact attention 的同时提升速度、降低显存。</p>
+<h3>Q52. 量化为什么能省显存？会带来什么问题？</h3>
+<p>量化把权重从 fp16/bf16 降到 int8/int4 等低精度，减少显存和带宽压力。问题是精度下降、硬件/内核兼容、校准复杂、某些任务退化。生产要用业务集评估。</p>
+<h3>Q53. TTFT、TPOT、吞吐量分别是什么？</h3>
+<p>TTFT 是首 token 延迟，影响用户体感；TPOT 是每个输出 token 耗时；吞吐量是单位时间处理 token 或请求数。聊天关注 TTFT/TPOT，批处理更关注吞吐和成本。</p>
+<h3>Q54. 私有化部署大模型要考虑什么？</h3>
+<p>模型许可证、硬件显存、并发、量化、推理框架、日志审计、数据不出域、权限、监控、备份、降级、成本。国内项目还常问国产模型、国产 GPU、内网环境和政企合规。</p>
+<h3>Q55. 如何选择开源模型？</h3>
+<p>看任务：中文、代码、数学、工具调用、长上下文、多模态；看成本：显存、吞吐、量化支持；看许可证和生态；最后必须用自己的业务评测集测，不只看排行榜。</p>
+<h3>Q56. Dify / FastGPT / LangChain / LlamaIndex 怎么选？</h3>
+<p>Dify/FastGPT 更偏低代码应用搭建，适合快速做知识库和工作流；LangChain/LlamaIndex 更偏开发框架，适合深度定制。面试重点不是背名字，而是能说清项目里为什么选它、踩过什么坑。</p>
+<h2>框架与工具链高频题</h2>
+<h3>Q57. Dify 的 Chatflow、Workflow、Agent 分别适合什么场景？</h3>
+<p>Chatflow 适合对话式应用和知识库问答；Workflow 适合流程固定、节点清晰、需要接 API/条件分支/变量处理的业务；Agent 适合目标明确但步骤不固定、需要模型自主选择工具的任务。国内面试常追问：能用 Workflow 固定住的，不要轻易上 Agent。</p>
+<h3>Q58. Dify 知识库问答效果不好，你会调哪些参数？</h3>
+<p>先看文档解析和分段，再看 embedding、top-k、score threshold、rerank、召回模式、引用片段和 prompt 约束。不要只调温度；RAG 问答质量差，大概率先排检索和文档处理。</p>
+<h3>Q59. Dify 适合直接上生产吗？有哪些风险？</h3>
+<p>适合快速验证和中小规模应用，但生产要关注权限、审计、日志脱敏、模型供应商配置、插件安全、版本管理、工作流可测试性、并发和成本。政企/强定制场景常需要二开或自研服务层。</p>
+<h3>Q60. FastGPT 和 Dify 有什么区别？</h3>
+<p>两者都能做知识库、工作流和应用发布。FastGPT 更强调开箱即用知识库、可视化工作流、知识库解析和 OpenAI API 兼容；Dify 生态更完整，应用类型、插件、模型供应商、工作流和运维能力更强。选型看团队技术栈、二开能力、权限需求和部署环境。</p>
+<h3>Q61. FastGPT 知识库问答链路怎么理解？</h3>
+<p>典型链路是文档导入、自动解析、分块、向量化、知识库搜索、上下文组装、模型回答。面试重点是能说出搜索参数、分块质量、rerank、上下文长度和引用如何影响效果。</p>
+<h3>Q62. LangChain 的 Agent、Tool、Memory、Retriever 分别是什么？</h3>
+<p>Agent 负责决策下一步；Tool 是可调用能力；Memory/State 保存上下文和任务状态；Retriever 从外部知识中取相关内容。生产中要加 trace、重试、权限和预算控制，不能只跑 demo。</p>
+<h3>Q63. LangChain 和 LangGraph 怎么区别？</h3>
+<p>LangChain 更像构建 LLM 应用和 Agent 的组件库；LangGraph 更适合有状态、多节点、可恢复、可控流程的 Agent 编排。复杂生产 Agent 推荐用图式状态机表达流程，而不是把所有逻辑塞进一个 prompt。</p>
+<h3>Q64. LangChain 项目里最容易踩什么坑？</h3>
+<p>常见坑：链路过度封装不好排查、工具描述不清导致乱调用、异常处理缺失、版本升级破坏接口、callback/trace 没接、prompt 和代码耦合。解决方式是保持链路可观测、节点可测试、工具 schema 严格。</p>
+<h3>Q65. LlamaIndex 的 Index、Retriever、QueryEngine 怎么理解？</h3>
+<p>Index 负责组织和存储文档结构；Retriever 负责召回相关节点；QueryEngine 把检索和生成封装成问答接口。面试里可以说：LlamaIndex 更偏数据/RAG 管线抽象，适合围绕知识库构建检索增强应用。</p>
+<h3>Q66. LlamaIndex 和 LangChain 怎么选？</h3>
+<p>LlamaIndex 更偏数据连接、索引、检索和 RAG；LangChain 更偏通用 LLM 应用、工具调用和 Agent 编排。实际项目可以混用：LlamaIndex 管数据和检索，LangChain/LangGraph 管工具和流程。</p>
+<h3>Q67. Milvus、FAISS、Elasticsearch、Qdrant 怎么选？</h3>
+<p>FAISS 适合本地、小规模、离线或自控索引；Milvus/Qdrant 适合在线向量库、metadata filter、规模化服务；Elasticsearch/OpenSearch 适合关键词和混合检索。企业 RAG 常用 ES + 向量库或 ES hybrid。</p>
+<h3>Q68. Milvus 索引类型和相似度指标怎么选？</h3>
+<p>指标常见 cosine、inner product、L2，要和 embedding 归一化方式匹配。索引上，小数据可 FLAT，追速度可 HNSW/IVF 类，超大规模要看内存、构建时间、召回率和更新频率。不要脱离业务评测只背参数。</p>
+<h3>Q69. Elasticsearch 怎么和向量检索做混合召回？</h3>
+<p>一种做法是 BM25 和 dense vector 各召回一批，再做分数融合或 rerank；另一种是用 ES 的向量检索能力统一检索。关键是处理分数归一化、去重、metadata filter 和 rerank。</p>
+<h3>Q70. embedding 模型怎么选？BGE、M3E、BCEmbedding 这类怎么评估？</h3>
+<p>看语言、领域、句长、召回任务和部署成本。评估不要只看榜单，要建自己的 query-doc 标注集，比较 Recall@k、MRR、nDCG、延迟和向量维度成本。中文企业知识库优先测真实业务问法。</p>
+<h3>Q71. reranker 服务怎么部署？放在哪个环节？</h3>
+<p>通常先 retriever 召回 top-50/top-100，再 reranker 排到 top-5/top-10 进上下文。部署要考虑 batch、GPU/CPU、超时降级、缓存和延迟预算；高并发场景可只对高价值请求启用 rerank。</p>
+<h3>Q72. vLLM、TGI、Ollama、llama.cpp 怎么选？</h3>
+<p>vLLM 适合 GPU 服务化、高吞吐、OpenAI 兼容接口；TGI 适合 Hugging Face 生态部署；Ollama 适合本地开发和轻量私有化；llama.cpp 适合 CPU/边缘和 GGUF 量化。选型看硬件、并发、延迟、模型格式和运维。</p>
+<h3>Q73. vLLM 的 OpenAI API 兼容有什么用？</h3>
+<p>它能让上层 Dify、FastGPT、LangChain 或业务服务按 OpenAI 风格调用本地模型，降低替换成本。面试可补充：还要处理模型列表、流式输出、并发限制、鉴权、日志和错误码兼容。</p>
+<h3>Q74. 框架低代码搭好了，为什么还要自研服务层？</h3>
+<p>因为生产常有权限、审计、成本、缓存、评测、灰度、监控、业务 API 聚合、数据隔离和合规要求。低代码适合快速验证，自研服务层负责把它纳入企业工程体系。</p>
+<h3>Q75. 框架二开时怎么保证可维护？</h3>
+<p>少改核心，多用插件、API、外部服务和配置扩展；必须改源码时要固定版本、写升级说明、保留回归测试。把 prompt、工作流、模型配置和知识库配置纳入版本管理。</p>
+<h3>Q76. 面试官问“你用过哪些框架，踩过什么坑”，怎么答？</h3>
+<p>按项目说，不要报菜名。可以讲：用 Dify/FastGPT 快速搭知识库，用 vLLM 部署本地模型，用 Milvus/ES 做检索，用 reranker 提升准确率；踩坑包括 PDF 解析差、权限隔离、召回噪声、延迟高、工作流难测试，最后给出指标改善。</p>
+<h2>系统设计题</h2>
+<h3>Q77. 设计一个企业知识库问答系统。</h3>
+<p>答题框架：文档接入和解析、chunk、embedding、hybrid retrieval、reranker、权限过滤、上下文组装、证据约束生成、引用、拒答、评估、日志、反馈闭环、增量索引。加分点：权限必须检索前过滤。</p>
+<h3>Q78. RAG 准确率从 70% 提到 90%，你怎么做？</h3>
+<p>先建评测集，再分桶定位错误。召回问题看文档、chunk、embedding、hybrid、query rewrite；排序问题加 reranker；生成问题改 prompt、引用校验、低温度；数据问题补文档、修 OCR、处理表格。最后做回归和线上监控。</p>
+<h3>Q79. 做一个能查资料又能执行动作的 Agent。</h3>
+<p>先划分只读、可写、高风险工具；只读可自动执行，可写要确认，高风险要人工审批。RAG 查证据，工具执行动作，state 记录进度，trace 做审计，最终输出执行结果、引用和失败项。</p>
+<h3>Q80. 讲一个你做过的大模型项目。</h3>
+<p>用 STAR：背景、任务、行动、结果。技术挑战可讲 RAG 召回、表格解析、权限、安全、延迟、成本、评估、部署。一定要带指标，例如准确率、召回率、延迟、人工满意度、成本下降。</p>
+<h2>训练部署</h2>
+<h3>Q81. DeepSpeed ZeRO 三个阶段分别优化什么？</h3>
+<p>ZeRO-1 切 optimizer states，ZeRO-2 再切 gradients，ZeRO-3 连 parameters 也切。面试重点是显存从哪来：参数、梯度、优化器状态、激活值。ZeRO 主要解决数据并行下每卡重复存完整训练状态的问题。</p>
+<h3>Q82. FSDP 和 DeepSpeed ZeRO 有什么区别？</h3>
+<p>两者都通过参数/梯度/优化器状态分片降低显存。FSDP 是 PyTorch 原生分片训练方案，集成度高；DeepSpeed 生态更完整，包含 ZeRO、offload、pipeline、推理等。实际选型看团队栈、稳定性、性能、调试成本和部署环境。</p>
+<h3>Q83. 数据并行、张量并行、流水线并行怎么区分？</h3>
+<p>数据并行切 batch，每卡一份模型；张量并行切单层矩阵计算；流水线并行按层切模型，让不同 stage 顺序执行。大模型训练常混合使用 DP/TP/PP，并结合 ZeRO/FSDP 降低显存。</p>
+<h3>Q84. 训练大模型 OOM 你会怎么排查？</h3>
+<p>先看 batch size、sequence length、激活值、optimizer states、是否开 gradient checkpointing、混合精度、ZeRO/FSDP 配置、数据是否异常长。解决思路：降 batch/seq、梯度累积、checkpoint、bf16、ZeRO/FSDP、CPU/NVMe offload。</p>
+<h3>Q85. Gradient checkpointing 为什么省显存？代价是什么？</h3>
+<p>它不保存全部中间激活，反向传播时重新计算部分前向结果，用计算换显存。代价是训练时间变长，吞吐下降；适合显存瓶颈明显的大模型训练。</p>
+<h3>Q86. fp16、bf16、fp32 训练有什么区别？</h3>
+<p>fp32 稳但显存大；fp16 省显存但动态范围小，可能需要 loss scaling；bf16 动态范围接近 fp32，训练更稳，现代 GPU/国产加速卡常优先考虑 bf16。面试里要结合硬件支持说。</p>
+<h3>Q87. 全量微调和 LoRA 训练时显存差在哪里？</h3>
+<p>全量微调要更新所有参数，并保存完整梯度和优化器状态；LoRA 冻结基座，只训练低秩 adapter，训练参数少很多。显存差距主要来自优化器状态和可训练参数规模。</p>
+<h3>Q88. SFT 训练数据怎么清洗？</h3>
+<p>要去重、去低质、去隐私、统一格式、过滤错误答案、控制长度、去除乱码和广告，并做训练/验证划分。指令数据质量比数量更重要，格式混乱会直接影响模型输出稳定性。</p>
+<h3>Q89. 训练 loss 降了但业务效果没提升，可能是什么原因？</h3>
+<p>可能数据分布不匹配、验证集污染、训练目标和业务指标不一致、过拟合、评测集太小、答案格式不稳定，或 RAG/工具链才是瓶颈。要用业务集和人工评估，而不是只看训练 loss。</p>
+<h3>Q90. 模型训练后怎么做版本管理和回滚？</h3>
+<p>保存模型权重、adapter、tokenizer、训练配置、数据版本、评测报告、推理参数和依赖环境。上线用灰度或 A/B，保留旧模型快速回滚，避免只存一个最终 checkpoint。</p>
+<h2>多模态</h2>
+<h3>Q91. CLIP 的核心思想是什么？</h3>
+<p>CLIP 用图文对做对比学习，把图片和文本映射到同一个向量空间，正样本图文相近，负样本拉远。它常用于跨模态检索、零样本分类、多模态召回和图文相似度。</p>
+<h3>Q92. LLaVA 这类 VLM 大致结构是什么？</h3>
+<p>典型结构是视觉编码器加投影层再接 LLM。视觉编码器提取图像特征，投影层把视觉特征对齐到语言模型 embedding 空间，LLM 负责指令理解和回答。面试重点是“视觉特征如何接入 LLM”。</p>
+<h3>Q93. 多模态模型和 OCR 有什么关系？</h3>
+<p>VLM 可以直接看图回答，但对密集文字、表格、小字、票据常不稳定。工程上经常 OCR + 版面解析 + VLM/RAG 结合：OCR 提取文字，VLM 理解布局和图像语义，再用 RAG 组织证据。</p>
+<h3>Q94. 多模态 RAG 怎么做？</h3>
+<p>图片、PDF、表格、截图先解析成多种表示：OCR 文本、caption、区域框、表格结构、图像 embedding。检索时可走文本召回、图像召回或混合召回，生成时要带来源页码、区域或截图引用。</p>
+<h3>Q95. 图文检索和文本 RAG 有什么区别？</h3>
+<p>文本 RAG 主要处理 query-doc 语义匹配；图文检索要处理跨模态对齐，query 可以是文本找图、图找文、图文混合检索。难点是图像细节、OCR、区域定位和相似图片误召回。</p>
+<h3>Q96. 多模态模型为什么容易看错图？</h3>
+<p>原因包括视觉分辨率不足、图像被压缩、OCR 弱、训练数据缺少细粒度标注、视觉 token 太少、prompt 诱导和模型语言先验过强。高风险场景要用 OCR/检测器/规则验证补强。</p>
+<h3>Q97. 图片输入分辨率会影响 VLM 效果吗？</h3>
+<p>会。低分辨率可能丢失小字和细节，高分辨率会增加视觉 token、显存和延迟。很多多模态系统会做裁剪、分块、区域放大或多尺度处理，尤其是文档和截图理解。</p>
+<h3>Q98. 文档理解类多模态任务怎么评估？</h3>
+<p>看 OCR 准确率、字段抽取准确率、表格结构还原、问答正确率、引用页码/区域准确率、拒答准确率。不能只让模型“看起来答得像”，要有标注字段和证据位置。</p>
+<h3>Q99. 多模态模型部署比纯文本模型多哪些问题？</h3>
+<p>多了图片预处理、视觉编码器、图像 token 显存、上传文件安全、OCR/版面服务、图片缓存、输入大小限制和异步处理。并发高时，图像预处理和视觉 encoder 也可能成为瓶颈。</p>
+<h3>Q100. 多模态幻觉怎么缓解？</h3>
+<p>让模型必须基于可见证据回答；对文字和表格用 OCR 结果交叉验证；输出引用页码、区域框或截图；低置信度时拒答；对关键字段做规则校验或人工复核。</p>
+<h2>线上</h2>
+<h3>Q101. 大模型接口为什么常用 SSE 流式输出？</h3>
+<p>自回归生成首 token 后还要继续逐 token 输出，SSE 能让用户更早看到内容，降低体感延迟。工程上要处理断连、超时、重试、前端打字机效果、日志采集和最终消息落库。</p>
+<h3>Q102. 大模型服务怎么做限流？</h3>
+<p>按用户、租户、API key、模型、QPS、并发、token 数、费用预算限流。不能只按请求数限流，因为一次长上下文请求可能比多次短请求更贵。</p>
+<h3>Q103. 请求排队和并发控制怎么设计？</h3>
+<p>要区分在线低延迟请求和离线批处理请求；设置队列、超时、优先级、最大并发和降级策略。GPU 推理服务还要考虑 continuous batching 和 KV cache 显存。</p>
+<h3>Q104. 大模型应用怎么做缓存？</h3>
+<p>可缓存 embedding、检索结果、rerank 结果、工具结果、系统 prompt、热门问答和模型回答。注意权限隔离、时效性、缓存击穿和带随机采样参数时的命中率。</p>
+<h3>Q105. 线上模型服务怎么灰度发布？</h3>
+<p>按租户、用户比例、流量标签或任务类型灰度；同时监控延迟、错误率、成本、满意度、解析失败率和业务指标。指标变差要能快速回滚到旧模型或旧 prompt。</p>
+<h3>Q106. 大模型应用日志要记录什么？</h3>
+<p>记录 request id、用户/租户、模型版本、prompt 版本、检索命中文档、工具调用、token 数、延迟、错误、输出解析结果和用户反馈。敏感内容要脱敏，日志权限要隔离。</p>
+<h3>Q107. 怎么监控线上 RAG/Agent 质量？</h3>
+<p>RAG 看召回命中、引用准确率、拒答率、反馈；Agent 看任务成功率、工具失败率、循环退出、人工介入率、成本。还要抽样做人审，把线上失败样本回流评测集。</p>
+<h3>Q108. 模型网关有什么用？</h3>
+<p>统一接入多个模型供应商和本地模型，做鉴权、路由、限流、计费、日志、fallback、灰度和格式兼容。企业里常用模型网关隔离业务系统和底层模型变化。</p>
+<h3>Q109. GPU 资源不足时怎么保障服务？</h3>
+<p>做模型分级、小模型 fallback、请求排队、限流、降级到非流式/低上下文、关闭 rerank 或降低 top-k，离线任务错峰。长期看要做容量评估和弹性扩缩容。</p>
+<h3>Q110. 大模型服务异常怎么降级？</h3>
+<p>模型超时可切备用模型；检索失败可返回“暂时无法查询知识库”；reranker 失败可退回向量召回排序；工具失败要返回可解释错误。降级答案要明确边界，不能假装成功。</p>
+<h2>安全评测</h2>
+<h3>Q111. LLM-as-a-judge 怎么用？有什么坑？</h3>
+<p>它适合开放式回答评估，可按 rubric 打分或两两比较。坑包括位置偏差、长度偏差、同源模型偏见、提示词敏感和评委模型自身错误。生产要结合人工抽检和多评委。</p>
+<h3>Q112. 怎么构建大模型应用评测集？</h3>
+<p>从真实问题、失败样本、边界样本、恶意样本和高频业务问题中抽取；标注标准答案、证据来源、评分 rubric 和拒答条件。评测集要版本化，并覆盖 RAG、工具、格式、安全。</p>
+<h3>Q113. 红队测试主要测什么？</h3>
+<p>测越狱、prompt injection、隐私泄露、违法违规建议、偏见、错误拒答、工具越权、数据越权和成本攻击。红队样本要沉淀成回归集，不能只上线前测一次。</p>
+<h3>Q114. prompt injection 和 jailbreak 有什么区别？</h3>
+<p>Jailbreak 主要诱导模型绕过安全限制；prompt injection 更常见于应用系统，攻击者通过用户输入或检索文档覆盖系统指令、诱导工具调用或泄露上下文。RAG/Agent 场景尤其要防 injection。</p>
+<h3>Q115. 如何防止模型泄露隐私或敏感信息？</h3>
+<p>输入侧脱敏，检索前权限过滤，输出侧 PII 检测，日志脱敏，工具最小权限，敏感字段不进 prompt。不能指望模型“自觉不说”，系统层必须做确定性控制。</p>
+<h3>Q116. Guardrails 应该放在哪些位置？</h3>
+<p>输入过滤、检索过滤、工具调用前、模型输出后、最终返回前都可以放。高风险规则要服务端执行，例如 schema 校验、权限校验、敏感词/PII 检测、人工审批。</p>
+<h3>Q117. 工具调用安全怎么评估？</h3>
+<p>看工具选择是否正确、参数是否越权、是否执行危险动作、失败是否安全退出、是否需要人工确认。测试集中要包含越权用户、恶意 prompt、空结果、超时和异常返回。</p>
+<h3>Q118. RAG 权限安全怎么测试？</h3>
+<p>构造不同租户、角色、密级、过期文档和删除文档的测试样本，验证检索结果、上下文、引用、缓存和日志都不会泄露。重点不是模型怎么答，而是越权内容根本不能进上下文。</p>
+<h3>Q119. 线上安全事件怎么追溯？</h3>
+<p>依赖 request id、trace、prompt 版本、模型版本、检索片段、工具调用、权限判断、输出和用户反馈。没有可观测链路，安全事件很难复盘，也无法证明系统是否越权。</p>
+<h3>Q120. 大模型应用上线前安全 checklist 有哪些？</h3>
+<p>权限隔离、PII 脱敏、prompt injection 测试、越狱测试、工具审批、日志审计、输出过滤、成本限额、灰度回滚、红队样本回归和人工兜底。国内企业面试常希望你能讲成上线流程，而不是单点技术。</p>
+<h2>其它</h2>
+<h3>追问</h3>
+<ul>
+<li><p>“RAG 答错了，你怎么判断是召回问题还是生成问题？”</p>
+</li>
+<li><p>“为什么不用长上下文直接塞文档？”</p>
+</li>
+<li><p>“embedding 模型怎么选？中文效果怎么评估？”</p>
+</li>
+<li><p>“rerank 放在什么时候？top-k 取多少？”</p>
+</li>
+<li><p>“知识库权限怎么做？如果用户没权限但文档被召回怎么办？”</p>
+</li>
+<li><p>“PDF 表格怎么解析？OCR 错了怎么办？”</p>
+</li>
+<li><p>“Agent 工具调用失败怎么恢复？”</p>
+</li>
+<li><p>“Agent 为什么会循环？怎么停？”</p>
+</li>
+<li><p>“你用过 Dify / FastGPT / LangChain / LlamaIndex / vLLM / Milvus 吗？踩过什么坑？”</p>
+</li>
+<li><p>“Dify Workflow 和 Agent 怎么选？”</p>
+</li>
+<li><p>“Milvus、ES、FAISS 怎么选？”</p>
+</li>
+<li><p>“embedding 和 reranker 怎么部署、怎么评估？”</p>
+</li>
+<li><p>“DeepSpeed ZeRO、FSDP、张量并行、流水线并行怎么区别？”</p>
+</li>
+<li><p>“多模态 RAG 怎么做？OCR、表格、图片怎么进知识库？”</p>
+</li>
+<li><p>“SSE 流式输出、限流、缓存、灰度、降级怎么做？”</p>
+</li>
+<li><p>“LLM-as-a-judge、红队、越狱、prompt injection 怎么评估？”</p>
+</li>
+<li><p>“线上怎么监控大模型应用质量？”</p>
+</li>
+</ul>
+<h3>框架/工具文档</h3>
+<ul>
+<li><p><a href="https://docs.dify.ai/">Dify Docs</a></p>
+</li>
+<li><p><a href="https://doc.tryfastgpt.ai/">FastGPT Docs</a></p>
+</li>
+<li><p><a href="https://docs.langchain.com/oss/python/langchain/overview">LangChain Docs</a></p>
+</li>
+<li><p><a href="https://developers.llamaindex.ai/python/framework/understanding/rag/">LlamaIndex RAG Docs</a></p>
+</li>
+<li><p><a href="https://milvus.io/docs">Milvus Docs</a></p>
+</li>
+<li><p><a href="https://docs.vllm.ai/">vLLM Docs</a></p>
+</li>
+<li><p><a href="https://www.elastic.co/docs/solutions/search/vector">Elasticsearch Vector Search Docs</a></p>
+</li>
+</ul>
+<h3>训练部署文档</h3>
+<ul>
+<li><p><a href="https://www.deepspeed.ai/tutorials/zero/">DeepSpeed ZeRO Tutorial</a></p>
+</li>
+<li><p><a href="https://docs.pytorch.org/docs/stable/fsdp.html">PyTorch FSDP Documentation</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/1909.08053">Megatron-LM</a></p>
+</li>
+</ul>
+<h3>多模态资料</h3>
+<ul>
+<li><p><a href="https://arxiv.org/abs/2103.00020">CLIP</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2304.08485">LLaVA</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2301.12597">BLIP-2</a></p>
+</li>
+</ul>
+<h3>安全/评测资料</h3>
+<ul>
+<li><p><a href="https://developers.openai.com/api/docs/guides/evals">OpenAI Evals</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2306.05685">MT-Bench / Chatbot Arena</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2209.07858">Red Teaming Language Models</a></p>
+</li>
+<li><p><a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">OWASP Top 10 for LLM Applications</a></p>
+</li>
+</ul>
+<h3>相关论文</h3>
+<ul>
+<li><p><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2203.02155">InstructGPT / RLHF</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2106.09685">LoRA</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2305.14314">QLoRA</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2210.03629">ReAct</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2205.14135">FlashAttention</a></p>
+</li>
+<li><p><a href="https://arxiv.org/abs/2309.06180">PagedAttention / vLLM</a></p>
+</li>
+<li><p><a href="https://huggingface.co/docs/transformers/main/cache_explanation">Hugging Face KV Cache Explanation</a></p>
+</li>
+</ul>
+<h3>面经源</h3>
+<p>小红书、牛客、脉脉、Boss 直聘面经贴近真实问法。</p>
+
+</body>
+</html>

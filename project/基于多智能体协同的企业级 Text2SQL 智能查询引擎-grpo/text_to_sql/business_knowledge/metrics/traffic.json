@@ -1,0 +1,24 @@
+{
+  "id": "traffic_metrics",
+  "type": "metrics",
+  "metrics": [
+    {
+      "name": "UV",
+      "alias": ["独立访客", "访问人数"],
+      "sql_template": "COUNT(DISTINCT user_id)",
+      "unit": "人"
+    },
+    {
+      "name": "PV",
+      "alias": ["页面浏览量", "点击量"],
+      "sql_template": "COUNT(*)",
+      "unit": "次"
+    },
+    {
+      "name": "访问时长",
+      "alias": ["平均停留时间"],
+      "sql_template": "AVG(stay_duration)",
+      "unit": "秒"
+    }
+  ]
+}

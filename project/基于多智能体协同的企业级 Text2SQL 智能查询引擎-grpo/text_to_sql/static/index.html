@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#12223a" />
+  <title>Text2SQL 数据工作台</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --sidebar: #12223a;
+      --sidebar-2: #1c3251;
+      --sidebar-line: rgba(178, 201, 232, 0.16);
+      --bg: #f3f6fb;
+      --panel: #ffffff;
+      --panel-soft: #f7f9fc;
+      --text: #14233a;
+      --muted: #687a92;
+      --line: #dce5f0;
+      --primary: #2864d7;
+      --primary-hover: #1f55bd;
+      --primary-soft: #edf4ff;
+      --ok: #16805e;
+      --bad: #c23b3b;
+      --warn: #9a6817;
+      --code: #101928;
+      --shadow: 0 18px 48px rgba(28, 52, 84, 0.09);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    button,
+    textarea,
+    select { transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 150ms ease; }
+    button:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(40, 100, 215, 0.25);
+      outline-offset: 2px;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #bdc9d9 transparent;
+    }
+    .app-shell {
+      height: 100vh;
+      height: 100dvh;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      overflow: hidden;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      min-height: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(83, 137, 218, 0.2), transparent 34%),
+        linear-gradient(180deg, #13253f 0%, var(--sidebar) 68%);
+      color: #dce8f7;
+      padding: 18px 14px 16px;
+      overflow: hidden;
+    }
+    .brand {
+      padding: 0 10px 20px;
+      border-bottom: 1px solid var(--sidebar-line);
+    }
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .brand-lockup > div:last-child { min-width: 0; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      flex: 0 0 40px;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: linear-gradient(145deg, #4d83e8, #2864d7);
+      color: #fff;
+      box-shadow: 0 8px 22px rgba(12, 33, 65, 0.32);
+      font-size: 11px;
+      font-weight: 850;
+      letter-spacing: 0.04em;
+    }
+    .brand-title {
+      margin: 0;
+      color: #fff;
+      font-size: 18px;
+      line-height: 1.25;
+      font-weight: 760;
+    }
+    .brand-subtitle {
+      margin: 4px 0 0;
+      color: #a9b9cf;
+      font-size: 12px;
+    }
+    .nav {
+      display: grid;
+      gap: 8px;
+      padding: 18px 0 10px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 40px;
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 0 12px;
+      background: transparent;
+      color: #c7d5e8;
+      text-align: left;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--sidebar-2);
+      color: #fff;
+    }
+    .nav-item.active { box-shadow: inset 3px 0 0 #6fa2ff; }
+    .nav-count {
+      min-width: 28px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #3a4a63;
+      color: #fff;
+      font-size: 12px;
+      text-align: center;
+    }
+    .sidebar-section {
+      border-top: 1px solid var(--sidebar-line);
+      padding: 14px 10px 0;
+      margin-top: 8px;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 760;
+    }
+    .plain-button {
+      border: 1px solid #46566e;
+      border-radius: 8px;
+      background: #25344b;
+      color: #eef5ff;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .plain-button:hover { background: #31435f; }
+    .recent-list {
+      display: grid;
+      gap: 8px;
+      min-height: 40px;
+    }
+    .recent-item {
+      overflow: hidden;
+      width: 100%;
+      border: 0;
+      border-radius: 9px;
+      background: #25344b;
+      color: #fff;
+      padding: 10px;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+    .recent-item:hover { background: #30435f; }
+    .empty-recent {
+      color: #91a4bd;
+      font-size: 13px;
+    }
+    .settings-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .setting-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      color: #a9b9cf;
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .sidebar select {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #344760;
+      border-radius: 6px;
+      background: #fff;
+      color: #132238;
+      padding: 0 12px;
+      font-weight: 650;
+    }
+    .database-list {
+      display: grid;
+      gap: 8px;
+    }
+    .database-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid #344760;
+      border-radius: 9px;
+      background: #1b2a40;
+      color: #dce8f7;
+      padding: 7px 10px;
+      text-align: left;
+      font-size: 13px;
+    }
+    .database-item.active {
+      background: #f4f8ff;
+      color: #132238;
+      border-color: #eef4fb;
+    }
+    .database-item:disabled {
+      cursor: default;
+      opacity: 0.86;
+    }
+    .database-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 760;
+    }
+    .database-status {
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #33455f;
+      color: #dce8f7;
+      font-size: 11px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .database-item.active .database-status {
+      background: #d9ebdf;
+      color: var(--ok);
+    }
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-top: 1px solid var(--sidebar-line);
+      margin-top: auto;
+      padding: 14px 10px 0;
+    }
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #eef4fb;
+      color: var(--primary);
+      font-weight: 800;
+    }
+    .user-name {
+      color: #fff;
+      font-weight: 760;
+      font-size: 13px;
+    }
+    .workspace {
+      min-width: 0;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 62px minmax(0, 1fr);
+      overflow: hidden;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 30px 0 32px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+    }
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      color: #56677d;
+      font-weight: 650;
+      font-size: 13px;
+    }
+    .health-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 10px;
+      background: #fbfdff;
+      color: #405169;
+      white-space: nowrap;
+    }
+    .health-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(154, 104, 23, 0.12);
+    }
+    .health-pill.ok .health-dot {
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(22, 128, 94, 0.12);
+    }
+    .mobile-new-chat { display: none; }
+    .content {
+      min-width: 0;
+      height: calc(100vh - 62px);
+      height: calc(100dvh - 62px);
+      min-height: 0;
+      padding: 22px 32px 24px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 90% 5%, rgba(80, 132, 220, 0.08), transparent 28%),
+        var(--bg);
+    }
+    .page-head {
+      margin: 0;
+    }
+    .page-head h1 {
+      margin: 0;
+      color: #0d1b2f;
+      font-size: 25px;
+      line-height: 1.25;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+    .page-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .view { display: none; }
+    .view.active {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 16px;
+      height: 100%;
+      min-height: 0;
+    }
+    .dialog-panel,
+    .trace-panel {
+      height: 100%;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .panel-head {
+      padding: 16px 20px 15px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbfcfe, var(--panel-soft));
+    }
+    .eyebrow {
+      color: #56677d;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+    .panel-title {
+      margin-top: 5px;
+      color: #101f33;
+      font-size: 16px;
+      font-weight: 800;
+    }
+    .panel-meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .examples-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .example-chip {
+      border: 1px solid #d6e1ef;
+      border-radius: 999px;
+      background: #fff;
+      color: #244261;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .example-chip:hover {
+      border-color: #9fbbe2;
+      background: var(--primary-soft);
+      color: #173b72;
+      transform: translateY(-1px);
+    }
+    .messages {
+      min-height: 0;
+      max-height: none;
+      overflow: auto;
+      padding: 20px;
+      display: grid;
+      align-content: start;
+      gap: 18px;
+      background:
+        linear-gradient(180deg, rgba(247, 250, 254, 0.72), rgba(255, 255, 255, 0) 120px),
+        #fff;
+    }
+    .message {
+      display: grid;
+      gap: 7px;
+      max-width: min(980px, 86%);
+    }
+    .message.user {
+      justify-self: end;
+      justify-items: end;
+    }
+    .message.assistant {
+      justify-self: start;
+      justify-items: start;
+    }
+    .message-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .bubble {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px 15px;
+      color: #263852;
+      font-size: 13px;
+      line-height: 1.58;
+      box-shadow: 0 5px 16px rgba(24, 44, 74, 0.06);
+    }
+    .message.user .bubble {
+      background: linear-gradient(145deg, #edf4ff, #f6f9ff);
+      border-color: #c9daf3;
+      color: #173b72;
+    }
+    .result-card {
+      display: grid;
+      gap: 12px;
+      min-width: min(860px, 100%);
+    }
+    .pending-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: #425a78;
+    }
+    .spinner {
+      width: 15px;
+      height: 15px;
+      border: 2px solid #ccdaf0;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 800ms linear infinite;
+    }
+    .result-summary {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 0 9px;
+      background: #edf2f8;
+      color: #4b5f78;
+      font-size: 11px;
+      font-weight: 750;
+    }
+    .badge.ok { background: #e7f7ef; color: var(--ok); }
+    .badge.bad { background: #fff0f0; color: var(--bad); }
+    .badge.warn { background: #fff7e8; color: var(--warn); }
+    .table-wrap {
+      width: 100%;
+      max-height: 360px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: #f6f8fb;
+      color: #56677d;
+      font-weight: 800;
+      z-index: 1;
+    }
+    td { color: #263852; }
+    tbody tr:nth-child(even) { background: #fafcff; }
+    tbody tr:hover { background: #f1f6fd; }
+    .empty-table,
+    .error-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      background: #fbfdff;
+      color: var(--muted);
+    }
+    .error-box {
+      border-color: #f1c4c4;
+      background: #fff7f7;
+      color: var(--bad);
+    }
+    .sql-disclosure {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f9fbfe;
+    }
+    .sql-disclosure summary {
+      cursor: pointer;
+      padding: 9px 11px;
+      color: #38516f;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .sql-preview {
+      max-height: 180px;
+      overflow: auto;
+      margin: 0;
+      border-top: 1px solid #2a3648;
+      background: var(--code);
+      color: #e9f0fb;
+      padding: 11px 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font: 12px/1.55 Consolas, "SFMono-Regular", monospace;
+    }
+    .composer {
+      padding: 13px 16px 11px;
+      border-top: 1px solid var(--line);
+      background: #f7f9fc;
+    }
+    .composer-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 82px;
+      align-items: end;
+      gap: 10px;
+      border: 1px solid #cfdbea;
+      border-radius: 12px;
+      background: #fff;
+      padding: 8px;
+      box-shadow: 0 8px 24px rgba(24, 44, 74, 0.07);
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .composer-shell:focus-within {
+      border-color: #8fb2df;
+      box-shadow: 0 0 0 3px rgba(34, 87, 167, 0.1);
+    }
+    textarea {
+      width: 100%;
+      min-height: 40px;
+      max-height: 140px;
+      resize: none;
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      outline: none;
+      color: var(--text);
+      background: #fff;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    textarea:focus {
+      box-shadow: none;
+    }
+    .primary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      align-self: end;
+      min-height: 40px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .primary-button:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 7px 16px rgba(40, 100, 215, 0.24);
+    }
+    .primary-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.62;
+    }
+    .composer-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 20px;
+      padding: 7px 3px 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .composer-status { color: #4e6380; }
+    .composer-status.running { color: var(--primary); }
+    .trace-panel { grid-template-rows: auto minmax(0, 1fr); }
+    .trace-body {
+      padding: 20px;
+      overflow: auto;
+      min-height: 0;
+    }
+    .trace-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 13px;
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(24, 44, 74, 0.05);
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .stat-value {
+      margin-top: 6px;
+      color: #132238;
+      font-size: 15px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .code-block {
+      max-height: 220px;
+      overflow: auto;
+      margin: 0 0 16px;
+      border-radius: 10px;
+      background: var(--code);
+      color: #e9f0fb;
+      padding: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font: 12px/1.5 Consolas, "SFMono-Regular", monospace;
+    }
+    .trace-list {
+      display: grid;
+      gap: 10px;
+    }
+    .trace-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    .trace-item summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      color: #17273d;
+      font-weight: 800;
+      font-size: 13px;
+      list-style-position: inside;
+    }
+    .trace-stage {
+      margin-left: 8px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .trace-block {
+      border-top: 1px solid var(--line);
+      padding: 10px 12px;
+      background: #fbfdff;
+    }
+    .trace-title {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .trace-json {
+      max-height: 300px;
+      overflow: auto;
+      margin: 0;
+      border-radius: 6px;
+      background: #101928;
+      color: #e9f0fb;
+      padding: 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font: 12px/1.5 Consolas, "SFMono-Regular", monospace;
+    }
+    .trace-empty {
+      border: 1px dashed var(--line);
+      border-radius: 7px;
+      padding: 18px;
+      color: var(--muted);
+      background: #fbfdff;
+    }
+    @media (max-width: 980px) {
+      html,
+      body { overflow: hidden; }
+      .app-shell {
+        height: 100vh;
+        height: 100dvh;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+      .sidebar {
+        height: auto;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        overflow: hidden;
+        z-index: 3;
+      }
+      .brand {
+        min-width: 0;
+        padding: 0;
+        border-bottom: 0;
+      }
+      .brand-mark {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+      }
+      .brand-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 16px;
+      }
+      .brand-subtitle { display: none; }
+      .nav {
+        display: flex;
+        gap: 5px;
+        padding: 0;
+      }
+      .nav-item {
+        width: auto;
+        min-height: 38px;
+        gap: 7px;
+        padding: 0 10px;
+      }
+      .nav-item.active { box-shadow: inset 0 -3px 0 #6fa2ff; }
+      .sidebar-section,
+      .user-card { display: none; }
+      .workspace {
+        height: auto;
+        min-height: 0;
+        grid-template-rows: 50px minmax(0, 1fr);
+      }
+      .topbar {
+        min-height: 50px;
+        padding: 0 16px;
+      }
+      .topbar-right { gap: 9px; }
+      .mobile-new-chat {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: #405169;
+        padding: 0 9px;
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .content {
+        height: auto;
+        min-height: 0;
+        overflow: hidden;
+        padding: 14px 16px 16px;
+      }
+      .view.active { height: 100%; gap: 12px; }
+      .dialog-panel,
+      .trace-panel { height: 100%; }
+      .message { max-width: 100%; }
+      .message.result-message { width: 100%; }
+      .trace-stats { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .sidebar { padding: 9px 10px; }
+      .brand-lockup { gap: 8px; }
+      .brand-mark {
+        flex-basis: 32px;
+        width: 32px;
+        height: 32px;
+        font-size: 9px;
+      }
+      .brand-title { font-size: 14px; }
+      .nav-item {
+        min-height: 34px;
+        padding: 0 8px;
+        font-size: 12px;
+      }
+      .nav-count {
+        min-width: 23px;
+        padding: 1px 6px;
+        font-size: 10px;
+      }
+      .topbar { padding: 0 12px; }
+      .breadcrumb { font-size: 12px; }
+      .topbar-user { display: none; }
+      .health-pill {
+        min-height: 28px;
+        padding: 0 8px;
+        font-size: 11px;
+      }
+      .health-dot {
+        width: 8px;
+        height: 8px;
+      }
+      .content { padding: 12px 10px 10px; }
+      .page-head h1 { font-size: 21px; }
+      .page-head p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
+      }
+      .panel-head { padding: 13px 14px 11px; }
+      .examples {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .examples::-webkit-scrollbar { display: none; }
+      .examples-label,
+      .example-chip { flex: 0 0 auto; }
+      .messages {
+        gap: 14px;
+        padding: 14px;
+      }
+      .bubble { padding: 10px 12px; }
+      .composer { padding: 10px 10px 7px; }
+      .composer-shell {
+        grid-template-columns: minmax(0, 1fr) 70px;
+        gap: 7px;
+        padding: 6px;
+      }
+      .composer-footer > span:first-child { display: none; }
+      .composer-footer { justify-content: flex-end; }
+      .trace-body { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="工作台侧栏">
+      <div class="brand">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true">SQL</div>
+          <div>
+            <div class="brand-title">Text2SQL 工作台</div>
+            <p class="brand-subtitle">多智能体数据查询控制台</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="主导航">
+        <button class="nav-item active" type="button" data-view="chat"><span>多轮对话</span></button>
+        <button class="nav-item" type="button" data-view="trace">
+          <span>执行轨迹</span>
+          <span class="nav-count" id="trace-nav-count">0</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-section">
+        <div class="section-title">
+          <span>最近</span>
+          <button class="plain-button" id="new-chat" type="button">新建</button>
+        </div>
+        <div class="recent-list" id="recent-list">
+          <div class="empty-recent">暂无查询</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-title">数据库</div>
+        <div class="database-list" id="database-list" aria-label="数据库列表">
+          <button class="database-item" type="button" data-dialect="postgresql" disabled>
+            <span class="database-name">PostgreSQL</span>
+            <span class="database-status">检测中</span>
+          </button>
+          <button class="database-item" type="button" data-dialect="mysql" disabled>
+            <span class="database-name">MySQL</span>
+            <span class="database-status">检测中</span>
+          </button>
+          <button class="database-item" type="button" data-dialect="sqlite" disabled>
+            <span class="database-name">SQLite</span>
+            <span class="database-status">检测中</span>
+          </button>
+          <button class="database-item" type="button" data-dialect="clickhouse" disabled>
+            <span class="database-name">ClickHouse</span>
+            <span class="database-status">检测中</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="user-card">
+        <div class="avatar">用</div>
+        <div>
+          <div class="user-name">默认用户</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="breadcrumb" id="breadcrumb">数据查询 / 多轮对话</div>
+        <div class="topbar-right">
+          <div class="health-pill" id="health" role="status" aria-live="polite">
+            <span class="health-dot"></span>
+            <span>检查服务</span>
+          </div>
+          <span class="topbar-user">用户：默认用户</span>
+          <button class="mobile-new-chat" id="mobile-new-chat" type="button">新建</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="view active" id="chat-view">
+          <div class="page-head">
+            <h1>自然语言数据查询</h1>
+            <p>描述业务问题，系统会完成理解、生成、校验与只读执行。</p>
+          </div>
+
+          <div class="dialog-panel">
+            <div class="panel-head">
+              <div class="eyebrow">智能查询</div>
+              <div class="panel-title">开始一次数据分析</div>
+              <div class="panel-meta" id="message-count">1 条消息</div>
+              <div class="examples" aria-label="有结果示例">
+                <span class="examples-label">示例</span>
+                <button class="example-chip" type="button" data-query="查询前5个用户">查询前5个用户</button>
+                <button class="example-chip" type="button" data-query="统计各地区已支付订单金额前五名">地区支付金额</button>
+                <button class="example-chip" type="button" data-query="查看各支付方式的支付金额">支付方式金额</button>
+                <button class="example-chip" type="button" data-query="查询销量最高的10个商品">热销商品</button>
+                <button class="example-chip" type="button" data-query="统计每月订单金额">月度订单金额</button>
+              </div>
+            </div>
+
+            <div class="messages" id="messages" aria-live="polite" aria-relevant="additions"></div>
+
+            <form class="composer" id="query-form">
+              <label class="sr-only" for="query">业务问题</label>
+              <div class="composer-shell">
+                <textarea id="query" rows="1" maxlength="2000" required aria-describedby="query-help" placeholder="输入业务问题，例如：统计各地区已支付订单金额前五名"></textarea>
+                <button class="primary-button" id="run" type="submit"><span id="run-label">发送</span></button>
+              </div>
+              <div class="composer-footer" id="query-help">
+                <span>Enter 换行 · Ctrl / ⌘ + Enter 发送</span>
+                <span class="composer-status" id="composer-status" role="status" aria-live="polite">只读查询，不会修改数据</span>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="view" id="trace-view">
+          <div class="page-head">
+            <h1>智能体执行轨迹</h1>
+            <p>最近一次查询的检索、规划、生成、执行与结果拉取过程。</p>
+          </div>
+
+          <div class="trace-panel">
+            <div class="panel-head">
+              <div class="eyebrow">执行链路</div>
+              <div class="panel-title">运行明细</div>
+              <div class="panel-meta" id="trace-title">尚未开始任务</div>
+            </div>
+            <div class="trace-body" id="trace-body">
+              <div class="trace-empty">暂无执行轨迹</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      messages: [
+        {
+          role: "assistant",
+          kind: "text",
+          content: "库级路由已启用。直接描述业务问题，我会自动选择数据库、返回查询结果并保留完整执行轨迹。"
+        }
+      ],
+      recent: [],
+      lastResult: null,
+      lastTrace: [],
+      running: false
+    };
+
+    const viewLabels = {
+      chat: "数据查询 / 多轮对话",
+      trace: "数据查询 / 执行轨迹"
+    };
+
+    const queryForm = document.querySelector("#query-form");
+    const queryEl = document.querySelector("#query");
+    const runEl = document.querySelector("#run");
+    const runLabelEl = document.querySelector("#run-label");
+    const composerStatusEl = document.querySelector("#composer-status");
+    const messagesEl = document.querySelector("#messages");
+    const messageCountEl = document.querySelector("#message-count");
+    const recentListEl = document.querySelector("#recent-list");
+    const traceNavCountEl = document.querySelector("#trace-nav-count");
+    const traceBodyEl = document.querySelector("#trace-body");
+    const traceTitleEl = document.querySelector("#trace-title");
+    const breadcrumbEl = document.querySelector("#breadcrumb");
+    const healthEl = document.querySelector("#health");
+    const databaseListEl = document.querySelector("#database-list");
+
+    function setView(view) {
+      document.querySelectorAll(".view").forEach((el) => {
+        el.classList.toggle("active", el.id === `${view}-view`);
+      });
+      document.querySelectorAll(".nav-item").forEach((el) => {
+        el.classList.toggle("active", el.dataset.view === view);
+        el.setAttribute("aria-current", el.dataset.view === view ? "page" : "false");
+      });
+      breadcrumbEl.textContent = viewLabels[view] || viewLabels.chat;
+      if (view === "trace") renderTrace();
+    }
+
+    function renderMessages() {
+      messagesEl.innerHTML = "";
+      state.messages.forEach((message) => {
+        const item = document.createElement("article");
+        item.className = `message ${message.role}`;
+        if (message.kind === "result") item.classList.add("result-message");
+
+        const label = document.createElement("div");
+        label.className = "message-label";
+        label.textContent = message.role === "user" ? "用户" : "Text2SQL";
+        item.appendChild(label);
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        if (message.kind === "result") {
+          bubble.appendChild(renderResult(message.result));
+        } else if (message.kind === "pending") {
+          const pendingRow = document.createElement("div");
+          pendingRow.className = "pending-row";
+          const spinner = document.createElement("span");
+          spinner.className = "spinner";
+          spinner.setAttribute("aria-hidden", "true");
+          const text = document.createElement("span");
+          text.textContent = "正在理解问题、生成 SQL 并执行只读查询…";
+          pendingRow.appendChild(spinner);
+          pendingRow.appendChild(text);
+          bubble.appendChild(pendingRow);
+        } else if (message.kind === "error") {
+          const error = document.createElement("div");
+          error.className = "error-box";
+          error.textContent = message.content;
+          bubble.appendChild(error);
+        } else {
+          bubble.textContent = message.content;
+        }
+        item.appendChild(bubble);
+        messagesEl.appendChild(item);
+      });
+      messageCountEl.textContent = `${state.messages.length} 条消息`;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function renderResult(result) {
+      const card = document.createElement("div");
+      card.className = "result-card";
+
+      const summary = document.createElement("div");
+      summary.className = "result-summary";
+      summary.appendChild(makeBadge(result.success ? "执行成功" : "执行失败", result.success ? "ok" : "bad"));
+      summary.appendChild(makeBadge(`返回 ${result.row_count ?? 0} 行`));
+      summary.appendChild(makeBadge(result.cached ? "缓存命中" : "实时执行"));
+      if (Number.isFinite(result.duration_ms)) summary.appendChild(makeBadge(`响应 ${formatDuration(result.duration_ms)}`));
+      if (result.fallback) summary.appendChild(makeBadge("兜底策略", "warn"));
+      if (Number(result.retry_count || 0) > 0) summary.appendChild(makeBadge(`重试 ${result.retry_count} 次`, "warn"));
+      card.appendChild(summary);
+
+      if (result.sql) {
+        const details = document.createElement("details");
+        details.className = "sql-disclosure";
+        const label = document.createElement("summary");
+        label.textContent = "查看生成的 SQL";
+        const sql = document.createElement("pre");
+        sql.className = "sql-preview";
+        sql.textContent = result.sql;
+        details.appendChild(label);
+        details.appendChild(sql);
+        card.appendChild(details);
+      }
+
+      if (result.execution_error) {
+        const error = document.createElement("div");
+        error.className = "error-box";
+        error.textContent = result.execution_error;
+        card.appendChild(error);
+        return card;
+      }
+
+      const rows = Array.isArray(result.data) ? result.data : [];
+      if (rows.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-table";
+        empty.textContent = "SQL 已执行，结果集为空。";
+        card.appendChild(empty);
+        return card;
+      }
+
+      card.appendChild(renderTable(rows));
+      return card;
+    }
+
+    function makeBadge(text, tone = "") {
+      const badge = document.createElement("span");
+      badge.className = tone ? `badge ${tone}` : "badge";
+      badge.textContent = text;
+      return badge;
+    }
+
+    function formatDuration(milliseconds) {
+      return milliseconds < 1000 ? `${milliseconds} ms` : `${(milliseconds / 1000).toFixed(1)} 秒`;
+    }
+
+    function renderTable(rows) {
+      const wrap = document.createElement("div");
+      wrap.className = "table-wrap";
+      const table = document.createElement("table");
+      table.setAttribute("aria-label", "SQL 查询结果");
+      const columns = Array.from(new Set(rows.flatMap((row) => Object.keys(row))));
+
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      columns.forEach((column) => {
+        const th = document.createElement("th");
+        th.textContent = column;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+
+      const tbody = document.createElement("tbody");
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        columns.forEach((column) => {
+          const td = document.createElement("td");
+          const value = row[column];
+          td.textContent = value === null || value === undefined ? "" : String(value);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      return wrap;
+    }
+
+    function renderRecent() {
+      recentListEl.innerHTML = "";
+      if (state.recent.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-recent";
+        empty.textContent = "暂无查询";
+        recentListEl.appendChild(empty);
+        return;
+      }
+
+      state.recent.slice(0, 5).forEach((query) => {
+        const item = document.createElement("button");
+        item.className = "recent-item";
+        item.type = "button";
+        item.textContent = query;
+        item.addEventListener("click", () => {
+          queryEl.value = query;
+          autoSizeQuery();
+          setView("chat");
+          queryEl.focus();
+        });
+        recentListEl.appendChild(item);
+      });
+    }
+
+    function renderTrace() {
+      const trace = Array.isArray(state.lastTrace) ? state.lastTrace : [];
+      traceNavCountEl.textContent = String(trace.length);
+      traceTitleEl.textContent = state.lastResult ? `最近一次任务：${state.lastResult.success ? "成功" : "失败"}` : "尚未开始任务";
+      traceBodyEl.innerHTML = "";
+
+      if (!state.lastResult) {
+        const empty = document.createElement("div");
+        empty.className = "trace-empty";
+        empty.textContent = "暂无执行轨迹";
+        traceBodyEl.appendChild(empty);
+        return;
+      }
+
+      const stats = document.createElement("div");
+      stats.className = "trace-stats";
+      [
+        ["Trace ID", state.lastResult.trace_id || "-"],
+        ["阶段数", trace.length],
+        ["返回行数", state.lastResult.row_count ?? 0],
+        ["重试次数", state.lastResult.retry_count ?? 0],
+        ["响应耗时", Number.isFinite(state.lastResult.duration_ms) ? formatDuration(state.lastResult.duration_ms) : "-"]
+      ].forEach(([label, value]) => {
+        const stat = document.createElement("div");
+        stat.className = "stat";
+        const statLabel = document.createElement("div");
+        statLabel.className = "stat-label";
+        statLabel.textContent = label;
+        const statValue = document.createElement("div");
+        statValue.className = "stat-value";
+        statValue.textContent = String(value);
+        stat.appendChild(statLabel);
+        stat.appendChild(statValue);
+        stats.appendChild(stat);
+      });
+      traceBodyEl.appendChild(stats);
+
+      if (state.lastResult.sql) {
+        const sql = document.createElement("pre");
+        sql.className = "code-block";
+        sql.textContent = state.lastResult.sql;
+        traceBodyEl.appendChild(sql);
+      }
+
+      if (trace.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "trace-empty";
+        empty.textContent = "接口未返回调试轨迹。";
+        traceBodyEl.appendChild(empty);
+        return;
+      }
+
+      const list = document.createElement("div");
+      list.className = "trace-list";
+      trace.forEach((step, index) => {
+        const details = document.createElement("details");
+        details.className = "trace-item";
+        if (index < 2) details.open = true;
+
+        const summary = document.createElement("summary");
+        summary.textContent = `${index + 1}. ${step.title || step.stage || "stage"}`;
+        const stage = document.createElement("span");
+        stage.className = "trace-stage";
+        stage.textContent = step.stage || "";
+        summary.appendChild(stage);
+        details.appendChild(summary);
+
+        ["input", "output", "meta"].forEach((key) => {
+          if (!(key in step)) return;
+          const block = document.createElement("div");
+          block.className = "trace-block";
+          const title = document.createElement("p");
+          title.className = "trace-title";
+          title.textContent = key;
+          const pre = document.createElement("pre");
+          pre.className = "trace-json";
+          pre.textContent = JSON.stringify(step[key], null, 2);
+          block.appendChild(title);
+          block.appendChild(pre);
+          details.appendChild(block);
+        });
+
+        list.appendChild(details);
+      });
+      traceBodyEl.appendChild(list);
+    }
+
+    function renderDatabaseStatus(targets) {
+      const hasSnapshot = Array.isArray(targets);
+      const runningDialects = new Set(
+        (targets || [])
+          .filter((target) => target.status === "running")
+          .map((target) => String(target.dialect || "").toLowerCase())
+      );
+      databaseListEl.querySelectorAll(".database-item").forEach((item) => {
+        const running = runningDialects.has(item.dataset.dialect);
+        item.classList.toggle("active", running);
+        item.disabled = !running;
+        item.querySelector(".database-status").textContent = hasSnapshot
+          ? (running ? "运行中" : "可接入")
+          : "状态未知";
+      });
+    }
+
+    async function health() {
+      try {
+        const res = await fetch("/ready", { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "系统未就绪");
+        renderDatabaseStatus(data.database_targets);
+        healthEl.classList.add("ok");
+        healthEl.querySelector("span:last-child").textContent = "系统就绪";
+      } catch {
+        renderDatabaseStatus(null);
+        healthEl.classList.remove("ok");
+        healthEl.querySelector("span:last-child").textContent = "服务不可用";
+      }
+    }
+
+    async function runQuery(event) {
+      event.preventDefault();
+      if (state.running) return;
+      const query = queryEl.value.trim();
+      if (!query) {
+        composerStatusEl.textContent = "请先输入业务问题";
+        queryEl.focus();
+        return;
+      }
+
+      state.messages.push({ role: "user", kind: "text", content: query });
+      const pending = { role: "assistant", kind: "pending" };
+      state.messages.push(pending);
+      state.recent = [query, ...state.recent.filter((item) => item !== query)];
+      renderMessages();
+      renderRecent();
+
+      queryEl.value = "";
+      autoSizeQuery();
+      state.running = true;
+      runEl.disabled = true;
+      runLabelEl.textContent = "运行中";
+      messagesEl.setAttribute("aria-busy", "true");
+      composerStatusEl.classList.add("running");
+      composerStatusEl.textContent = "智能体正在处理，请稍候…";
+      const startedAt = performance.now();
+
+      try {
+        const res = await fetch("/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "请求失败");
+        data.duration_ms = Math.round(performance.now() - startedAt);
+        pending.kind = "result";
+        pending.result = data;
+        state.lastResult = data;
+        state.lastTrace = data.debug_trace || [];
+        renderTrace();
+      } catch (error) {
+        pending.kind = "error";
+        pending.content = error.message || "查询失败";
+      } finally {
+        const duration = Math.round(performance.now() - startedAt);
+        state.running = false;
+        runEl.disabled = false;
+        runLabelEl.textContent = "发送";
+        messagesEl.setAttribute("aria-busy", "false");
+        composerStatusEl.classList.remove("running");
+        composerStatusEl.textContent = pending.kind === "result" ? `查询完成 · ${formatDuration(duration)}` : `查询失败 · ${formatDuration(duration)}`;
+        renderMessages();
+      }
+    }
+
+    function autoSizeQuery() {
+      queryEl.style.height = "auto";
+      const height = Math.min(queryEl.scrollHeight, 140);
+      queryEl.style.height = `${height}px`;
+      queryEl.style.overflowY = queryEl.scrollHeight > 140 ? "auto" : "hidden";
+    }
+
+    function resetConversation() {
+      state.messages = [
+        {
+          role: "assistant",
+          kind: "text",
+          content: "新的查询会话已准备好。"
+        }
+      ];
+      state.lastResult = null;
+      state.lastTrace = [];
+      composerStatusEl.textContent = "只读查询，不会修改数据";
+      renderMessages();
+      renderTrace();
+      setView("chat");
+      queryEl.focus();
+    }
+
+    document.querySelectorAll(".nav-item").forEach((item) => {
+      item.addEventListener("click", () => setView(item.dataset.view));
+    });
+
+    document.querySelectorAll(".example-chip").forEach((item) => {
+      item.addEventListener("click", () => {
+        queryEl.value = item.dataset.query || item.textContent.trim();
+        autoSizeQuery();
+        queryEl.focus();
+      });
+    });
+
+    document.querySelectorAll("#new-chat, #mobile-new-chat").forEach((button) => {
+      button.addEventListener("click", resetConversation);
+    });
+
+    queryEl.addEventListener("input", () => {
+      autoSizeQuery();
+      if (!state.running) composerStatusEl.textContent = "只读查询，不会修改数据";
+    });
+    queryEl.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        queryForm.requestSubmit();
+      }
+    });
+    window.addEventListener("resize", autoSizeQuery);
+    queryForm.addEventListener("submit", runQuery);
+    autoSizeQuery();
+    renderMessages();
+    renderRecent();
+    renderTrace();
+    health();
+  </script>
+</body>
+</html>

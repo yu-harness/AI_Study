@@ -1,0 +1,197 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: text2sql-config
+data:
+  config.yaml: |
+    runtime:
+      start_metadata_scheduler: true
+    llm:
+      planner:
+        provider: ollama
+        model: ${AGENT_MODEL}
+        base_url: ${OLLAMA_BASE_URL}
+        max_parallel: 1
+        temperature: 0.1
+        think: false
+        max_tokens: 2048
+        timeout: 240
+      coder:
+        provider: ollama
+        model: ${AGENT_MODEL}
+        base_url: ${OLLAMA_BASE_URL}
+        max_parallel: 3
+        temperature: 0.7
+        retry_temperature: 0.2
+        think: false
+        max_tokens: 1024
+        timeout: 240
+    embedding:
+      provider: ollama
+      model: bge-m3:latest
+      base_url: ${OLLAMA_BASE_URL}
+    database:
+      targets:
+        docker_postgres:
+          url: ${SANDBOX_DB_URL}
+          metadata_url: ${SANDBOX_DB_URL}
+          pool_size: 10
+          max_overflow: 20
+          query_timeout: 5
+        local_sqlite:
+          url: sqlite:///./data/sandbox.sqlite
+          metadata_url: sqlite:///./data/sandbox.sqlite
+          pool_size: 5
+          max_overflow: 0
+          query_timeout: 5
+      cache:
+        redis_url: ${REDIS_URL}
+        ttl: 86400
+    retrieval:
+      business_kb_enabled: true
+      similarity_threshold: 0.95
+      business_kb_top_k: 3
+      business_kb_min_score: 0.2
+      table_top_k: 10
+      column_top_k: 20
+      table_min_score: 0.0
+      column_min_score: 0.0
+      bloodline_max_hops: 2
+      bloodline_max_tables: 12
+    elasticsearch:
+      hosts: ["${ES_URL}"]
+      entity_index: text2sql_entity_index
+      analyzer: ik_max_word
+    router:
+      db_descriptors: ./configs/db_descriptors.json
+      default_target_db: docker_postgres
+      default_dialect: postgresql
+      default_dialect_rules: ["Use PostgreSQL syntax.", "Use LIMIT for row limits."]
+    agent:
+      max_retries: 3
+      max_candidates: 3
+      result_limit: 100
+      cost_threshold_rows: 10000000
+      fallback_enabled: true
+      semantic_cache_enabled: true
+    paths:
+      business_knowledge: ./business_knowledge
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: text2sql-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: text2sql-api
+  template:
+    metadata:
+      labels:
+        app: text2sql-api
+    spec:
+      containers:
+        - name: api
+          image: text2sql-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: TEXT2SQL_CONFIG
+              value: /etc/text2sql/config.yaml
+            - name: AGENT_MODEL
+              value: qwen3.5:4b
+            - name: OLLAMA_BASE_URL
+              value: http://ollama:11434
+            - name: REDIS_URL
+              value: redis://redis:6379/0
+            - name: ES_URL
+              value: http://elasticsearch:9200
+            - name: SANDBOX_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: text2sql-secrets
+                  key: sandbox-db-url
+          volumeMounts:
+            - name: config
+              mountPath: /etc/text2sql
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+      volumes:
+        - name: config
+          configMap:
+            name: text2sql-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: text2sql-api
+  labels:
+    app: text2sql-api
+spec:
+  selector:
+    app: text2sql-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: text2sql-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: text2sql-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: text2sql-api
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: text2sql.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: text2sql-api
+                port:
+                  number: 8000

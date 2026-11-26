@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 300" role="img" aria-label="Top-P 在不同把握程度下的候选集">
+    <text x="130" y="28" text-anchor="middle" font-size="12.5" fill="#2e2a23">有把握：P = 0.9</text>
+    <text x="560" y="28" text-anchor="middle" font-size="12.5" fill="#2e2a23">拿不准：P = 0.9</text>
+
+    <line x1="40" y1="210" x2="250" y2="210" stroke="#dbd1be" />
+    <rect x="50" y="84" width="30" height="126" fill="#2c6a57" opacity=".85" />
+    <rect x="90" y="203" width="30" height="7" fill="#c8bfae" />
+    <rect x="130" y="206" width="30" height="4" fill="#c8bfae" />
+    <rect x="170" y="207" width="30" height="3" fill="#c8bfae" />
+    <text x="50" y="74" font-size="11.5" fill="#2c6a57">累计 0.90，到 P 就停</text>
+
+    <line x1="430" y1="210" x2="700" y2="210" stroke="#dbd1be" />
+    <rect x="440" y="168" width="30" height="42" fill="#2c6a57" opacity=".85" />
+    <rect x="480" y="179" width="30" height="31" fill="#2c6a57" opacity=".85" />
+    <rect x="520" y="189" width="30" height="21" fill="#2c6a57" opacity=".85" />
+    <rect x="560" y="193" width="30" height="17" fill="#2c6a57" opacity=".85" />
+    <rect x="600" y="199" width="30" height="11" fill="#2c6a57" opacity=".85" />
+    <rect x="640" y="202" width="30" height="8" fill="#2c6a57" opacity=".85" />
+    <text x="560" y="160" font-size="11.5" fill="#2c6a57">一路累加到 0.93 才够</text>
+
+    <text x="50" y="240" font-size="12" fill="#655c50">候选集：1 个</text>
+    <text x="440" y="240" font-size="12" fill="#655c50">候选集：6 个</text>
+    <text x="390" y="276" text-anchor="middle" font-size="12" fill="#96602a">同一个阈值，候选集大小相差 6 倍</text>
+  </svg>

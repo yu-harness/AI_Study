@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 312" width="100%" role="img" aria-labelledby="adp-title adp-desc">
+<title id="adp-title">Adapter 串行插入，LoRA 并行相加</title>
+<desc id="adp-desc">Adapter 必须让数据穿过它，主路径被切断；LoRA 主路径不动，旁边加一条支路，两支输出相加。</desc>
+<defs>
+<marker id="adp-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="720" height="312" fill="#2d3142"/>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<line x1="360" y1="24" x2="360" y2="250" stroke="#f5f5f5" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="40" y="24" font-size="13" font-weight="600" fill="#f5f5f5">Adapter</text>
+<text x="400" y="24" font-size="13" font-weight="600" fill="#f5f5f5">LoRA</text>
+<rect x="60" y="40" width="110" height="30" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="115" y="60" text-anchor="middle" font-size="12" fill="#f5f5f5">输入</text>
+<path d="M115 70 L115 96" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#adp-arrow)"/>
+<rect x="50" y="100" width="130" height="40" rx="6" fill="#3F4353" stroke="#f5f5f5" stroke-opacity="0.5" stroke-width="1"/>
+<text x="115" y="125" text-anchor="middle" font-size="13" fill="#f5f5f5">主层 W</text>
+<path d="M115 140 L115 166" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#adp-arrow)"/>
+<rect x="60" y="170" width="110" height="44" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="115" y="190" text-anchor="middle" font-size="12" font-weight="500" fill="#f08a59">Adapter</text>
+<text x="115" y="206" text-anchor="middle" font-size="12" fill="#949eb2">d → r → d</text>
+<path d="M115 214 L115 240" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#adp-arrow)"/>
+<rect x="60" y="244" width="110" height="30" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="115" y="264" text-anchor="middle" font-size="12" fill="#f5f5f5">输出</text>
+<text x="196" y="188" font-size="12" fill="#949eb2">数据必须</text>
+<text x="196" y="206" font-size="12" fill="#949eb2">穿过它</text>
+<rect x="450" y="40" width="110" height="30" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="505" y="60" text-anchor="middle" font-size="12" fill="#f5f5f5">输入</text>
+<path d="M505 70 L505 96" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#adp-arrow)"/>
+<rect x="440" y="100" width="130" height="40" rx="6" fill="#3F4353" stroke="#f5f5f5" stroke-opacity="0.5" stroke-width="1"/>
+<text x="505" y="125" text-anchor="middle" font-size="13" fill="#f5f5f5">主层 W　冻结</text>
+<path d="M560 55 L650 55 L650 96" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#adp-arrow)"/>
+<rect x="610" y="100" width="80" height="40" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="650" y="125" text-anchor="middle" font-size="12" font-weight="500" fill="#f08a59">A · B</text>
+<path d="M505 140 L505 208" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#adp-arrow)"/>
+<path d="M650 140 L650 220 L521 220" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#adp-arrow)"/>
+<circle cx="505" cy="220" r="12" fill="#2d3142" stroke="#f08a59" stroke-width="1.2"/>
+<text x="505" y="225" text-anchor="middle" font-size="13" fill="#f08a59">＋</text>
+<path d="M505 232 L505 254" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#adp-arrow)"/>
+<rect x="450" y="258" width="110" height="30" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="505" y="278" text-anchor="middle" font-size="12" fill="#f5f5f5">输出</text>
+<text x="576" y="188" font-size="12" fill="#949eb2">主路径不动</text>
+<text x="576" y="206" font-size="12" fill="#949eb2">旁边另算</text>
+<text x="24" y="306" font-size="12" fill="#949eb2">Adapter 串行，主路径被切断，推理每层都要多走一段；LoRA 并行，两支相加，训练完可合并回 W，推理没有额外开销。</text>
+</g>
+</svg>

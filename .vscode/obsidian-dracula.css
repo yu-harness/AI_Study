@@ -1,0 +1,155 @@
+/* 取自 .obsidian/themes/Dracula for Obsidian/theme.css 的配色，用于 VS Code Markdown 预览 */
+
+body.vscode-body {
+  background: #282a36;
+  color: #f8f8f2;
+  font-family: Avenir, "Avenir Next", "Segoe UI", "Microsoft YaHei", sans-serif;
+  font-size: 19px;
+  line-height: 1.9;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 28px 64px;
+}
+
+body.vscode-body h1,
+body.vscode-body h2,
+body.vscode-body h3,
+body.vscode-body h4,
+body.vscode-body h5,
+body.vscode-body h6 {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 1.6em 0 0.6em;
+  line-height: 1.35;
+}
+
+body.vscode-body h1 { color: #ff79c6; font-size: 28px; }
+body.vscode-body h2 { color: #bd93f9; font-size: 24px; }
+body.vscode-body h3 { color: #ff5555; font-size: 21px; }
+body.vscode-body h4 { color: #ffb86c; font-size: 20px; }
+body.vscode-body h5 { color: #50fa7b; font-size: 19px; }
+body.vscode-body h6 { color: #8be9fd; font-size: 18px; }
+
+body.vscode-body a {
+  color: #ffb86c;
+  text-decoration: none;
+  font-style: italic;
+}
+
+body.vscode-body a:hover {
+  color: #8be9fd;
+}
+
+body.vscode-body strong {
+  color: #ffb86c;
+}
+
+body.vscode-body em {
+  color: #50fa7b;
+}
+
+body.vscode-body code {
+  color: #bd93f9;
+  background: #44475a;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: monaco, Consolas, "Cascadia Code", monospace;
+  font-size: 16px;
+}
+
+body.vscode-body pre {
+  background: #44475a;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+}
+
+body.vscode-body pre code {
+  color: #8be9fd;
+  background: transparent;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+body.vscode-body blockquote {
+  background: #44475a;
+  border-left: 4px solid #ffb86c;
+  border-radius: 0 8px 8px 0;
+  color: #f8f8f2;
+  font-style: italic;
+  margin: 24px 0;
+  padding: 8px 18px;
+}
+
+body.vscode-body blockquote p {
+  margin: 6px 0;
+}
+
+body.vscode-body table {
+  border-collapse: collapse;
+  display: table;
+  width: auto;
+}
+
+body.vscode-body th {
+  background: #44475a;
+  color: #f8f8f2;
+  font-weight: 800;
+  border: 1px solid #6272a4;
+  padding: 8px 14px;
+}
+
+body.vscode-body td {
+  border: 1px solid #6272a4;
+  padding: 8px 14px;
+}
+
+body.vscode-body thead {
+  border-bottom: 3px solid #f8f8f2;
+}
+
+body.vscode-body hr {
+  border: none;
+  border-top: 1px solid #6272a4;
+  margin: 32px 0;
+}
+
+body.vscode-body mark {
+  background: #ff5555;
+  color: #282a36;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+body.vscode-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+body.vscode-body ul,
+body.vscode-body ol {
+  padding-left: 1.6em;
+}
+
+body.vscode-body li::marker {
+  color: #ffb86c;
+}
+
+body.vscode-body input[type="checkbox"] {
+  accent-color: #50fa7b;
+}
+
+body.vscode-body pre::-webkit-scrollbar,
+body.vscode-body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+body.vscode-body pre::-webkit-scrollbar-thumb,
+body.vscode-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 5px;
+}

@@ -1,0 +1,11 @@
+{
+  "id": "hot_selling_def",
+  "type": "faq",
+  "question_patterns": ["爆款", "热销", "畅销", "热卖", "爆款商品"],
+  "definition": "月销量超过1000件，或月销售额超过50万元的商品",
+  "filters": {
+    "sales_threshold": 1000,
+    "revenue_threshold": 500000,
+    "period": "monthly"
+  }
+}

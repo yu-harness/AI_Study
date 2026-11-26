@@ -1,0 +1,10 @@
+{
+  "id": "churned_user_def",
+  "type": "faq",
+  "question_patterns": ["流失用户", "流失会员", "不再活跃", "已流失", "用户流失"],
+  "definition": "最近60天没有下单或登录行为的用户",
+  "filters": {
+    "inactive_days": 60,
+    "no_order": true
+  }
+}

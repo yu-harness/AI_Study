@@ -1,0 +1,7 @@
+# Linux GPU environment for SFT and DPO only. Do not combine with GRPO.
+torch==2.8.0
+llamafactory==0.9.5
+deepspeed==0.19.5
+flash-attn==2.8.3.post1
+wandb==0.28.2
+pyarrow==24.0.0

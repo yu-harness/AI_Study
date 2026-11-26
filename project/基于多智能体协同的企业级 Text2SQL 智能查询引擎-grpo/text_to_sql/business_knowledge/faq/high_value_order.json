@@ -1,0 +1,9 @@
+{
+  "id": "high_value_order_def",
+  "type": "faq",
+  "question_patterns": ["大额订单", "高价值订单", "大单", "大额交易"],
+  "definition": "订单金额超过5000元的订单",
+  "filters": {
+    "amount_threshold": 5000
+  }
+}

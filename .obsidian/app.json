@@ -13,13 +13,20 @@
   "alwaysUpdateLinks": true,
   "foldIndent": true,
   "rightToLeft": false,
-  "strictLineBreaks": false,
+  "strictLineBreaks": true,
   "foldHeading": true,
   "showIndentGuide": true,
   "defaultViewMode": "source",
   "livePreview": true,
-  "newFileLocation": "root",
-  "newFileFolderPath": "",
+  "newFileLocation": "current",
+  "newFileFolderPath": "01-收件箱",
   "newLinkFormat": "shortest",
-  "showInlineTitle": true
+  "showInlineTitle": true,
+  "showUnsupportedFiles": true,
+  "trashOption": "system",
+  "userIgnoreFilters": [
+    "_tmp/"
+  ],
+  "propertiesInDocument": "hidden",
+  "settingsPopoutWindow": false
 }

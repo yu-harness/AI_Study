@@ -1,0 +1,100 @@
+services:
+  text2sql-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: text2sql-api
+    environment:
+      TEXT2SQL_CONFIG: /app/text_to_sql/config.docker.yaml
+      OLLAMA_BASE_URL: http://host.docker.internal:8000
+      REDIS_URL: redis://redis:6379/0
+      ES_URL: http://elasticsearch:9200
+      SANDBOX_DB_URL: postgresql+psycopg2://text2sql_readonly:text2sql_readonly@sandbox-db:5432/text2sql
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8011:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      sandbox-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      retries: 12
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: text2sql-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - text2sql_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  elasticsearch:
+    build:
+      context: ./docker/elasticsearch
+      dockerfile: Dockerfile
+    container_name: text2sql-elasticsearch
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - text2sql_es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: text2sql-prometheus
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - text2sql_prometheus_data:/prometheus
+    depends_on:
+      text2sql-api:
+        condition: service_healthy
+
+  sandbox-db:
+    image: pgvector/pgvector:pg16
+    container_name: text2sql-sandbox-db
+    environment:
+      POSTGRES_USER: text2sql
+      POSTGRES_PASSWORD: text2sql
+      POSTGRES_DB: text2sql
+    ports:
+      - "55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U text2sql -d text2sql"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - text2sql_pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/001-readonly.sql:/docker-entrypoint-initdb.d/001-readonly.sql:ro
+
+volumes:
+  text2sql_pgdata:
+  text2sql_redis_data:
+  text2sql_es_data:
+  text2sql_prometheus_data:

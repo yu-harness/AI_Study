@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 770" width="100%" role="img" aria-labelledby="ringar-title ringar-desc">
+<title id="ringar-title">Ring AllReduce 的四个传输步骤</title>
+<desc id="ringar-desc">三张卡各把梯度切成 a、b、c 三块，两步 Reduce-Scatter 让每张卡攒齐一块全和，再两步 All-Gather 让三张卡都拿到三块全和。</desc>
+<defs>
+<marker id="ringar-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#7d848c" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<g transform="translate(20,20)">
+<text x="0" y="12" font-size="12" fill="#e8a33d">① 初始</text>
+<rect x="110" y="28" width="120" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="170" y="46" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="170" dy="0">GPU 0</tspan><tspan x="170" dy="16">a₀</tspan><tspan x="170" dy="16">b₀</tspan><tspan x="170" dy="16">c₀</tspan></text>
+<rect x="10" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="65" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="65" dy="0">GPU 1</tspan><tspan x="65" dy="16">a₁</tspan><tspan x="65" dy="16">b₁</tspan><tspan x="65" dy="16">c₁</tspan></text>
+<rect x="210" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="265" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="265" dy="0">GPU 2</tspan><tspan x="265" dy="16">a₂</tspan><tspan x="265" dy="16">b₂</tspan><tspan x="265" dy="16">c₂</tspan></text>
+<text x="0" y="236" font-size="12" fill="#7d848c">每卡三块，各不相同</text>
+</g>
+<g transform="translate(380,20)">
+<text x="0" y="12" font-size="12" fill="#c9cdd3">② Reduce-Scatter 第一步</text>
+<path d="M150 96 V116 H60 V136" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<path d="M120 174 H206" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<path d="M250 140 V116 H190 V100" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<text x="105" y="110" text-anchor="middle" font-size="11" fill="#e8a33d">a₀</text>
+<text x="163" y="168" text-anchor="middle" font-size="11" fill="#e8a33d">b₁</text>
+<text x="222" y="110" text-anchor="middle" font-size="11" fill="#e8a33d">c₂</text>
+<rect x="110" y="28" width="120" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="170" y="46" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="170" dy="0">GPU 0</tspan><tspan x="170" dy="16">a₀</tspan><tspan x="170" dy="16">b₀</tspan><tspan x="170" dy="16">c₀+c₂</tspan></text>
+<rect x="10" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="65" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="65" dy="0">GPU 1</tspan><tspan x="65" dy="16">a₀+a₁</tspan><tspan x="65" dy="16">b₁</tspan><tspan x="65" dy="16">c₁</tspan></text>
+<rect x="210" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="265" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="265" dy="0">GPU 2</tspan><tspan x="265" dy="16">a₂</tspan><tspan x="265" dy="16">b₁+b₂</tspan><tspan x="265" dy="16">c₂</tspan></text>
+<text x="0" y="236" font-size="12" fill="#7d848c">各发自己那块，邻居收到就加上</text>
+</g>
+<g transform="translate(20,270)">
+<text x="0" y="12" font-size="12" fill="#c9cdd3">③ Reduce-Scatter 完成</text>
+<path d="M150 96 V116 H60 V136" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<path d="M120 174 H206" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<path d="M250 140 V116 H190 V100" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<text x="105" y="110" text-anchor="middle" font-size="11" fill="#e8a33d">c₀+c₂</text>
+<text x="163" y="168" text-anchor="middle" font-size="11" fill="#e8a33d">a₀+a₁</text>
+<text x="222" y="110" text-anchor="middle" font-size="11" fill="#e8a33d">b₁+b₂</text>
+<rect x="110" y="28" width="120" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="170" y="46" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="170" dy="0">GPU 0</tspan><tspan x="170" dy="16">a₀</tspan><tspan x="170" dy="16" fill="#e8a33d">b₀+b₁+b₂</tspan><tspan x="170" dy="16">c₀+c₂</tspan></text>
+<rect x="10" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="65" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="65" dy="0">GPU 1</tspan><tspan x="65" dy="16">a₀+a₁</tspan><tspan x="65" dy="16">b₁</tspan><tspan x="65" dy="16" fill="#e8a33d">c₀+c₁+c₂</tspan></text>
+<rect x="210" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="265" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="265" dy="0">GPU 2</tspan><tspan x="265" dy="16" fill="#e8a33d">a₀+a₁+a₂</tspan><tspan x="265" dy="16">b₁+b₂</tspan><tspan x="265" dy="16">c₂</tspan></text>
+<text x="0" y="236" font-size="12" fill="#7d848c">每卡各攒齐一块全和</text>
+</g>
+<g transform="translate(380,270)">
+<text x="0" y="12" font-size="12" fill="#c9cdd3">④ All-Gather 第一步</text>
+<path d="M150 96 V116 H60 V136" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<path d="M120 174 H206" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<path d="M250 140 V116 H190 V100" fill="none" stroke="#7d848c" stroke-width="1" marker-end="url(#ringar-arrow)"/>
+<text x="105" y="110" text-anchor="middle" font-size="11" fill="#7d848c">b₀+b₁+b₂</text>
+<text x="163" y="168" text-anchor="middle" font-size="11" fill="#7d848c">c₀+c₁+c₂</text>
+<text x="222" y="110" text-anchor="middle" font-size="11" fill="#7d848c">a₀+a₁+a₂</text>
+<rect x="110" y="28" width="120" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="170" y="46" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="170" dy="0">GPU 0</tspan><tspan x="170" dy="16" fill="#e8a33d">a₀+a₁+a₂</tspan><tspan x="170" dy="16" fill="#e8a33d">b₀+b₁+b₂</tspan><tspan x="170" dy="16">c₀+c₂</tspan></text>
+<rect x="10" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="65" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="65" dy="0">GPU 1</tspan><tspan x="65" dy="16">a₀+a₁</tspan><tspan x="65" dy="16" fill="#e8a33d">b₀+b₁+b₂</tspan><tspan x="65" dy="16" fill="#e8a33d">c₀+c₁+c₂</tspan></text>
+<rect x="210" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="265" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="265" dy="0">GPU 2</tspan><tspan x="265" dy="16" fill="#e8a33d">a₀+a₁+a₂</tspan><tspan x="265" dy="16">b₁+b₂</tspan><tspan x="265" dy="16" fill="#e8a33d">c₀+c₁+c₂</tspan></text>
+<text x="0" y="236" font-size="12" fill="#7d848c">把攒齐的那块沿环传出去</text>
+</g>
+<g transform="translate(20,520)">
+<text x="0" y="12" font-size="12" fill="#e8a33d">⑤ All-Gather 完成</text>
+<rect x="110" y="28" width="120" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="170" y="46" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="170" dy="0">GPU 0</tspan><tspan x="170" dy="16" fill="#e8a33d">a₀+a₁+a₂</tspan><tspan x="170" dy="16" fill="#e8a33d">b₀+b₁+b₂</tspan><tspan x="170" dy="16" fill="#e8a33d">c₀+c₁+c₂</tspan></text>
+<rect x="10" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="65" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="65" dy="0">GPU 1</tspan><tspan x="65" dy="16" fill="#e8a33d">a₀+a₁+a₂</tspan><tspan x="65" dy="16" fill="#e8a33d">b₀+b₁+b₂</tspan><tspan x="65" dy="16" fill="#e8a33d">c₀+c₁+c₂</tspan></text>
+<rect x="210" y="140" width="110" height="68" rx="6" fill="#2a2d33" stroke="#4a4f57" stroke-width="1"/>
+<text x="265" y="158" text-anchor="middle" font-size="12" fill="#9aa0a6"><tspan x="265" dy="0">GPU 2</tspan><tspan x="265" dy="16" fill="#e8a33d">a₀+a₁+a₂</tspan><tspan x="265" dy="16" fill="#e8a33d">b₀+b₁+b₂</tspan><tspan x="265" dy="16" fill="#e8a33d">c₀+c₁+c₂</tspan></text>
+<text x="0" y="236" font-size="12" fill="#7d848c">三卡完全一致</text>
+</g>
+<g transform="translate(380,520)">
+<text x="0" y="12" font-size="12" fill="#c9cdd3">怎么读这张图</text>
+<text x="0" y="44" font-size="11" fill="#e4e6ea">箭头旁的字 = 这一段传过去的那一块</text>
+<text x="0" y="66" font-size="11" fill="#7d848c">橙色 = 已经攒齐的全和</text>
+<text x="0" y="96" font-size="11" fill="#e4e6ea">Reduce-Scatter 两轮，每轮每卡只发一块</text>
+<text x="0" y="118" font-size="11" fill="#7d848c">All-Gather 两轮，每轮每卡只发一块</text>
+<text x="0" y="148" font-size="11" fill="#7d848c">总共 4 步 = 2(N−1)，N 为卡数</text>
+<text x="0" y="170" font-size="11" fill="#7d848c">这里 N=3，所以是三卡成环</text>
+</g>
+</g>
+</svg>

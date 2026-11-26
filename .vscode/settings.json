@@ -1,0 +1,21 @@
+{
+  "markdown.styles": [".vscode/obsidian-dracula.css"],
+  "markdown.preview.fontSize": 19,
+  "markdown.preview.lineHeight": 1.9,
+  "markdown.preview.breaks": true,
+  "markdown.preview.typographer": false,
+  "markdown.preview.linkify": true,
+  "markdown.preview.scrollPreviewWithEditor": true,
+  "markdown.preview.scrollEditorWithPreview": true,
+  "editor.wordWrap": "on",
+  "[markdown]": {
+    "editor.fontSize": 16,
+    "editor.lineHeight": 26,
+    "editor.quickSuggestions": {
+      "other": false,
+      "comments": false,
+      "strings": false
+    }
+  },
+  "git.ignoreLimitWarning": true
+}

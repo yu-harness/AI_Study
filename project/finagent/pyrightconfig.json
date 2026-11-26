@@ -1,0 +1,13 @@
+{
+  "include": ["finagent"],
+  "exclude": ["**/__pycache__", "**/.pytest_cache", "build", "dist"],
+  "extraPaths": ["."],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": ["."]
+    }
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic"
+}

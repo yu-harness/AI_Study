@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="100%" role="img" aria-labelledby="zerogb-title zerogb-desc">
+<title id="zerogb-title">四个阶段每张卡的显存占用</title>
+<desc id="zerogb-desc">7.5B 参数、64 张卡下，Stage 0 每卡 120 GB，Stage 1 降到 31.4 GB，Stage 2 降到 16.6 GB，Stage 3 降到 1.9 GB。</desc>
+<rect x="0" y="0" width="720" height="420" fill="#2d3142"/>
+<line x1="100" y1="125" x2="664" y2="125" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<line x1="100" y1="190" x2="664" y2="190" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<line x1="100" y1="255" x2="664" y2="255" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<line x1="100" y1="60" x2="664" y2="60" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<line x1="100" y1="60" x2="100" y2="320" stroke="#f5f5f5" stroke-opacity="0.25" stroke-width="1"/>
+<line x1="100" y1="320" x2="664" y2="320" stroke="#f5f5f5" stroke-opacity="0.25" stroke-width="1"/>
+<text x="92" y="64" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">120</text>
+<text x="92" y="129" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">90</text>
+<text x="92" y="194" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">60</text>
+<text x="92" y="259" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">30</text>
+<text x="92" y="324" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">0</text>
+<rect x="164" y="287.5" width="72" height="32.5" fill="#3F4353" stroke="#2d3142" stroke-width="1"/>
+<rect x="164" y="255" width="72" height="32.5" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="164" y="60" width="72" height="195" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="304" y="287.5" width="72" height="32.5" fill="#3F4353" stroke="#2d3142" stroke-width="1"/>
+<rect x="304" y="255" width="72" height="32.5" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="304" y="252" width="72" height="3" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="444" y="287.5" width="72" height="32.5" fill="#3F4353" stroke="#2d3142" stroke-width="1"/>
+<rect x="444" y="287" width="72" height="0.5" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="444" y="284" width="72" height="3" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="584" y="319.5" width="72" height="0.5" fill="#3F4353" stroke="#2d3142" stroke-width="1"/>
+<rect x="584" y="319" width="72" height="0.5" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="584" y="316" width="72" height="3" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<text x="200" y="50" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="500" fill="#f5f5f5">120 GB</text>
+<text x="340" y="242" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="500" fill="#f5f5f5">31.4 GB</text>
+<text x="480" y="274" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="500" fill="#f5f5f5">16.6 GB</text>
+<text x="620" y="306" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="500" fill="#f5f5f5">1.9 GB</text>
+<text x="200" y="348" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="600" fill="#f5f5f5">Stage 0</text>
+<text x="340" y="348" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="600" fill="#f5f5f5">Stage 1</text>
+<text x="480" y="348" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="600" fill="#f5f5f5">Stage 2</text>
+<text x="620" y="348" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="600" fill="#f5f5f5">Stage 3</text>
+<rect x="100" y="372" width="12" height="12" fill="#3F4353" stroke="#f5f5f5" stroke-opacity="0.3" stroke-width="1"/>
+<text x="120" y="383" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">参数</text>
+<rect x="176" y="372" width="12" height="12" fill="#5B6070" stroke="#f5f5f5" stroke-opacity="0.3" stroke-width="1"/>
+<text x="196" y="383" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">梯度</text>
+<rect x="252" y="372" width="12" height="12" fill="#f08a59" stroke="#f5f5f5" stroke-opacity="0.3" stroke-width="1"/>
+<text x="272" y="383" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">优化器状态</text>
+<text x="100" y="408" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">7.5B 参数、64 张卡，纵轴为每张卡的显存（GB）；三块的分段长度按各自的字节数折算。</text>
+</svg>

@@ -1,0 +1,43 @@
+{
+  "id": "order_metrics",
+  "type": "metrics",
+  "question_patterns": [
+    "订单数量",
+    "订单数",
+    "订单量",
+    "已支付订单",
+    "支付订单",
+    "按地区统计订单",
+    "每个地区订单"
+  ],
+  "keywords": [
+    "已支付",
+    "支付成功",
+    "订单数量",
+    "按地区",
+    "每个地区"
+  ],
+  "definition": "订单类统计默认以 orders 为主表；已支付订单指 orders.status = 'paid'；按地区统计时使用 orders.region 分组。",
+  "metrics": [
+    {
+      "name": "订单数量",
+      "alias": [
+        "订单数",
+        "订单量",
+        "下单数"
+      ],
+      "sql_template": "COUNT(*)",
+      "unit": "单"
+    },
+    {
+      "name": "已支付订单数量",
+      "alias": [
+        "支付订单数",
+        "已支付订单数",
+        "支付成功订单数"
+      ],
+      "sql_template": "COUNT(*) with WHERE orders.status = 'paid'",
+      "unit": "单"
+    }
+  ]
+}

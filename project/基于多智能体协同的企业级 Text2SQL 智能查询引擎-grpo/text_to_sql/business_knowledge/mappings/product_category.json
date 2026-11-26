@@ -1,0 +1,21 @@
+{
+  "dimension": "category",
+  "type": "mapping",
+  "values": [
+    {
+      "name": "服装",
+      "codes": ["F01", "F02", "F03"],
+      "includes": ["女装", "男装", "童装", "运动装"]
+    },
+    {
+      "name": "数码",
+      "codes": ["D01", "D02", "D03"],
+      "includes": ["手机", "电脑", "平板", "相机"]
+    },
+    {
+      "name": "食品",
+      "codes": ["P01", "P02", "P03"],
+      "includes": ["零食", "生鲜", "饮料"]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" width="100%" role="img" aria-labelledby="rl-vs-title rl-vs-desc">
+<title id="rl-vs-title">有监督学习与强化学习：各自固定什么、优化什么</title>
+<desc id="rl-vs-desc">有监督学习固定数据分布、优化模型参数；强化学习固定奖励函数、优化策略导出的数据分布。</desc>
+<defs>
+<marker id="rl-vs-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="760" height="320" fill="#2d3142"/>
+<text x="380" y="28" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">同样是"取期望再优化"，区别在固定哪一边、挪哪一边</text>
+
+<text x="190" y="64" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">有监督学习</text>
+<rect x="60" y="80" width="260" height="64" rx="6" fill="#2d3142" stroke="#949eb2" stroke-width="1"/>
+<text x="190" y="106" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#bfc0c0">固定数据集 p_data(x, y)</text>
+<text x="190" y="126" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">（固定不动）</text>
+<path d="M190 150 L190 196" stroke="#bfc0c0" stroke-width="1" marker-end="url(#rl-vs-arrow)"/>
+<text x="230" y="176" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">采样提供 (x, y)</text>
+<rect x="60" y="202" width="260" height="64" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="190" y="228" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f08a59">模型 f_θ</text>
+<text x="190" y="248" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">被优化的对象：参数</text>
+
+<text x="570" y="64" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">强化学习</text>
+<rect x="440" y="80" width="260" height="64" rx="6" fill="#2d3142" stroke="#949eb2" stroke-width="1"/>
+<text x="570" y="106" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#bfc0c0">固定奖励函数 r(s, a)</text>
+<text x="570" y="126" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">（固定不动）</text>
+<path d="M570 196 L570 150" stroke="#bfc0c0" stroke-width="1" marker-end="url(#rl-vs-arrow)"/>
+<text x="616" y="176" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">评分作用在分布上</text>
+<rect x="440" y="202" width="260" height="64" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="570" y="228" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f08a59">策略 π 及其导出的分布 ρ_π</text>
+<text x="570" y="248" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">被优化的对象：数据分布</text>
+
+<text x="380" y="300" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">左边在固定的分布上优化函数；右边在固定的评分函数上优化分布。</text>
+</svg>

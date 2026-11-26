@@ -1,0 +1,43 @@
+# =============================================================================
+# finagent 项目清单（PEP 621）
+#
+# 本文件是这个项目的“运行依赖 + 工具配置”的唯一入口，不是业务代码：
+#   1. [project]                    —— 包元数据与最小运行依赖（跑起来必需）
+#   2. [project.optional-dependencies]
+#        dev                       —— 开发/测试依赖（pytest）
+#        production                —— 生产环境后端依赖（neo4j / postgres / milvus / temporal）
+#   3. [tool.pytest.ini_options]    —— 测试入口：根目录入 sys.path，用例在 finagent/tests
+#
+# 用法（推荐 uv，仓库内已有 uv.lock）：
+#   uv sync                    # 装基础依赖
+#   uv sync --extra dev        # 开发环境
+#   uv sync --extra production # 生产环境（含外部存储与服务依赖）
+# 等价的 pip 写法：pip install -e ".[dev,production]"
+# =============================================================================
+
+[project]
+name = "finagent"
+version = "0.1.0"
+description = "Production-grade multi-agent financial decision assistant service."
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "langgraph>=1.2.4",
+  "pydantic>=2.0",
+  "uvicorn>=0.30",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+production = [
+  "neo4j>=5.0",
+  "psycopg[binary]>=3.2",
+  "pymilvus>=2.4",
+  "temporalio>=1.6",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["finagent/tests"]

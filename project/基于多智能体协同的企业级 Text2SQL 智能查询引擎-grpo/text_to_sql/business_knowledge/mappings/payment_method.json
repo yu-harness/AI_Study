@@ -1,0 +1,27 @@
+{
+  "dimension": "payments.method",
+  "column": "method",
+  "source_table": "payments",
+  "values": [
+    {
+      "display": "银行卡",
+      "code": "card",
+      "includes": ["银行卡支付", "信用卡", "储蓄卡", "刷卡"]
+    },
+    {
+      "display": "钱包",
+      "code": "wallet",
+      "includes": ["钱包支付", "支付宝", "微信支付", "数字钱包"]
+    },
+    {
+      "display": "银行转账",
+      "code": "bank_transfer",
+      "includes": ["转账", "汇款", "对公转账", "银行汇款"]
+    },
+    {
+      "display": "优惠券",
+      "code": "coupon",
+      "includes": ["优惠券支付", "券支付", "抵扣券", "用券"]
+    }
+  ]
+}

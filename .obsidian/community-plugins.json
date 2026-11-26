@@ -1,5 +1,6 @@
 [
+  "vscode-editor",
+  "document-comments",
   "remember-cursor-position",
-  "image-converter",
-  "dataview"
+  "workbuddian"
 ]

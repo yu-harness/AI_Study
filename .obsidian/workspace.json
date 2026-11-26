@@ -4,22 +4,22 @@
     "type": "split",
     "children": [
       {
-        "id": "53d0ffe6ead01788",
+        "id": "95eaeb49fe290d5b",
         "type": "tabs",
         "children": [
           {
-            "id": "9276e255f93c224a",
+            "id": "05511f93ce6cb869",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1大模型基础/01 Transformer 与 LLM 基础(重要).md",
+                "file": "多模型/ViT.md",
                 "mode": "source",
                 "source": false,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "01 Transformer 与 LLM 基础(重要)"
+              "title": "ViT"
             }
           }
         ]
@@ -35,21 +35,6 @@
         "id": "53be845524e4c5c2",
         "type": "tabs",
         "children": [
-          {
-            "id": "42f423b36a030545",
-            "type": "leaf",
-            "state": {
-              "type": "file-explorer",
-              "state": {
-                "sortOrder": "alphabetical",
-                "autoReveal": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-folder-closed",
-              "title": "文件列表"
-            }
-          },
           {
             "id": "fecf988d0dd622f0",
             "type": "leaf",
@@ -68,20 +53,26 @@
             }
           },
           {
-            "id": "d829513877b1d555",
+            "id": "1f51de92d6f957ab",
             "type": "leaf",
             "state": {
-              "type": "bookmarks",
-              "state": {},
-              "icon": "lucide-bookmark",
-              "title": "书签"
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
-    "width": 374.6059150695801
+    "width": 271.5
   },
   "right": {
     "id": "da94ac529f083792",
@@ -92,74 +83,12 @@
         "type": "tabs",
         "children": [
           {
-            "id": "f200bc6b4b7a7b72",
-            "type": "leaf",
-            "state": {
-              "type": "backlink",
-              "state": {
-                "file": "project/居丽叶简历项目7：医疗助手/04-Skill系统详解.md",
-                "collapseAll": true,
-                "extraContext": false,
-                "sortOrder": "alphabetical",
-                "showSearch": false,
-                "searchQuery": "",
-                "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
-              },
-              "icon": "links-coming-in",
-              "title": "反向链接"
-            }
-          },
-          {
-            "id": "819937ec4faf811e",
-            "type": "leaf",
-            "state": {
-              "type": "outgoing-link",
-              "state": {
-                "file": "project/居丽叶简历项目7：医疗助手/04-Skill系统详解.md",
-                "linksCollapsed": false,
-                "unlinkedCollapsed": true
-              },
-              "icon": "links-going-out",
-              "title": "出链"
-            }
-          },
-          {
-            "id": "425dcb2b31dc8af5",
-            "type": "leaf",
-            "state": {
-              "type": "tag",
-              "state": {
-                "sortOrder": "frequency",
-                "useHierarchy": true,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-tags",
-              "title": "标签"
-            }
-          },
-          {
-            "id": "5176cb4f93a6d3c9",
-            "type": "leaf",
-            "state": {
-              "type": "all-properties",
-              "state": {
-                "sortOrder": "frequency",
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-archive",
-              "title": "添加笔记属性"
-            }
-          },
-          {
             "id": "9d4afe9f8c03833b",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "code/how-claude-code-works/docs/15-task-system.md",
+                "file": "多模型/ViT.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -167,75 +96,83 @@
               "icon": "lucide-list",
               "title": "大纲"
             }
+          },
+          {
+            "id": "d6e80063cfd2e8fb",
+            "type": "leaf",
+            "state": {
+              "type": "workbuddian-panel",
+              "state": {},
+              "icon": "workbuddian-pig",
+              "title": "Workbuddian 聊天"
+            }
           }
         ],
-        "currentTab": 4
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
-    "width": 268.259033203125,
-    "collapsed": true
+    "width": 509.5
   },
   "left-ribbon": {
     "hiddenItems": {
-      "switcher:打开快速切换": false,
-      "graph:查看关系图谱": false,
-      "canvas:新建白板": false,
-      "daily-notes:打开/创建今天的日记": false,
-      "templates:插入模板": false,
+      "workbuddian:Workbuddian 聊天": false,
       "command-palette:打开命令面板": false,
-      "bases:新建数据库": false,
-      "workspaces:管理工作区布局": false
+      "workspaces:管理工作区布局": false,
+      "vscode-editor:新建代码文件": true,
+      "graph:查看关系图谱": false,
+      "daily-notes:打开/创建今天的日记": false
     }
   },
-  "active": "9276e255f93c224a",
+  "active": "1f51de92d6f957ab",
   "lastOpenFiles": [
-    "_fix_semantics.py",
-    "_restore_back.py",
-    "_rename_links.py",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
-    "tether/tmp/platform-verify/workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_subdir_env_anchor/bench_repo_platform/env_outer/sub/proj",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_atomic_write_retry/bench_repo_platform/atomic-runs/run_lock/task_state.json.65gaftjq.tmp",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_atomic_write_retry/bench_repo_platform/atomic-runs/run_lock/task_state.json",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_subdir_env_anchor/bench_repo_platform/env_outer/sub/proj",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_atomic_write_retry/bench_repo_platform/atomic-runs/run_lock/task_state.json.kfl8webp.tmp",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_atomic_write_retry/bench_repo_platform/atomic-runs/run_lock/task_state.json",
-    "tether/artifacts/ci/workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_chinese_path_utf8/bench_repo_platform/中文工作区/README.md",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_chinese_path_utf8/bench_repo_platform/中文工作区/README.md",
-    "tether/artifacts/deepseek-benchmark-workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/outer_repo/nested/workspace/README.md",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/workspace_mismatch_resume/bench_repo_readme/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/context_reduction_checkpoint/bench_repo_readme/README.md",
-    "tether/tmp/platform-verify/workspaces/platform_chinese_path_utf8/bench_repo_platform/中文工作区/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/workspace_mismatch_resume/bench_repo_readme/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/readme_schema_note/bench_repo_readme/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/readme_intro_locked/bench_repo_readme/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_thinking_budget_guard/bench_repo_platform/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_subdir_env_anchor/bench_repo_platform/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_metrics_repo_root_anchor/bench_repo_platform/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_dsml_tool_call/bench_repo_platform/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_chinese_path_utf8/bench_repo_platform/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/platform_atomic_write_retry/bench_repo_platform/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/invalid_patch_recovery/bench_repo_readme/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/durable_promotion_reject/bench_repo_readme/README.md",
-    "tether/benchmarks/results/resume-archive/harness-workspaces/durable_promotion_accept/bench_repo_readme/README.md",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/readme_schema_note/bench_repo_readme/README.md",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/readme_intro_locked/bench_repo_readme/README.md",
-    "tether/benchmarks/results/cost-card-2026-10-05/workspaces/platform_subdir_env_anchor/bench_repo_platform/README.md",
-    "tether/tmp/pages-deploy-site/assets/langfuse-trace-list.png",
-    "tether/tmp/pages-deploy-site/assets/trace-timeline.png",
-    "tether/tmp/pages-deploy-site/assets/trace-list.png",
-    "tether/tmp/pages-deploy-site/assets/thread-session.png",
-    "tether/tmp/pages-deploy-site/assets/langfuse-trace-detail.png",
-    "tether/tmp/pages-deploy-site/assets/langfuse-session-detail.png",
-    "tether/tmp/pages-deploy-site/assets/langfuse-session.png",
-    "tether/docs/tracing/thread-session.png",
-    "tether/site/assets/trace-timeline.png",
-    "tether/site/assets/trace-list.png",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/多智能体text2sql实现方案.md",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo.md",
+    "简历/~$_大模型Agent开发 .docx",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/runtime/stress_test.py",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/runtime/seed_sandbox_data.py",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/docker/postgres/001-readonly.sql",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/docker/elasticsearch/Dockerfile",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/business_knowledge/metrics/user.json",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/business_knowledge/metrics/traffic.json",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/business_knowledge/metrics/revenue.json",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/business_knowledge/metrics/refund.json",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/business_knowledge/metrics/payment.json",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/training/TRAINING_ENVIRONMENTS.md",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text_to_sql/README.md",
+    "2模型后训练/2.4 分布式训练/2.4.6 Megatron-LM.md",
+    "2模型后训练/2.4 分布式训练/2.4.5 deepspeed.md",
+    "2模型后训练/2.2强化学习/veRL 学习笔记.md",
+    "2模型后训练/2.2强化学习/2.2.9 PPO.md",
+    "2模型后训练/2.2强化学习/2.2.10 DPO（Direct preference optimization）.md",
+    "2模型后训练/2.2强化学习/2.2.12 SAPO.md",
+    "LLM 基础/学习率调度.md",
+    "LLM 基础/训练工程.md",
+    "LLM 基础/LLaMA-Factory.md",
+    "数据库/redis/Redis博客/03 - 高性能IO模型：为什么单线程Redis能那么快？.md",
+    "数据库/redis/Redis博客/02 - 数据结构：快速的Redis有哪些慢操作？.md",
+    "数据库/redis/Redis博客/01 - 基本架构：一个键值数据库包含什么？.md",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text2sql常见benchmark.md",
+    "project/finagent/基于动态记忆多智能体协同的宏微观金融决策 Agent.md",
+    "project/finagent/SFT 数据与训练配置 · 面试通关学习文档.md",
+    "LLM 基础/大模型重点基础_习题简答.md",
+    "LLM 基础/大模型重点基础.md",
+    "LLM 基础/采样策略.md",
+    "project/finagent/finagent/代码分析（重构版）.md",
+    "project/基于多智能体协同的企业级 Text2SQL 智能查询引擎-grpo/text2sql面试题复盘.md",
+    "project/finagent/宏微观金融决策 Agent · 技术梳理.md",
+    "数据库/附件/Pasted image 20261115211138.png",
+    "数据库/附件/Pasted image 20261115211202.png",
+    "简历/work/build/210002a80bee4f599b0fa0f7b336861f/page-1.svg",
+    "简历/work/build/0fc450b05c2b4ef4b30e2864ec778ba4/page-1.svg",
+    "简历/work/build/bb18d611cdd549b38dd8c0929277166b/page-1.svg",
+    "简历/work/build/bb18d611cdd549b38dd8c0929277166b/page-2.svg",
+    "简历/work/build/8a7a6249e1b54840a0a30bb9438ff9bb/page-1.svg",
+    "简历/work/build/8a7a6249e1b54840a0a30bb9438ff9bb/page-2.svg",
+    "简历/work/build/82a34e280b1d4dd3b305fdb55209dcf4/page-1.svg",
+    "简历/work/build/82a34e280b1d4dd3b305fdb55209dcf4/page-2.svg",
+    "10-主题/强化学习/强化学习的数学原理/未命名.canvas",
+    "project/rag-kb/vault-dag.canvas",
     "rag-kb/vault-dag.canvas",
     "Redis/05 内存快照：宕机后，Redis如何实现快速恢复？_split/Redis 内存快照.canvas",
     "RAG篇/3.2 Chunking-free RAG_split/Chunking-Free RAG.canvas",
@@ -243,8 +180,6 @@
     "Redis/01 基本架构：一个键值数据库包含什么？_split/键值数据库架构.canvas",
     "Redis/00 这样学Redis，才能技高一筹_split/Redis学习方法.canvas",
     "Redis/03 高性能IO模型：为什么单线程Redis能那么快？_split/高性能IO模型.canvas",
-    "Redis/01 基本架构：一个键值数据库包含什么？_split/基本结构.canvas",
-    "Redis/04 AOF日志：宕机了，Redis如何避免数据丢失？_split/AOF.canvas",
-    "Redis/00 这样学Redis，才能技高一筹_split/学习目标.canvas"
+    "Redis/01 基本架构：一个键值数据库包含什么？_split/基本结构.canvas"
   ]
 }

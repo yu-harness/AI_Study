@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 460" font-family="PingFang SC, Microsoft YaHei, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280"/>
+    </marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b45309"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="940" height="460" fill="#fbfaf7"/>
+
+  <!-- 左：传统 -->
+  <text x="24" y="34" font-size="17" font-weight="700" fill="#1f2937">传统实现：5 个独立 kernel</text>
+  <text x="24" y="56" font-size="13" fill="#6b7280">每一步的中间结果都要写回 HBM，再读出来</text>
+
+  <rect x="24" y="76" width="150" height="34" rx="6" fill="#e5e7eb" stroke="#9ca3af"/>
+  <text x="99" y="98" font-size="13" text-anchor="middle" fill="#111827">HBM</text>
+  <rect x="188" y="76" width="230" height="34" rx="6" fill="#eef2ff" stroke="#818cf8"/>
+  <text x="303" y="98" font-size="13" text-anchor="middle" fill="#1e1b4b">SRAM / Compute</text>
+
+  <!-- 左侧步骤 -->
+  <g font-size="12.5" fill="#111827">
+    <rect x="188" y="126" width="230" height="34" rx="6" fill="#eef2ff" stroke="#818cf8"/>
+    <text x="303" y="148" text-anchor="middle">① 读 Q,K → 算 S = QKᵀ</text>
+
+    <rect x="24" y="170" width="150" height="34" rx="6" fill="#fde68a" stroke="#d97706"/>
+    <text x="99" y="192" text-anchor="middle">写回 S（8 MB）</text>
+
+    <rect x="188" y="214" width="230" height="34" rx="6" fill="#eef2ff" stroke="#818cf8"/>
+    <text x="303" y="236" text-anchor="middle">② 读 S → Mask</text>
+
+    <rect x="24" y="258" width="150" height="34" rx="6" fill="#fde68a" stroke="#d97706"/>
+    <text x="99" y="280" text-anchor="middle">写回 S</text>
+
+    <rect x="188" y="302" width="230" height="34" rx="6" fill="#eef2ff" stroke="#818cf8"/>
+    <text x="303" y="324" text-anchor="middle">③ 读 S → Softmax → P</text>
+
+    <rect x="24" y="346" width="150" height="34" rx="6" fill="#fde68a" stroke="#d97706"/>
+    <text x="99" y="368" text-anchor="middle">写回 P（8 MB）</text>
+
+    <rect x="188" y="390" width="230" height="34" rx="6" fill="#eef2ff" stroke="#818cf8"/>
+    <text x="303" y="412" text-anchor="middle">④ 读 P,V → 算 O → 写回</text>
+  </g>
+
+  <line x1="174" y1="143" x2="184" y2="187" stroke="#6b7280" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="188" y1="187" x2="178" y2="231" stroke="#6b7280" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="174" y1="275" x2="184" y2="319" stroke="#6b7280" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="188" y1="319" x2="178" y2="363" stroke="#6b7280" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="174" y1="363" x2="184" y2="407" stroke="#6b7280" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <text x="24" y="446" font-size="13" font-weight="700" fill="#b91c1c">HBM 往返约 5 读 5 写，共 10 次</text>
+
+  <!-- 分栏 -->
+  <line x1="468" y1="20" x2="468" y2="440" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- 右：融合 -->
+  <text x="500" y="34" font-size="17" font-weight="700" fill="#065f46">FlashAttention：1 个 fused kernel</text>
+  <text x="500" y="56" font-size="13" fill="#6b7280">只开头读一次、结尾写一次，中间全在 SRAM 内完成</text>
+
+  <rect x="500" y="76" width="150" height="34" rx="6" fill="#e5e7eb" stroke="#9ca3af"/>
+  <text x="575" y="98" font-size="13" text-anchor="middle" fill="#111827">HBM</text>
+  <rect x="664" y="76" width="250" height="34" rx="6" fill="#d1fae5" stroke="#059669"/>
+  <text x="789" y="98" font-size="13" text-anchor="middle" fill="#064e3b">SRAM / Compute</text>
+
+  <rect x="500" y="126" width="414" height="300" rx="10" fill="#d1fae5" stroke="#059669"/>
+  <text x="707" y="152" font-size="14" text-anchor="middle" font-weight="700" fill="#064e3b">SRAM 内一次做完（不落地）</text>
+
+  <g font-size="12.5" fill="#064e3b">
+    <rect x="536" y="172" width="342" height="32" rx="6" fill="#ffffff" stroke="#34d399"/>
+    <text x="707" y="193" text-anchor="middle">① Q 分块 × K 分块 → S 块（片上）</text>
+
+    <rect x="536" y="216" width="342" height="32" rx="6" fill="#ffffff" stroke="#34d399"/>
+    <text x="707" y="237" text-anchor="middle">② Mask 就地处理</text>
+
+    <rect x="536" y="260" width="342" height="32" rx="6" fill="#ffffff" stroke="#34d399"/>
+    <text x="707" y="281" text-anchor="middle">③ Online softmax：边走边累积 max 与 sum</text>
+
+    <rect x="536" y="304" width="342" height="32" rx="6" fill="#ffffff" stroke="#34d399"/>
+    <text x="707" y="325" text-anchor="middle">④ 乘 V 分块，累加到输出 O 块</text>
+
+    <rect x="536" y="348" width="342" height="32" rx="6" fill="#fef3c7" stroke="#d97706"/>
+    <text x="707" y="369" text-anchor="middle">⑤ 只把最终 O（N×d）写回</text>
+  </g>
+
+  <text x="500" y="446" font-size="13" font-weight="700" fill="#065f46">HBM 往返：1 读 + 1 写 = 2 次；S、P 从不进入 HBM</text>
+
+  <text x="24" y="18" font-size="11" fill="#9ca3af">注：箭头方向即数据搬运方向，黄色块＝写回 HBM，绿色块＝留在 SRAM</text>
+</svg>

@@ -1,0 +1,30 @@
+{
+  "id": "revenue_metrics",
+  "type": "metrics",
+  "metrics": [
+    {
+      "name": "销售额",
+      "alias": ["收入", "营业额", "营收", "GMV"],
+      "sql_template": "SUM(amount)",
+      "unit": "元"
+    },
+    {
+      "name": "净利润",
+      "alias": ["利润", "纯利", "净收入"],
+      "sql_template": "SUM(amount - cost)",
+      "unit": "元"
+    },
+    {
+      "name": "毛利率",
+      "alias": ["利润率"],
+      "sql_template": "SUM(amount - cost) / SUM(amount) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "客单价",
+      "alias": ["人均消费", "平均订单金额"],
+      "sql_template": "SUM(amount) / COUNT(DISTINCT user_id)",
+      "unit": "元"
+    }
+  ]
+}

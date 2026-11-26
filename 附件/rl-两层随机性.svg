@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 372" width="100%" role="img" aria-labelledby="rl-rand-title rl-rand-desc">
+<title id="rl-rand-title">两层随机性</title>
+<desc id="rl-rand-desc">第一层是策略从分布里采样动作，第二层是环境响应本身也是概率分布。</desc>
+<defs>
+<marker id="rl-rand-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="760" height="372" fill="#2d3142"/>
+<text x="380" y="28" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">每一次交互叠加两层随机性</text>
+
+<rect x="40" y="60" width="110" height="52" rx="6" fill="#2d3142" stroke="#f5f5f5" stroke-width="1"/>
+<text x="95" y="90" text-anchor="middle" font-family="'Geist',sans-serif" font-size="13" fill="#f5f5f5">状态 s</text>
+<path d="M156 86 L204 86" stroke="#bfc0c0" stroke-width="1" marker-end="url(#rl-rand-arrow)"/>
+<rect x="210" y="52" width="210" height="68" rx="6" fill="#2d3142" stroke="#f5f5f5" stroke-width="1"/>
+<text x="315" y="74" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">策略输出分布 π(a|s)</text>
+<text x="315" y="94" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">"的": 40%　"是": 35%　"好": 25%</text>
+<path d="M426 86 L474 86" stroke="#bfc0c0" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#rl-rand-arrow)"/>
+<rect x="480" y="60" width="240" height="52" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="600" y="90" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f08a59">采样得到动作 a ="的"</text>
+<text x="450" y="140" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#bfc0c0">第一层：模型自己从分布里采样，和带温度的文本生成一样</text>
+
+<rect x="40" y="196" width="110" height="52" rx="6" fill="#2d3142" stroke="#f5f5f5" stroke-width="1"/>
+<text x="95" y="226" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">动作 a</text>
+<path d="M156 222 L204 222" stroke="#bfc0c0" stroke-width="1" marker-end="url(#rl-rand-arrow)"/>
+<rect x="210" y="196" width="210" height="52" rx="6" fill="#2d3142" stroke="#f5f5f5" stroke-width="1"/>
+<text x="315" y="226" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f5f5f5">环境 P(s′ | s, a)</text>
+<path d="M426 210 L514 178" stroke="#bfc0c0" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#rl-rand-arrow)"/>
+<path d="M426 234 L514 266" stroke="#bfc0c0" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#rl-rand-arrow)"/>
+<rect x="520" y="152" width="200" height="48" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="620" y="172" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f08a59">s′₁：这一回合赢了</text>
+<text x="620" y="190" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">概率 60%</text>
+<rect x="520" y="244" width="200" height="48" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="620" y="264" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f08a59">s′₂：这一回合输了</text>
+<text x="620" y="282" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">概率 40%</text>
+<text x="450" y="320" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#bfc0c0">第二层：同一个动作，环境的响应也可能不同（骰子、碰撞、网络延迟都能引入随机）</text>
+<text x="380" y="352" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">两层随机叠在一起，同一条轨迹每次跑出来的分数都不一样，所以优化的只能是"平均分"（期望）。</text>
+</svg>

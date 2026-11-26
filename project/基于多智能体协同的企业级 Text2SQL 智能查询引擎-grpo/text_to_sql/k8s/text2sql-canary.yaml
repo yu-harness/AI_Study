@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: text2sql-api-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: text2sql-api-canary
+  template:
+    metadata:
+      labels:
+        app: text2sql-api-canary
+    spec:
+      containers:
+        - name: api
+          image: text2sql-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: TEXT2SQL_CONFIG
+              value: /etc/text2sql/config.yaml
+            - name: AGENT_MODEL
+              value: qwen3.5:4b
+            - name: OLLAMA_BASE_URL
+              value: http://ollama:11434
+            - name: REDIS_URL
+              value: redis://redis:6379/0
+            - name: ES_URL
+              value: http://elasticsearch:9200
+            - name: SANDBOX_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: text2sql-secrets
+                  key: sandbox-db-url
+          volumeMounts:
+            - name: config
+              mountPath: /etc/text2sql
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+      volumes:
+        - name: config
+          configMap:
+            name: text2sql-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: text2sql-api-canary
+spec:
+  selector:
+    app: text2sql-api-canary
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: text2sql-api-canary
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: text2sql.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: text2sql-api-canary
+                port:
+                  number: 8000

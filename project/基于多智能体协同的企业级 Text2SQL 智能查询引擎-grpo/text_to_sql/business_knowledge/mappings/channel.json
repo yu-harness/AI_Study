@@ -1,0 +1,27 @@
+{
+  "dimension": "orders.channel / users.channel",
+  "column": "channel",
+  "source_table": "orders, users",
+  "values": [
+    {
+      "display": "APP",
+      "code": "app",
+      "includes": ["手机APP", "移动端", "客户端"]
+    },
+    {
+      "display": "网页",
+      "code": "web",
+      "includes": ["PC端", "网页端", "官网", "网站"]
+    },
+    {
+      "display": "门店",
+      "code": "store",
+      "includes": ["线下门店", "实体店", "门店POS", "线下"]
+    },
+    {
+      "display": "合作伙伴",
+      "code": "partner",
+      "includes": ["分销渠道", "代理商", "第三方", "合作方"]
+    }
+  ]
+}

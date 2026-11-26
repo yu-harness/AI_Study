@@ -1,0 +1,97 @@
+{
+  "dimension": "products.supplier",
+  "column": "supplier",
+  "source_table": "products",
+  "values": [
+    {
+      "display": "供应商01",
+      "code": "supplier_01",
+      "includes": []
+    },
+    {
+      "display": "供应商02",
+      "code": "supplier_02",
+      "includes": []
+    },
+    {
+      "display": "供应商03",
+      "code": "supplier_03",
+      "includes": []
+    },
+    {
+      "display": "供应商04",
+      "code": "supplier_04",
+      "includes": []
+    },
+    {
+      "display": "供应商05",
+      "code": "supplier_05",
+      "includes": []
+    },
+    {
+      "display": "供应商06",
+      "code": "supplier_06",
+      "includes": []
+    },
+    {
+      "display": "供应商07",
+      "code": "supplier_07",
+      "includes": []
+    },
+    {
+      "display": "供应商08",
+      "code": "supplier_08",
+      "includes": []
+    },
+    {
+      "display": "供应商09",
+      "code": "supplier_09",
+      "includes": []
+    },
+    {
+      "display": "供应商10",
+      "code": "supplier_10",
+      "includes": []
+    },
+    {
+      "display": "供应商11",
+      "code": "supplier_11",
+      "includes": []
+    },
+    {
+      "display": "供应商12",
+      "code": "supplier_12",
+      "includes": []
+    },
+    {
+      "display": "供应商13",
+      "code": "supplier_13",
+      "includes": []
+    },
+    {
+      "display": "供应商14",
+      "code": "supplier_14",
+      "includes": []
+    },
+    {
+      "display": "供应商15",
+      "code": "supplier_15",
+      "includes": []
+    },
+    {
+      "display": "供应商16",
+      "code": "supplier_16",
+      "includes": []
+    },
+    {
+      "display": "供应商17",
+      "code": "supplier_17",
+      "includes": []
+    },
+    {
+      "display": "供应商18",
+      "code": "supplier_18",
+      "includes": []
+    }
+  ]
+}

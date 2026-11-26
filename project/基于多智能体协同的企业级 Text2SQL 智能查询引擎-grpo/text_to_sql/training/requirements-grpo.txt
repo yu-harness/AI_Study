@@ -1,0 +1,12 @@
+# Exact project overlay installed with --no-deps on top of veRL's uv.lock.
+# Transitive packages must already be locked upstream or be listed here.
+sqlglot==30.17.0
+sqlalchemy==2.0.50
+greenlet==3.5.5
+redis==7.4.0
+pyarrow==24.0.0
+psycopg2-binary==2.9.12
+pymysql==1.2.0
+oracledb==4.0.2
+structlog==26.1.0
+prometheus-client==0.25.0

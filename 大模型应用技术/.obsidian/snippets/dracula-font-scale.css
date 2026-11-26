@@ -1,0 +1,21 @@
+/* Dracula for Obsidian 把字号固定成 --font-size-* 的像素值，覆盖了 Obsidian 的 --font-text-size。
+   这里把正文与标题的字号改为跟随 --font-text-size，比例沿用主题原本的 19px 基准。 */
+
+body {
+  --font-size-normal: var(--font-text-size);
+  --font-size-code: calc(var(--font-text-size) * 0.84);
+  --font-size-side-dock: calc(var(--font-text-size) * 0.84);
+  --font-size-side-dock-title: calc(var(--font-text-size) * 0.95);
+  --font-size-status-bar: calc(var(--font-text-size) * 0.84);
+  --font-size-h1: calc(var(--font-text-size) * 1.26);
+  --font-size-h2: calc(var(--font-text-size) * 1.21);
+  --font-size-h3: calc(var(--font-text-size) * 1.16);
+  --font-size-h4: calc(var(--font-text-size) * 1.11);
+  --font-size-h5: calc(var(--font-text-size) * 1.05);
+  --font-size-h6: var(--font-text-size);
+}
+
+/* 主题里这两处写的是固定像素，单独跟随 */
+.search-result-file-title {
+  font-size: calc(var(--font-text-size) * 0.79);
+}

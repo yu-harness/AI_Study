@@ -1,0 +1,15 @@
+---
+description: 每次会话开始必须完整读取并严格遵守 d:\md\AI实习\AGENTS.md 的全部规则
+alwaysApply: true
+enabled: true
+updatedAt: 2026-09-19T00:00:00.000Z
+provider:
+---
+
+# 会话开始的第一件事
+
+处理用户第一个请求之前，必须先完整读取 `d:\md\AI实习\AGENTS.md`，不得凭借记忆作答，不得跳过，不得只读取其中一部分。
+
+用户在消息中提及 AGENTS.md 时，必须重新读取一遍全文。
+
+AGENTS.md 中的全部语言规则与行为规则，对每一次回复、每一份文档、每一段注释都有效。

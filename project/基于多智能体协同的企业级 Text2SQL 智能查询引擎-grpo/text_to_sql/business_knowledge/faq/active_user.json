@@ -1,0 +1,10 @@
+{
+  "id": "active_user_def",
+  "type": "faq",
+  "question_patterns": ["活跃用户", "活跃会员", "有效用户"],
+  "definition": "指最近30天有登录行为或完成过交易的用户",
+  "filters": {
+    "login_days": 30,
+    "has_transaction": true
+  }
+}

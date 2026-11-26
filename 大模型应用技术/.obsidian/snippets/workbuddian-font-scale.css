@@ -1,0 +1,20 @@
+/* Workbuddian 面板的字号全部取自 Obsidian 的 --font-ui-* 变量，插件自身没有字号设置项。
+   这里在面板容器上重设那四个变量，并加一个缩放系数。
+   要调整面板字号就改 --workbuddian-font-scale 的数值，1 等于 Obsidian 的默认比例。 */
+
+.workbuddian-chat-container {
+  --workbuddian-font-scale: 1.15;
+  --font-ui-smaller: calc(var(--font-preferred-size) * 0.8 * var(--workbuddian-font-scale));
+  --font-ui-small: calc(var(--font-preferred-size) * 0.937 * var(--workbuddian-font-scale));
+  --font-ui-medium: calc(var(--font-preferred-size) * var(--workbuddian-font-scale));
+  --font-ui-large: calc(var(--font-preferred-size) * 1.2 * var(--workbuddian-font-scale));
+}
+
+/* 面板内两处写死的像素值，改为跟随缩放 */
+.workbuddian-empty-chat-title {
+  font-size: calc(var(--font-ui-large) * 1.05);
+}
+
+.workbuddian-bubble code {
+  font-size: calc(var(--font-ui-smaller) * 0.85);
+}

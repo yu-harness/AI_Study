@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="100%" role="img" aria-labelledby="fprange-title fprange-desc">
+<title id="fprange-title">三种格式的表示范围</title>
+<desc id="fprange-desc">横轴为对数刻度的数值大小，bf16 与 fp32 覆盖同样的范围，fp16 两端各窄约三十三个数量级。</desc>
+<rect x="0" y="0" width="720" height="320" fill="#2d3142"/>
+<line x1="160" y1="60" x2="160" y2="236" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<line x1="285" y1="60" x2="285" y2="236" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<line x1="410" y1="60" x2="410" y2="236" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<line x1="535" y1="60" x2="535" y2="236" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<line x1="660" y1="60" x2="660" y2="236" stroke="#f5f5f5" stroke-opacity="0.08" stroke-width="1"/>
+<text x="160" y="266" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">10⁻⁴⁰</text>
+<text x="285" y="266" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">10⁻²⁰</text>
+<text x="410" y="266" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">10⁰</text>
+<text x="535" y="266" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">10²⁰</text>
+<text x="660" y="266" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">10⁴⁰</text>
+<line x1="160" y1="236" x2="660" y2="236" stroke="#f5f5f5" stroke-opacity="0.25" stroke-width="1"/>
+<rect x="173" y="76" width="478" height="28" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="173" y="126" width="478" height="28" fill="#f08a59" stroke="#2d3142" stroke-width="1"/>
+<rect x="384" y="176" width="56" height="28" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<text x="148" y="95" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">fp32</text>
+<text x="148" y="145" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">bf16</text>
+<text x="148" y="195" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">fp16</text>
+<text x="185" y="95" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">1.2×10⁻³⁸ 到 3.4×10³⁸</text>
+<text x="185" y="145" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2d3142">1.2×10⁻³⁸ 到 3.4×10³⁸</text>
+<text x="452" y="195" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">6.1×10⁻⁵ 到 65504</text>
+<text x="24" y="296" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">横轴为数值大小，对数刻度。bf16 的覆盖范围与 fp32 一致，fp16 两端各窄约三十三个数量级。</text>
+</svg>

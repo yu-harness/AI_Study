@@ -1,0 +1,11 @@
+{
+  "id": "low_inventory_def",
+  "type": "faq",
+  "question_patterns": ["低库存", "库存不足", "缺货", "断货", "库存紧张", "滞销"],
+  "definition": "库存数量低于安全库存阈值(50件)的商品为低库存商品；库存为0的为断货商品；连续30天无销售的为滞销商品",
+  "filters": {
+    "low_stock_threshold": 50,
+    "out_of_stock_threshold": 0,
+    "slow_moving_days": 30
+  }
+}

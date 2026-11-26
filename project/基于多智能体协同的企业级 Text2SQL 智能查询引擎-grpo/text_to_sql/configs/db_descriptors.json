@@ -1,0 +1,26 @@
+[
+  {
+    "db_id": "docker_postgres",
+    "domain": "电商业务",
+    "engine": "postgresql",
+    "tables": ["users", "orders", "products", "order_items", "payments"],
+    "keywords": ["用户", "订单", "商品", "支付", "销售", "users", "orders", "products", "payments"],
+    "special_rules": [
+      "使用 PostgreSQL 语法和 LIMIT 限制返回行数",
+      "日期字段以 YYYY-MM-DD 文本存储，需要时使用 PostgreSQL 日期转换函数",
+      "金额聚合需要保留两位小数时转换为 numeric 后使用 ROUND"
+    ]
+  },
+  {
+    "db_id": "local_sqlite",
+    "domain": "本地 SQLite 演示与离线测试库",
+    "engine": "sqlite",
+    "tables": ["users", "orders", "products", "order_items", "payments"],
+    "keywords": ["SQLite", "sqlite", "本地 SQLite", "本地演示库", "离线测试库", "sandbox.sqlite"],
+    "special_rules": [
+      "使用 SQLite 语法和 LIMIT 限制返回行数",
+      "不要使用 PostgreSQL 的 :: 类型转换或专用日期函数",
+      "日期字段以 YYYY-MM-DD 文本存储"
+    ]
+  }
+]

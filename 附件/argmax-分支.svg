@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 372" width="100%" role="img" aria-labelledby="greedy-title greedy-desc">
+<title id="greedy-title">贪心走的路与整句更优的路</title>
+<desc id="greedy-desc">第 1 步 A 的概率 0.5 最大，贪心选它；之后走 B 得 0.048，走 C 反而能到 0.122。</desc>
+<defs>
+<marker id="greedy-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#f08a59" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="greedy-arrow-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#7FA3C0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="720" height="372" fill="#2d3142"/>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<text x="24" y="34" font-size="13" font-weight="600" fill="#f5f5f5">第 1 步取最大之后，两条路的整句概率</text>
+<rect x="24" y="62" width="56" height="44" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="52" y="89" text-anchor="middle" font-size="12" fill="#f5f5f5">&lt;bos&gt;</text>
+<rect x="100" y="62" width="86" height="44" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="2"/>
+<text x="143" y="80" text-anchor="middle" font-size="13" font-weight="600" fill="#7FA3C0">A</text>
+<text x="143" y="97" text-anchor="middle" font-size="12" fill="#f5f5f5">0.5</text>
+<rect x="196" y="62" width="86" height="44" rx="4" fill="#3F4353" stroke="#949eb2" stroke-width="1"/>
+<text x="239" y="80" text-anchor="middle" font-size="13" font-weight="600" fill="#f5f5f5">B</text>
+<text x="239" y="97" text-anchor="middle" font-size="12" fill="#949eb2">0.3</text>
+<rect x="292" y="62" width="86" height="44" rx="4" fill="#3F4353" stroke="#949eb2" stroke-width="1"/>
+<text x="335" y="80" text-anchor="middle" font-size="13" font-weight="600" fill="#f5f5f5">C</text>
+<text x="335" y="97" text-anchor="middle" font-size="12" fill="#949eb2">0.2</text>
+<text x="396" y="89" font-size="12" fill="#949eb2">贪心取最大，选 A</text>
+<path d="M143 108 L143 132" fill="none" stroke="#bfc0c0" stroke-width="1"/>
+<path d="M143 132 L143 166" fill="none" stroke="#7FA3C0" stroke-width="1.4" marker-end="url(#greedy-arrow-blue)"/>
+<path d="M143 132 L60 132 L60 270 L116 270" fill="none" stroke="#f08a59" stroke-width="1.4" marker-end="url(#greedy-arrow)"/>
+<text x="165" y="166" text-anchor="middle" font-size="12" fill="#949eb2">t2</text>
+<text x="265" y="166" text-anchor="middle" font-size="12" fill="#949eb2">t3</text>
+<text x="365" y="166" text-anchor="middle" font-size="12" fill="#949eb2">t4</text>
+<rect x="120" y="176" width="90" height="40" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="165" y="201" text-anchor="middle" font-size="13" fill="#7FA3C0">B　0.4</text>
+<rect x="220" y="176" width="90" height="40" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="265" y="201" text-anchor="middle" font-size="13" fill="#7FA3C0">C　0.4</text>
+<rect x="320" y="176" width="90" height="40" rx="4" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<text x="365" y="201" text-anchor="middle" font-size="13" fill="#7FA3C0">eos　0.6</text>
+<text x="424" y="201" font-size="13" font-weight="600" fill="#7FA3C0">= 0.048</text>
+<text x="510" y="190" font-size="12" font-weight="600" fill="#7FA3C0">贪心走的这条</text>
+<text x="510" y="208" font-size="12" fill="#949eb2">走 B 之后的值，来自上表</text>
+<rect x="120" y="256" width="90" height="40" rx="4" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="165" y="281" text-anchor="middle" font-size="13" fill="#f08a59">C　0.3</text>
+<rect x="220" y="256" width="90" height="40" rx="4" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="265" y="281" text-anchor="middle" font-size="13" fill="#f08a59">C　0.9</text>
+<rect x="320" y="256" width="90" height="40" rx="4" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="365" y="281" text-anchor="middle" font-size="13" fill="#f08a59">eos　0.9</text>
+<text x="424" y="281" font-size="13" font-weight="600" fill="#f08a59">= 0.122</text>
+<text x="510" y="270" font-size="12" font-weight="600" fill="#f08a59">整句更优的那条</text>
+<text x="510" y="288" font-size="12" fill="#949eb2">走 C 之后模型另给的分布</text>
+<text x="24" y="330" font-size="12" fill="#949eb2">蓝行的数来自上表（走 B 那条前缀）；橙行的 0.9 是模型在走了 C 之后另给的分布，</text>
+<text x="24" y="352" font-size="12" fill="#949eb2">不在上表里。换一条前缀，后面的概率整张都变，这正是贪心看不到的部分。</text>
+</g>
+</svg>

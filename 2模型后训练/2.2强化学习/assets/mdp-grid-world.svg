@@ -1,0 +1,108 @@
+<svg viewBox="0 0 680 470" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .cell{fill:#f3f0ff;stroke:#7c4dff;stroke-width:1.5}
+    .start{fill:#e3f2fd;stroke:#1976d2;stroke-width:1.8}
+    .goal{fill:#e8f5e9;stroke:#43a047;stroke-width:1.8}
+    .ttl{font-family:sans-serif;font-size:17px;font-weight:600;fill:#222;text-anchor:middle}
+    .sub{font-family:sans-serif;font-size:12px;fill:#888;text-anchor:middle}
+    .name{font-family:sans-serif;font-size:15px;font-weight:600;fill:#333}
+    .sm{font-family:sans-serif;font-size:11px;fill:#666}
+    .lbl{font-family:sans-serif;font-size:10px;font-weight:600;fill:#e64a19}
+    .halo{stroke:#ffffff;stroke-width:7;fill:none;stroke-linecap:round}
+    .path{stroke:#e64a19;stroke-width:3;fill:none;stroke-linecap:round;marker-end:url(#arwO)}
+    .wall{stroke:#b0bec5;stroke-width:1.4;fill:none;stroke-dasharray:4 3;marker-end:url(#arwG)}
+    .panel{fill:#fafafa;stroke:#e0e0e0;stroke-width:1}
+    .pttl{font-family:sans-serif;font-size:12px;font-weight:600;fill:#555}
+    .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:#3f51b5}
+    .val{font-family:sans-serif;font-size:11px;fill:#333}
+    .own{font-family:sans-serif;font-size:10px;fill:#90a4ae;text-anchor:end}
+    .box{fill:#fff7f0;stroke:#ffccbc;stroke-width:1}
+    .bl{font-family:sans-serif;font-size:12px;fill:#4e342e}
+    .bf{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;font-weight:600;fill:#bf360c}
+    .lg{font-family:sans-serif;font-size:11px;fill:#777}
+  </style>
+
+  <defs>
+    <marker id="arwO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#e64a19"/>
+    </marker>
+    <marker id="arwG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b0bec5"/>
+    </marker>
+  </defs>
+
+  <text class="ttl" x="340" y="34">2×2 格子世界：MDP 五元组</text>
+  <text class="sub" x="340" y="56">上排 A B，下排 C D；A 为起点，走进 D 得 +1 并结束</text>
+
+  <!-- 四个格子 -->
+  <g>
+    <rect class="cell start" x="40" y="90" width="100" height="100" rx="10"/>
+    <rect class="cell" x="160" y="90" width="100" height="100" rx="10"/>
+    <rect class="cell" x="40" y="210" width="100" height="100" rx="10"/>
+    <rect class="cell goal" x="160" y="210" width="100" height="100" rx="10"/>
+  </g>
+
+  <text class="name" x="54" y="118">A</text><text class="sm" x="54" y="136">起点</text>
+  <text class="name" x="174" y="118">B</text>
+  <text class="name" x="54" y="238">C</text>
+  <text class="name" x="174" y="238">D</text><text class="sm" x="174" y="256">终点</text>
+
+  <!-- 示例轨迹 A → B → D -->
+  <circle cx="90" cy="158" r="4" fill="#e64a19"/>
+  <polyline class="halo" points="90,158 244,158 244,236"/>
+  <polyline class="path" points="90,158 244,158 244,236"/>
+
+  <text class="lbl" x="166" y="148">a0=右，r1=0</text>
+  <text class="lbl" x="148" y="204">a1=下，r2=+1</text>
+
+  <!-- 撞墙示意 -->
+  <path class="wall" d="M90,90 C88,70 116,70 118,88"/>
+  <text class="sm" x="126" y="76">撞墙：原地不动，r=0</text>
+
+  <!-- 五元组面板 -->
+  <rect class="panel" x="320" y="88" width="320" height="222" rx="10"/>
+  <text class="pttl" x="336" y="112">五元组：全部由环境描述</text>
+
+  <text class="mono" x="336" y="140">S</text>
+  <text class="val" x="406" y="140">状态空间 = {A, B, C, D}</text>
+  <text class="own" x="624" y="140">环境</text>
+
+  <text class="mono" x="336" y="170">A</text>
+  <text class="val" x="406" y="170">动作空间 = {上, 下, 左, 右}</text>
+  <text class="own" x="624" y="170">环境</text>
+
+  <text class="mono" x="336" y="200">P(s'|s,a)</text>
+  <text class="val" x="406" y="200">0.9 到位 / 0.1 撞墙</text>
+  <text class="own" x="624" y="200">环境</text>
+
+  <text class="mono" x="336" y="230">R(s,a,s')</text>
+  <text class="val" x="406" y="230">进 D 得 +1，其余得 0</text>
+  <text class="own" x="624" y="230">环境</text>
+
+  <text class="mono" x="336" y="260">γ</text>
+  <text class="val" x="406" y="260">折扣因子 = 0.9</text>
+  <text class="own" x="624" y="260">人设定</text>
+
+  <line x1="336" y1="274" x2="624" y2="274" stroke="#ececec"/>
+  <text class="mono" x="336" y="294">π(a|s)</text>
+  <text class="val" x="406" y="294">策略：按概率选动作</text>
+  <text class="own" x="624" y="294">智能体</text>
+
+  <!-- 图例 -->
+  <g>
+    <rect x="40" y="326" width="12" height="12" rx="3" fill="#e3f2fd" stroke="#1976d2"/>
+    <text class="lg" x="58" y="336">起点</text>
+    <rect x="104" y="326" width="12" height="12" rx="3" fill="#e8f5e9" stroke="#43a047"/>
+    <text class="lg" x="122" y="336">终止格</text>
+    <line x1="186" y1="332" x2="216" y2="332" stroke="#e64a19" stroke-width="3"/>
+    <text class="lg" x="222" y="336">示例轨迹</text>
+    <line x1="298" y1="332" x2="328" y2="332" stroke="#b0bec5" stroke-dasharray="4 3"/>
+    <text class="lg" x="334" y="336">撞墙（自环）</text>
+  </g>
+
+  <!-- 回报计算 -->
+  <rect class="box" x="40" y="352" width="600" height="92" rx="10"/>
+  <text class="pttl" x="56" y="376">一条轨迹与它的回报（γ = 0.9）</text>
+  <text class="bl" x="56" y="400">s0=A →(a0=右, r1=0)→ s1=B →(a1=下, r2=+1)→ s2=D（终止）</text>
+  <text class="bf" x="56" y="428">G0 = r1 + γ·r2 = 0 + 0.9 × 1 = 0.9</text>
+</svg>

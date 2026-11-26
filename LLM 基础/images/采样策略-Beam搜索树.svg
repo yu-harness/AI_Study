@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" role="img" aria-label="B 等于 2 时的搜索树">
+    <defs>
+      <marker id="arb1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#2c6a57" />
+      </marker>
+      <marker id="arb2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#c8bfae" />
+      </marker>
+    </defs>
+
+    <text x="62" y="28" text-anchor="middle" font-size="11.5" fill="#968c7f">t1</text>
+    <text x="225" y="28" text-anchor="middle" font-size="11.5" fill="#968c7f">t2 · 留前 2</text>
+    <text x="400" y="28" text-anchor="middle" font-size="11.5" fill="#968c7f">t3 · 留前 2</text>
+    <text x="610" y="28" text-anchor="middle" font-size="11.5" fill="#968c7f">t4</text>
+
+    <rect x="30" y="70" width="64" height="40" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+    <text x="62" y="95" text-anchor="middle" font-size="13" fill="#2c6a57">A</text>
+    <text x="104" y="95" font-size="10.5" fill="#4f7d6c">0.50</text>
+
+    <rect x="30" y="190" width="64" height="40" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+    <text x="62" y="215" text-anchor="middle" font-size="13" fill="#2c6a57">C</text>
+    <text x="104" y="215" font-size="10.5" fill="#4f7d6c">0.40</text>
+
+    <rect x="200" y="50" width="86" height="40" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+    <text x="243" y="75" text-anchor="middle" font-size="12" fill="#2c6a57">A→B</text>
+    <text x="292" y="75" font-size="10.5" fill="#4f7d6c">0.20</text>
+
+    <rect x="200" y="110" width="86" height="40" rx="6" fill="#f2eee5" stroke="#c8bfae" stroke-dasharray="4 3" />
+    <text x="243" y="135" text-anchor="middle" font-size="12" fill="#968c7f">A→C</text>
+    <text x="292" y="135" font-size="10.5" fill="#968c7f">0.15</text>
+
+    <rect x="200" y="180" width="86" height="40" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+    <text x="243" y="205" text-anchor="middle" font-size="12" fill="#2c6a57">C→E</text>
+    <text x="292" y="205" font-size="10.5" fill="#4f7d6c">0.20</text>
+
+    <rect x="200" y="240" width="86" height="40" rx="6" fill="#f2eee5" stroke="#c8bfae" stroke-dasharray="4 3" />
+    <text x="243" y="265" text-anchor="middle" font-size="12" fill="#968c7f">C→D</text>
+    <text x="292" y="265" font-size="10.5" fill="#968c7f">0.10</text>
+
+    <rect x="370" y="60" width="96" height="40" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+    <text x="418" y="85" text-anchor="middle" font-size="12" fill="#2c6a57">A→B→D</text>
+    <text x="472" y="85" font-size="10.5" fill="#4f7d6c">0.08</text>
+
+    <rect x="370" y="180" width="96" height="40" rx="6" fill="#e6efe4" stroke="#2c6a57" />
+    <text x="418" y="205" text-anchor="middle" font-size="12" fill="#2c6a57">C→E→D</text>
+    <text x="472" y="205" font-size="10.5" fill="#4f7d6c">0.135</text>
+
+    <rect x="540" y="120" width="180" height="56" rx="6" fill="#fdf6ec" stroke="#b06a2c" />
+    <text x="630" y="144" text-anchor="middle" font-size="12.5" fill="#96602a">选 C→E→D</text>
+    <text x="630" y="163" text-anchor="middle" font-size="11" fill="#a97a45">整句概率 0.122</text>
+
+    <path d="M 94 90 L 150 90 L 150 70 L 194 70" fill="none" stroke="#2c6a57" stroke-width="1.8" marker-end="url(#arb1)" />
+    <path d="M 94 90 L 150 90 L 150 130 L 194 130" fill="none" stroke="#c8bfae" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arb2)" />
+    <path d="M 94 210 L 150 210 L 150 200 L 194 200" fill="none" stroke="#2c6a57" stroke-width="1.8" marker-end="url(#arb1)" />
+    <path d="M 94 210 L 150 210 L 150 260 L 194 260" fill="none" stroke="#c8bfae" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arb2)" />
+
+    <path d="M 286 70 L 330 70 L 330 80 L 364 80" fill="none" stroke="#2c6a57" stroke-width="1.8" marker-end="url(#arb1)" />
+    <path d="M 286 200 L 330 200 L 330 200 L 364 200" fill="none" stroke="#2c6a57" stroke-width="1.8" marker-end="url(#arb1)" />
+
+    <path d="M 466 200 L 510 200 L 510 148 L 534 148" fill="none" stroke="#2c6a57" stroke-width="1.8" marker-end="url(#arb1)" />
+
+    <text x="30" y="302" font-size="11.5" fill="#968c7f">实线：进入 beam 的候选</text>
+    <text x="250" y="302" font-size="11.5" fill="#968c7f">虚线：同层被剪掉的分支（贪心在这里就永久丢掉）</text>
+  </svg>

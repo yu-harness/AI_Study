@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" width="100%" role="img" aria-labelledby="rl-occ-title rl-occ-desc">
+<title id="rl-occ-title">占用度量：策略与数据分布一一对应</title>
+<desc id="rl-occ-desc">不同策略与环境交互产生不同的状态动作分布；策略相同当且仅当占用度量相同。</desc>
+<defs>
+<marker id="rl-occ-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="760" height="300" fill="#2d3142"/>
+<text x="380" y="28" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">占用度量：策略决定了训练数据的分布</text>
+
+<rect x="50" y="60" width="170" height="52" rx="6" fill="#2d3142" stroke="#f5f5f5" stroke-width="1"/>
+<text x="135" y="82" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f5f5f5">策略 π₁（v1 权重）</text>
+<text x="135" y="100" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">爱说保守的话</text>
+<rect x="50" y="130" width="170" height="52" rx="6" fill="#2d3142" stroke="#f5f5f5" stroke-width="1"/>
+<text x="135" y="152" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f5f5f5">策略 π₂（v2 权重）</text>
+<text x="135" y="170" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">爱说冒险的话</text>
+<rect x="50" y="200" width="170" height="52" rx="6" fill="#2d3142" stroke="#f5f5f5" stroke-width="1"/>
+<text x="135" y="222" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f5f5f5">策略 π₃（v3 权重）</text>
+<text x="135" y="240" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#949eb2">胡说八道</text>
+
+<path d="M230 86 L336 86" stroke="#bfc0c0" stroke-width="1" marker-end="url(#rl-occ-arrow)"/>
+<path d="M230 156 L336 156" stroke="#bfc0c0" stroke-width="1" marker-end="url(#rl-occ-arrow)"/>
+<path d="M230 226 L336 226" stroke="#bfc0c0" stroke-width="1" marker-end="url(#rl-occ-arrow)"/>
+<text x="283" y="52" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#bfc0c0">与同一个环境反复交互</text>
+
+<rect x="342" y="56" width="180" height="60" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="432" y="76" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f08a59">占用度量 ρ₁(s,a)</text>
+<rect x="360" y="86" width="14" height="22" fill="#f08a59"/>
+<rect x="382" y="94" width="14" height="14" fill="#949eb2"/>
+<rect x="404" y="100" width="14" height="8" fill="#949eb2"/>
+<rect x="426" y="92" width="14" height="16" fill="#949eb2"/>
+<rect x="342" y="126" width="180" height="60" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="432" y="146" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f08a59">占用度量 ρ₂(s,a)</text>
+<rect x="360" y="164" width="14" height="14" fill="#949eb2"/>
+<rect x="382" y="156" width="14" height="22" fill="#f08a59"/>
+<rect x="404" y="162" width="14" height="16" fill="#949eb2"/>
+<rect x="426" y="168" width="14" height="10" fill="#949eb2"/>
+<rect x="342" y="196" width="180" height="60" rx="6" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="432" y="216" text-anchor="middle" font-family="'Geist',sans-serif" font-size="12" fill="#f08a59">占用度量 ρ₃(s,a)</text>
+<rect x="360" y="242" width="14" height="8" fill="#949eb2"/>
+<rect x="382" y="236" width="14" height="14" fill="#949eb2"/>
+<rect x="404" y="228" width="14" height="22" fill="#f08a59"/>
+<rect x="426" y="240" width="14" height="10" fill="#949eb2"/>
+
+<text x="620" y="86" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#bfc0c0">ρ 的含义：长期跑下来，</text>
+<text x="620" y="104" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#bfc0c0">多大比例的时间处于</text>
+<text x="620" y="122" text-anchor="middle" font-family="'Geist',sans-serif" font-size="11" fill="#bfc0c0">(s, a) 这个组合</text>
+<text x="620" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#bfc0c0">策略 ↔ 分布</text>
+<text x="620" y="214" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#bfc0c0">一一对应：</text>
+<text x="620" y="232" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#bfc0c0">ρ 相同 ⟺ 策略相同</text>
+<text x="380" y="282" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">改一次参数 = 换一次数据分布。所以"优化策略"可以等价改写成"优化一个数据分布"。</text>
+</svg>

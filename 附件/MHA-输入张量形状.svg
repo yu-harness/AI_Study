@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 500" width="100%" role="img" aria-labelledby="tensor-title tensor-desc">
+<title id="tensor-title">输入张量的三个维度：5 条样本、512 个 token、每个 12 维</title>
+<desc id="tensor-desc">B 等于 5 时是 5 行，每行 512 个 token，每格一个 12 维向量；摊平成二维就是 2560 行 12 列。</desc>
+<defs>
+<marker id="tensor-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="720" height="500" fill="#2d3142"/>
+<g font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+<g fill="#3F4353" stroke="#2d3142" stroke-width="1">
+<rect x="122" y="56" width="42" height="30" rx="2"/>
+<rect x="166" y="56" width="42" height="30" rx="2"/>
+<rect x="210" y="56" width="42" height="30" rx="2"/>
+<rect x="428" y="56" width="42" height="30" rx="2"/>
+<rect x="470" y="56" width="42" height="30" rx="2"/>
+<rect x="512" y="56" width="42" height="30" rx="2"/>
+<rect x="122" y="94" width="42" height="30" rx="2"/>
+<rect x="166" y="94" width="42" height="30" rx="2"/>
+<rect x="210" y="94" width="42" height="30" rx="2"/>
+<rect x="428" y="94" width="42" height="30" rx="2"/>
+<rect x="470" y="94" width="42" height="30" rx="2"/>
+<rect x="512" y="94" width="42" height="30" rx="2"/>
+<rect x="122" y="132" width="42" height="30" rx="2"/>
+<rect x="166" y="132" width="42" height="30" rx="2"/>
+<rect x="210" y="132" width="42" height="30" rx="2"/>
+<rect x="428" y="132" width="42" height="30" rx="2"/>
+<rect x="470" y="132" width="42" height="30" rx="2"/>
+<rect x="512" y="132" width="42" height="30" rx="2"/>
+<rect x="122" y="170" width="42" height="30" rx="2"/>
+<rect x="166" y="170" width="42" height="30" rx="2"/>
+<rect x="210" y="170" width="42" height="30" rx="2"/>
+<rect x="428" y="170" width="42" height="30" rx="2"/>
+<rect x="470" y="170" width="42" height="30" rx="2"/>
+<rect x="512" y="170" width="42" height="30" rx="2"/>
+<rect x="122" y="208" width="42" height="30" rx="2"/>
+<rect x="166" y="208" width="42" height="30" rx="2"/>
+<rect x="210" y="208" width="42" height="30" rx="2"/>
+<rect x="428" y="208" width="42" height="30" rx="2"/>
+<rect x="470" y="208" width="42" height="30" rx="2"/>
+<rect x="512" y="208" width="42" height="30" rx="2"/>
+</g>
+<g fill="#949eb2" font-size="14">
+<text x="340" y="76" text-anchor="middle">…</text>
+<text x="340" y="114" text-anchor="middle">…</text>
+<text x="340" y="152" text-anchor="middle">…</text>
+<text x="340" y="190" text-anchor="middle">…</text>
+<text x="340" y="228" text-anchor="middle">…</text>
+</g>
+<rect x="426" y="54" width="46" height="34" fill="none" stroke="#f08a59" stroke-width="1.5" rx="3"/>
+<path d="M474 62 L576 44" fill="none" stroke="#f08a59" stroke-width="1"/>
+<text x="580" y="46" font-size="12" fill="#f08a59">每格是一个 12 维向量</text>
+<path d="M112 56 L112 238" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#tensor-arrow)"/>
+<text x="104" y="150" text-anchor="end" font-size="12" fill="#bfc0c0">B = 5</text>
+<path d="M122 262 L560 262" fill="none" stroke="#bfc0c0" stroke-width="1"/>
+<path d="M122 256 L122 268" fill="none" stroke="#bfc0c0" stroke-width="1"/>
+<path d="M560 256 L560 268" fill="none" stroke="#bfc0c0" stroke-width="1"/>
+<text x="340" y="282" text-anchor="middle" font-size="12" fill="#bfc0c0">seq_len = 512，一格一个 token，中间省略</text>
+<text x="340" y="310" text-anchor="middle" font-size="12" fill="#949eb2">5 行 × 512 格 × 每格 12 维 = 30720 个数字</text>
+<path d="M340 328 L340 360" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#tensor-arrow)"/>
+<text x="352" y="350" font-size="12" fill="#949eb2">摊平</text>
+<rect x="120" y="368" width="440" height="104" rx="6" fill="#2A3844" stroke="#7FA3C0" stroke-width="1"/>
+<g stroke="#7FA3C0" stroke-opacity="0.3" stroke-width="1">
+<line x1="157" y1="368" x2="157" y2="472"/>
+<line x1="193" y1="368" x2="193" y2="472"/>
+<line x1="230" y1="368" x2="230" y2="472"/>
+<line x1="267" y1="368" x2="267" y2="472"/>
+<line x1="304" y1="368" x2="304" y2="472"/>
+<line x1="340" y1="368" x2="340" y2="472"/>
+<line x1="377" y1="368" x2="377" y2="472"/>
+<line x1="414" y1="368" x2="414" y2="472"/>
+<line x1="451" y1="368" x2="451" y2="472"/>
+<line x1="487" y1="368" x2="487" y2="472"/>
+<line x1="524" y1="368" x2="524" y2="472"/>
+</g>
+<text x="340" y="416" text-anchor="middle" font-size="15" font-weight="600" fill="#f5f5f5">2560 × 12</text>
+<text x="340" y="438" text-anchor="middle" font-size="12" fill="#949eb2">2560 行 = B × seq_len</text>
+<text x="340" y="458" text-anchor="middle" font-size="12" fill="#949eb2">12 列 = embedding</text>
+<text x="24" y="492" font-size="12" fill="#949eb2">每一行是一句话的 512 个 token，摊平只是把 5 行首尾相接，行数从 5 变成 2560。</text>
+</g>
+</svg>

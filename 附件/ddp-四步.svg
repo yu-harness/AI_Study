@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="100%" role="img" aria-labelledby="ddp4-title ddp4-desc">
+<title id="ddp4-title">DDP 一次迭代：四张卡各持一份，梯度合成一份，各自更新</title>
+<desc id="ddp4-desc">四张卡各持一份模型副本和一份数据，各自算出梯度 g1 到 g4，AllReduce 把四份梯度相加取平均得到同一份 g，四张卡各用自己的 w 减去同一份 g，结果仍然相同。</desc>
+<defs>
+<marker id="ddp4-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="720" height="320" fill="#2d3142"/>
+<text x="108" y="80" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="500" fill="#949eb2">① 各持一份副本</text>
+<text x="278" y="80" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="500" fill="#949eb2">② 各算梯度</text>
+<text x="440" y="80" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="500" fill="#f08a59">③ AllReduce</text>
+<text x="608" y="80" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" font-weight="500" fill="#949eb2">④ 各自更新</text>
+<rect x="40" y="100" width="136" height="166" rx="8" fill="none" stroke="#f5f5f5" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,4"/>
+<rect x="46" y="110" width="124" height="32" rx="4" fill="#3F4353"/>
+<text x="108" y="130" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">模型 · 数据 1</text>
+<rect x="46" y="148" width="124" height="32" rx="4" fill="#3F4353"/>
+<text x="108" y="168" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">模型 · 数据 2</text>
+<rect x="46" y="186" width="124" height="32" rx="4" fill="#3F4353"/>
+<text x="108" y="206" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">模型 · 数据 3</text>
+<rect x="46" y="224" width="124" height="32" rx="4" fill="#3F4353"/>
+<text x="108" y="244" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">模型 · 数据 4</text>
+<rect x="210" y="100" width="136" height="166" rx="8" fill="none" stroke="#f5f5f5" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,4"/>
+<rect x="216" y="110" width="124" height="32" rx="4" fill="#3F4353"/>
+<text x="278" y="130" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">梯度 g1</text>
+<rect x="216" y="148" width="124" height="32" rx="4" fill="#3F4353"/>
+<text x="278" y="168" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">梯度 g2</text>
+<rect x="216" y="186" width="124" height="32" rx="4" fill="#3F4353"/>
+<text x="278" y="206" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">梯度 g3</text>
+<rect x="216" y="224" width="124" height="32" rx="4" fill="#3F4353"/>
+<text x="278" y="244" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">梯度 g4</text>
+<path d="M180 126 L206 126" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M180 164 L206 164" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M180 202 L206 202" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M180 240 L206 240" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M350 126 L376 126" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M350 164 L376 164" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M350 202 L376 202" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M350 240 L376 240" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M504 126 L536 126" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M504 164 L536 164" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M504 202 L536 202" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<path d="M504 240 L536 240" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#ddp4-arrow)"/>
+<rect x="380" y="100" width="120" height="166" rx="8" fill="#403A44" stroke="#f08a59" stroke-width="1"/>
+<text x="440" y="130" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f08a59">AllReduce</text>
+<text x="440" y="158" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">四份相加</text>
+<text x="440" y="178" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">再取平均</text>
+<text x="440" y="206" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">每卡拿到</text>
+<text x="440" y="226" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f5f5f5">同一份 g</text>
+<rect x="540" y="100" width="136" height="166" rx="8" fill="none" stroke="#f5f5f5" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,4"/>
+<rect x="546" y="110" width="124" height="32" rx="4" fill="#5B6070"/>
+<text x="608" y="130" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#f5f5f5">w1 ← w1 − ηg</text>
+<rect x="546" y="148" width="124" height="32" rx="4" fill="#5B6070"/>
+<text x="608" y="168" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#f5f5f5">w2 ← w2 − ηg</text>
+<rect x="546" y="186" width="124" height="32" rx="4" fill="#5B6070"/>
+<text x="608" y="206" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#f5f5f5">w3 ← w3 − ηg</text>
+<rect x="546" y="224" width="124" height="32" rx="4" fill="#5B6070"/>
+<text x="608" y="244" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="11" fill="#f5f5f5">w4 ← w4 − ηg</text>
+<text x="24" y="296" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">四张卡初始参数相同，拿到同一份 g，各自更新后仍然相同；全程没有中心卡，也没有广播。</text>
+</svg>

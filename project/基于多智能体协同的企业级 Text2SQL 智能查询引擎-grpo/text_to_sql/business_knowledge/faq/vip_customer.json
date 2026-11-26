@@ -1,0 +1,10 @@
+{
+  "id": "vip_customer_def",
+  "type": "faq",
+  "question_patterns": ["高净值客户", "VIP客户", "高价值客户", "VIP会员"],
+  "definition": "累计消费金额超过10万元，或单笔消费超过5万元的用户",
+  "filters": {
+    "total_amount_threshold": 100000,
+    "single_amount_threshold": 50000
+  }
+}

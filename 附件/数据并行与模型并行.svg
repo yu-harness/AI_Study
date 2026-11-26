@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 264" width="100%" role="img" aria-labelledby="dpmp-title dpmp-desc">
+<title id="dpmp-title">数据并行与模型并行的区别</title>
+<desc id="dpmp-desc">数据并行每张卡存一份完整模型，各算一份数据；模型并行把模型按层切成几段，一份数据依次流过各卡。</desc>
+<defs>
+<marker id="dpmp-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M1 1 L8 5 L1 9" fill="none" stroke="#bfc0c0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="720" height="264" fill="#2d3142"/>
+<line x1="360" y1="44" x2="360" y2="212" stroke="#f5f5f5" stroke-opacity="0.12" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="32" y="56" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">数据并行</text>
+<text x="32" y="76" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">每张卡存一份完整模型</text>
+<text x="376" y="56" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">模型并行</text>
+<text x="376" y="76" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">每张卡拿一段连续的层</text>
+<text x="692" y="56" text-anchor="end" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#f08a59">流水线并行</text>
+<rect x="32" y="100" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="32" y="120" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="32" y="140" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="32" y="160" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="116" y="100" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="116" y="120" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="116" y="140" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="116" y="160" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="200" y="100" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="200" y="120" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="200" y="140" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="200" y="160" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="284" y="100" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="284" y="120" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="284" y="140" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<rect x="284" y="160" width="64" height="16" fill="#5B6070" stroke="#2d3142" stroke-width="1"/>
+<text x="64" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">卡 1</text>
+<text x="148" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">卡 2</text>
+<text x="232" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">卡 3</text>
+<text x="316" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">卡 4</text>
+<path d="M444 138 L456 138" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#dpmp-arrow)"/>
+<path d="M528 138 L540 138" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#dpmp-arrow)"/>
+<path d="M612 138 L624 138" fill="none" stroke="#bfc0c0" stroke-width="1" marker-end="url(#dpmp-arrow)"/>
+<rect x="376" y="100" width="64" height="76" rx="6" fill="#3F4353" stroke="#f5f5f5" stroke-opacity="0.5" stroke-width="1"/>
+<text x="408" y="144" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">L1–6</text>
+<rect x="460" y="100" width="64" height="76" rx="6" fill="#3F4353" stroke="#f5f5f5" stroke-opacity="0.5" stroke-width="1"/>
+<text x="492" y="144" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">L7–12</text>
+<rect x="544" y="100" width="64" height="76" rx="6" fill="#3F4353" stroke="#f5f5f5" stroke-opacity="0.5" stroke-width="1"/>
+<text x="576" y="144" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">L13–18</text>
+<rect x="628" y="100" width="64" height="76" rx="6" fill="#3F4353" stroke="#f5f5f5" stroke-opacity="0.5" stroke-width="1"/>
+<text x="660" y="144" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="13" font-weight="600" fill="#f5f5f5">L19–24</text>
+<text x="408" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">卡 1</text>
+<text x="492" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">卡 2</text>
+<text x="576" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">卡 3</text>
+<text x="660" y="196" text-anchor="middle" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">卡 4</text>
+<text x="32" y="236" font-family="'Geist','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="12" fill="#949eb2">左边每张卡拿一份不同的数据，算的是同一个完整模型；右边一份数据依次流过四张卡，模型被切成连续几段。</text>
+</svg>

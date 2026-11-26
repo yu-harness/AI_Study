@@ -1,0 +1,27 @@
+{
+  "dimension": "users.segment",
+  "column": "segment",
+  "source_table": "users",
+  "values": [
+    {
+      "display": "新用户",
+      "code": "new",
+      "includes": ["新注册", "新手", "首次"]
+    },
+    {
+      "display": "成长用户",
+      "code": "growth",
+      "includes": ["成长型", "普通用户", "中级"]
+    },
+    {
+      "display": "VIP用户",
+      "code": "vip",
+      "includes": ["VIP", "会员", "高级用户", "贵宾"]
+    },
+    {
+      "display": "企业用户",
+      "code": "enterprise",
+      "includes": ["企业级", "B2B", "公司客户", "大客户"]
+    }
+  ]
+}

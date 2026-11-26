@@ -1,0 +1,52 @@
+{
+  "dimension": "order_status",
+  "type": "mapping",
+  "column": "orders.status",
+  "values": [
+    {
+      "name": "已支付",
+      "codes": [
+        "paid"
+      ],
+      "includes": [
+        "支付成功",
+        "已付款",
+        "paid"
+      ]
+    },
+    {
+      "name": "待支付",
+      "codes": [
+        "pending"
+      ],
+      "includes": [
+        "未支付",
+        "待付款",
+        "pending"
+      ]
+    },
+    {
+      "name": "已取消",
+      "codes": [
+        "cancelled"
+      ],
+      "includes": [
+        "取消",
+        "取消订单",
+        "cancelled",
+        "canceled"
+      ]
+    },
+    {
+      "name": "已退款",
+      "codes": [
+        "refunded"
+      ],
+      "includes": [
+        "退款",
+        "已退",
+        "refunded"
+      ]
+    }
+  ]
+}

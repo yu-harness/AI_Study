@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+spec:
+  selector:
+    app: ollama
+  ports:
+    - port: 11434
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ollama
+spec:
+  serviceName: ollama
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - >-
+              ollama serve & pid=$!;
+              until ollama list >/dev/null 2>&1; do sleep 2; done;
+              ollama pull qwen3.5:4b;
+              ollama pull bge-m3:latest;
+              wait $pid
+          ports:
+            - containerPort: 11434
+          readinessProbe:
+            httpGet:
+              path: /api/tags
+              port: 11434
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "2"
+              memory: 6Gi
+            limits:
+              cpu: "8"
+              memory: 12Gi
+          volumeMounts:
+            - name: models
+              mountPath: /root/.ollama
+  volumeClaimTemplates:
+    - metadata:
+        name: models
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi

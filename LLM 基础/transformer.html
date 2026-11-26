@@ -1,0 +1,1153 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transformer</title>
+<style type="text/css">:root {
+  --bg: #fbfaf7;
+  --paper: #ffffff;
+  --panel: #f4f1ea;
+  --ink: #23282d;
+  --ink-strong: #0f1419;
+  --dim: #5a6470;
+  --faint: #97a0aa;
+  --line: #e8e4da;
+  --line-soft: #f0ede5;
+  --accent: #2f6b5e;
+  --accent-soft: #e9f2ee;
+  --num: #a6632d;
+  --code-bg: #f8f8f6;
+  --code-line: #e6e7e3;
+  --code-ink: #262c33;
+  --code-dim: #aab1b8;
+  --shadow: rgba(32, 38, 45, .05);
+  --sidebar: 268px;
+  --content: 1040px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", system-ui, -apple-system, sans-serif;
+  font-size: 20px;
+  line-height: 1.95;
+  letter-spacing: .012em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.progress { position: fixed; top: 0; left: var(--sidebar); right: 0; height: 2px; z-index: 30; }
+.progress span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .08s linear; }
+
+/* 侧栏 */
+.sidebar {
+  position: fixed; inset: 0 auto 0 0; width: var(--sidebar);
+  display: flex; flex-direction: column;
+  background: var(--panel); border-right: 1px solid var(--line);
+  padding: 28px 18px 20px; z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: 11px; padding: 0 8px 18px; border-bottom: 1px solid var(--line); }
+.brand-mark {
+  width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px;
+  background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .04em;
+}
+.brand-name { font-size: 16px; font-weight: 700; letter-spacing: .01em; }
+.brand-sub { font-size: 12.5px; color: var(--faint); margin-top: 2px; }
+.toc { flex: 1 1 auto; overflow-y: auto; margin-top: 14px; padding-right: 4px; }
+.toc::-webkit-scrollbar { width: 5px; }
+.toc::-webkit-scrollbar-thumb { background: #dcd7cc; border-radius: 3px; }
+.toc-group { margin-bottom: 1px; }
+.toc-chapter {
+  display: block; padding: 7px 10px; border-radius: 6px; color: var(--dim);
+  text-decoration: none; font-size: 14.5px; line-height: 1.55; transition: color .15s, background .15s;
+}
+.toc-chapter:hover { color: var(--ink); background: #ece8df; }
+.toc-chapter.active { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.toc-topic {
+  display: none; padding: 3px 10px 3px 22px; color: var(--faint); text-decoration: none;
+  font-size: 13px; line-height: 1.5; border-left: 1px solid var(--line); margin-left: 10px;
+}
+.toc-group.open .toc-topic { display: block; }
+.toc-topic:hover { color: var(--ink); }
+.toc-topic.active { color: var(--accent); }
+.sidebar-foot { border-top: 1px solid var(--line); padding-top: 12px; }
+.foot-bar { height: 2px; background: #e6e2d8; border-radius: 2px; overflow: hidden; }
+.foot-bar span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .1s linear; }
+.foot-text { font-size: 12px; color: var(--faint); margin-top: 8px; text-align: right; }
+.foot-text b { color: var(--dim); }
+
+/* 正文容器：内容卡片式阅读 */
+main { margin-left: var(--sidebar); }
+.content {
+  max-width: var(--content);
+  margin: 40px auto 72px;
+  padding: 72px 72px 96px;
+  background: var(--paper);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px var(--shadow), 0 12px 40px -24px rgba(32,38,45,.18);
+}
+.content h1 {
+  font-size: 35px; font-weight: 700; line-height: 1.3; margin: 0 0 10px;
+  letter-spacing: .01em; color: var(--ink-strong);
+}
+.content h1 + p { color: var(--dim); font-size: 17.5px; margin: 0 0 8px; }
+.content h2 {
+  font-size: 26px; font-weight: 700; line-height: 1.42;
+  margin: 56px 0 20px; color: var(--ink-strong);
+  display: flex; align-items: baseline; gap: 12px;
+}
+.content h2 .sec-num {
+  color: var(--accent); font-family: "SF Mono", "JetBrains Mono", Consolas, monospace;
+  font-size: 14px; font-weight: 600; padding: 2px 8px; background: var(--accent-soft); border-radius: 5px;
+  flex: 0 0 auto;
+}
+.content h3 {
+  font-size: 21px; font-weight: 600; margin: 34px 0 12px; color: var(--ink-strong);
+  padding-left: 12px; border-left: 3px solid var(--accent-soft);
+}
+.content h4 { font-size: 18.5px; font-weight: 600; margin: 24px 0 10px; color: var(--dim); }
+.content p { margin: 15px 0; }
+.content ul, .content ol { margin: 15px 0; padding-left: 24px; }
+.content li { margin: 8px 0; }
+.content strong { color: var(--ink-strong); font-weight: 600; }
+.content blockquote {
+  margin: 22px 0; padding: 14px 20px; border-left: 3px solid var(--accent);
+  background: var(--accent-soft); color: var(--dim); border-radius: 0 5px 5px 0;
+}
+.content blockquote p { margin: 4px 0; }
+.content code {
+  font-family: "SF Mono", "JetBrains Mono", Consolas, monospace;
+  font-size: .86em; background: #f4f5f2; border: 1px solid var(--code-line);
+  padding: 1.5px 6px; border-radius: 4px; color: var(--num);
+}
+.content a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(47,107,94,.3); }
+.content a:hover { border-bottom-color: var(--accent); }
+
+/* 代码块 */
+.code-block {
+  margin: 22px 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
+  background: var(--code-bg); box-shadow: 0 1px 2px var(--shadow);
+}
+.code-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 14px; background: #f1f2ef; border-bottom: 1px solid var(--line);
+}
+.code-lang { font-size: 12px; color: var(--faint); font-family: "SF Mono", Consolas, monospace; letter-spacing: .04em; }
+.copy-btn {
+  font-size: 12px; color: var(--dim); background: transparent; border: 1px solid var(--line);
+  border-radius: 5px; padding: 3px 10px; cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+.copy-btn.done { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.code-body { overflow-x: auto; }
+.code-lines {
+  padding: 12px 0; font-family: "SF Mono", "JetBrains Mono", Consolas, monospace;
+  font-size: 14.5px; line-height: 1.72;
+}
+.code-line { display: flex; }
+.code-line .ln {
+  flex: 0 0 auto; width: 40px; text-align: right; padding-right: 16px;
+  color: var(--code-dim); user-select: none;
+}
+.code-line .lc { flex: 1 1 auto; white-space: pre; color: var(--code-ink); padding-right: 16px; }
+.content pre { margin: 0; padding: 0; }
+.content pre code { background: transparent; border: 0; padding: 0; color: inherit; font-size: inherit; }
+
+/* 表格 */
+.table-wrap {
+  margin: 22px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 1px 2px var(--shadow);
+}
+.content table { border-collapse: collapse; width: 100%; font-size: 16px; background: var(--paper); }
+.content th, .content td { padding: 11px 18px; text-align: left; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+.content th { background: var(--panel); font-weight: 600; color: var(--ink-strong); font-size: 14px; }
+.content tr:last-child td { border-bottom: 0; }
+.content tr:hover td { background: #faf8f3; }
+.content del { color: var(--faint); }
+math[display="block"] { overflow-x: auto; overflow-y: hidden; padding: 6px 0; }
+.mermaid { margin: 24px 0; text-align: center; overflow-x: auto; }
+.page-foot {
+  max-width: var(--content); margin: 0 auto 56px; padding: 20px 72px;
+  display: flex; justify-content: space-between; color: var(--faint); font-size: 13px;
+}
+.page-foot a { color: var(--dim); text-decoration: none; }
+.nav-toggle {
+  display: none; position: fixed; bottom: 20px; right: 20px; z-index: 40;
+  padding: 10px 18px; border-radius: 22px; background: var(--accent); color: #fff;
+  border: 0; font-size: 14px; font-family: inherit; cursor: pointer;
+  box-shadow: 0 3px 12px rgba(47,107,94,.3);
+}
+@media (max-width: 1040px) {
+  .content { margin: 24px 16px 48px; padding: 48px 36px 64px; }
+  .page-foot { padding: 16px 36px; }
+}
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); transition: transform .2s; }
+  .nav-open .sidebar { transform: translateX(0); }
+  .nav-open::after { content: ""; position: fixed; inset: 0; background: rgba(0,0,0,.25); z-index: 15; }
+  .nav-toggle { display: block; }
+  main { margin-left: 0; }
+  .content { margin: 0; padding: 36px 20px 56px; border-radius: 0; border-left: 0; border-right: 0; }
+  .content h1 { font-size: 26px; }
+  .content h2 { font-size: 20px; }
+  .progress { left: 0; }
+  .page-foot { padding: 16px 20px 72px; flex-direction: column; gap: 8px; }
+}
+</style>
+<style>
+.content > p:first-of-type { margin-top: 22px; }
+.content > h2:first-of-type { margin-top: 40px; }
+math[display="block"] { display: block; margin: 20px 0; font-size: 1.04em; }
+</style>
+</head>
+<body>
+<div class="progress"><span id="progress-bar"></span></div>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">L</div>
+    <div class="brand-text">
+      <div class="brand-name">LLM 基础</div>
+      <div class="brand-sub">阅读笔记</div>
+    </div>
+  </div>
+  <nav class="toc" id="toc"></nav>
+  <div class="sidebar-foot">
+    <div class="foot-bar"><span id="foot-fill"></span></div>
+    <div class="foot-text">已读 <b id="foot-percent">0%</b></div>
+  </div>
+</aside>
+
+<main>
+  <article class="content">
+<h1 id="transformer">Transformer</h1>
+<p>从文本到下一个词的完整数据流，按“输入 → 注意力 → 残差与归一化 → 前馈 → 输出”的顺序展开。</p>
+
+<h2 id="从文本到向量">01 从文本到向量：切词、补齐、embedding</h2>
+<p>一句话：<strong>字符串 → 切词 → 查词表得编号 → 补齐成矩形 → 查 embedding 表变成向量</strong>。</p>
+
+<h3 id="切词">切词</h3>
+<p>以 <code>"Hello, my dog is cute"</code> 为例，先按词和标点切开：</p>
+<pre><code>"Hello"  ","  " my"  " dog"  " is"  " cute"</code></pre>
+<p>词表不认识的长词还要继续切成子词，例如 <code>unbelievable</code> 会切成 <code>un</code> + <code>belie</code> + <code>vable</code>。<code>Hello</code>、<code>cute</code> 这类整词在表里，就不用再切。</p>
+
+<h3 id="换成编号">换成编号</h3>
+<p>每一段查一个整数编号，这套“字符串到编号”的映射叫 <strong>vocabulary（缩写 vocab）</strong>。切好的句子于是变成一串整数：</p>
+<pre class="plaintext"><code>[9906, 11, 856, 5679, 374, 19369]</code></pre>
+<p>这一步得到的只是整数 id，没有任何向量，也不是 one-hot。</p>
+
+<h3 id="加开始结束标记">加开始和结束标记</h3>
+<p>BERT 这类模型会在两头补上特殊标记：</p>
+<pre class="plaintext"><code>[CLS] 9906 11 856 5679 374 19369 [SEP]
+  101                            102</code></pre>
+<p><code>[CLS]</code>（编号 101）所在位置的最终输出用来汇总整句信息，做句子级分类时常取它。<code>[SEP]</code>（编号 102）标记句子结束。对话模型不用这套，改用 <code>&lt;|im_start|&gt;</code>、<code>&lt;|im_end|&gt;</code> 拼出多轮结构。</p>
+
+<h3 id="补齐成矩形">补齐成矩形</h3>
+<p>一批句子的长度不同，要把它们对齐成同一个长度才能放进同一个张量，短句末尾补 0：</p>
+<pre class="plaintext"><code>input_ids = [[9906, 11, 856, 5679, 374, 19369, 0, 0]]     形状 (1, 8)</code></pre>
+<p><code>input_ids</code> 的形状就是 <code>(batch_size, seq_len)</code>。补出来的 0 是凑数的假 token，不能参与计算，因此同时产出一张 0/1 表告诉模型哪些位置是真的，这张表叫 <strong>attention mask（注意力掩码）</strong>：</p>
+<pre class="plaintext"><code>attention_mask = [[1, 1, 1, 1, 1, 1, 0, 0]]</code></pre>
+
+<h3 id="查表变向量">查表变向量（embedding）</h3>
+<p>先看 <strong>embedding 表</strong>本身是什么。它是一张很长的二维表，行数等于词表大小（约 15 万），列数等于隐藏维度 <code>d = 3584</code>，形状是 <code>(V, 3584)</code>。每一行是一个固定长度的浮点向量，代表词表里某一个词。同一个词在训练完成后永远对应同一行，这一行就是它的“初始含义”。</p>
+<pre><code>embedding 表 E          形状 (V, 3584)     V ≈ 151936
+        ┌──────────────────────────────┐
+行 9906 │  0.12 -0.03  0.88 ... 0.41   │ ← "Hello" 的向量
+行 11   │ -0.55  0.27 -0.14 ... 0.03   │ ← ","   的向量
+行 856  │  0.31  0.09  0.72 ... -0.20  │ ← " my" 的向量
+  ⋮     │              ⋮               │
+        └──────────────────────────────┘
+             每行 3584 个浮点数</code></pre>
+<p>“取一行”就是查表：编号 9906 就取第 9906 行，编号 11 就取第 11 行。这一步按编号选行，不做任何计算。</p>
+<p>输入 <code>input_ids</code> 的形状是 <code>(1, 8)</code>，表示 1 条句子、8 个位置，每个位置放一个整数编号。<strong>对每个位置上的编号各查一次，取出一行 3584 维向量</strong>，8 个位置就取出 8 行。于是形状从 <code>(1, 8)</code> 变成 <code>(1, 8, 3584)</code>：原来的 8 个格子各自被一个 3584 维向量替换掉，多出来的最后一维 3584 就是词向量本身的长度。</p>
+<pre><code>input_ids  (1, 8)        每个格子是一个整数编号
+  ┌────┬────┬────┬────┬────┬────┬───┬───┐
+  │9906│ 11 │ 856│5679│ 374│19369│ 0 │ 0 │
+  └────┴────┴────┴────┴────┴────┴───┴───┘
+        │  每个编号各自去 E 里取对应的一行
+        ▼
+inputs  (1, 8, 3584)     每个格子变成一个 3584 维向量
+  ┌──────────┬──────────┬──────────┬─────┬──────────┐
+  │E[9906]   │E[11]     │E[856]    │ ... │E[0]      │
+  │3584 维   │3584 维   │3584 维   │     │3584 维   │
+  └──────────┴──────────┴──────────┴─────┴──────────┘
+      第 0 个位置  第 1 个位置 第 2 个位置      第 7 个位置</code></pre>
+<p>补 0 的位置（上面第 6、7 个）也会按编号 0 取出一行向量，但编号 0 取到的那一行没有意义，它在后面的 attention 里会被 attention mask 挡住，不影响真实位置的计算结果。</p>
+<p>换成代码就是一行取行操作，<code>ids</code> 里每个整数都被当作行号：</p>
+<pre class="plaintext"><code>inputs = E[input_ids]        # (1, 8) 的编号 → (1, 8, 3584) 的向量</code></pre>
+<p>数学上可以写成 <code>id → one-hot → 乘 embedding 矩阵</code>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">token</mtext><mover><mo>→</mo><mrow><mspace width="0.222em"></mspace><mtext mathvariant="normal">vocab</mtext><mspace width="0.222em"></mspace></mrow></mover><mi>k</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>V</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo><mover><mo>→</mo><mrow><mspace width="0.222em"></mspace><mtext mathvariant="normal">one-hot</mtext><mspace width="0.222em"></mspace></mrow></mover><msub><mi>e</mi><mi>k</mi></msub><mo>∈</mo><msup><mi>ℝ</mi><mi>V</mi></msup><mover><mo>→</mo><mrow><mspace width="0.222em"></mspace><mo>×</mo><mi>E</mi><mspace width="0.222em"></mspace></mrow></mover><msub><mi>w</mi><mi>k</mi></msub><mo>∈</mo><msup><mi>ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\text{token} \xrightarrow{\ \text{vocab}\ } k\in\{0,\dots,V-1\} \xrightarrow{\ \text{one-hot}\ } e_k\in\mathbb{R}^{V} \xrightarrow{\ \times E\ } w_k\in\mathbb{R}^{d}</annotation></semantics></math></p>
+<p>因为 one-hot 向量乘矩阵等价于取出一行（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>e</mi><mi>k</mi><mi>⊤</mi></msubsup><mi>E</mi><mo>=</mo><msub><mi>w</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">e_k^{\top}E = w_k</annotation></semantics></math>），工程上直接做 <code>index_select</code> 取行，那个 15 万维的稀疏向量从头到尾都不会被真正构造出来。</p>
+
+<h3 id="各阶段对照">各阶段对照</h3>
+<table>
+<thead>
+<tr><th>阶段</th><th>手上有啥</th><th>形状</th><th>用了谁</th></tr>
+</thead>
+<tbody>
+<tr><td>tokenize</td><td>字符串</td><td><code>"Hello"</code></td><td>词表 vocab（字典）</td></tr>
+<tr><td>编号</td><td>整数 id</td><td><code>(1, 8)</code></td><td>词表</td></tr>
+<tr><td>取向量</td><td>浮点向量</td><td><code>(1, 8, 3584)</code></td><td><strong>embedding 矩阵</strong></td></tr>
+<tr><td>one-hot（概念）</td><td>15 万维稀疏向量</td><td><code>(1, 8, 151936)</code></td><td><strong>不真实存在</strong>，只用于说明取行的数学来源</td></tr>
+</tbody>
+</table>
+<p>编号是“行号”，embedding 矩阵是“那张表”，one-hot 则是解释“为什么查表可以写成矩阵乘法”的数学注脚。</p>
+
+<h2 id="positional-encoding">02 位置编码：attention 本身不区分顺序</h2>
+
+<h3 id="为什么需要位置编码">为什么需要位置编码</h3>
+<p>Self-Attention 对输入是<strong>置换等变</strong>的：把 token 的顺序打乱，每个 token 的输出只会跟着它自己的位置一起被打乱，内容不变。它只看“两个 token 的内容有多匹配”，看不到“谁在前谁在后”。</p>
+<p>“狗咬人”和“人咬狗”用的是同一批词，attention 给出的权重完全一样。要表达顺序，必须把位置信息注入到输入里。</p>
+
+<h3 id="正弦位置编码">正弦位置编码</h3>
+<p>原始 Transformer 用一组固定的正弦、余弦函数，直接和 embedding 相加：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>,</mo><mn>2</mn><mi>i</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">sin</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>p</mi><msup><mn>10000</mn><mrow><mn>2</mn><mi>i</mi><mo>/</mo><mi>d</mi></mrow></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><mi>P</mi><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>,</mo><mn>2</mn><mi>i</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">cos</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>p</mi><msup><mn>10000</mn><mrow><mn>2</mn><mi>i</mi><mo>/</mo><mi>d</mi></mrow></msup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">PE(p,2i)=\sin\!\left(\frac{p}{10000^{2i/d}}\right),\quad PE(p,2i+1)=\cos\!\left(\frac{p}{10000^{2i/d}}\right)</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> 是位置，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> 是维度下标，不同维度用不同频率。低频维度变化慢，负责表达大范围的相对距离；高频维度变化快，负责表达相邻位置的差异。</p>
+<p>选正弦函数的一个直接好处：位置 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>+</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">p+k</annotation></semantics></math> 的编码可以写成位置 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> 的编码经过一个固定旋转矩阵的结果。模型因此可以从绝对位置推算出相对位置，并且能外推到训练时没见过的更长序列。</p>
+
+<h3 id="可学习位置编码">可学习位置编码</h3>
+<p>BERT、GPT-2 这类模型换成一个可训练的 <code>(max_seq_len, d)</code> 矩阵，每个位置一行，和 embedding 相加。位置向量交给模型自己学。</p>
+<p>缺点是长度上限固定：训练时最大长度是 512，推理就不能超过 512，因为超过的位置根本没有对应的行。</p>
+
+<h3 id="rotary-位置编码">RoPE：旋转式位置编码</h3>
+<p>LLaMA、Qwen、DeepSeek 这些现代模型把位置信息放进 <strong>Query 和 Key 的旋转</strong>里，不在输入端相加。</p>
+<p>把 Q、K 的 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math> 维按相邻两维配成 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>/</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">d/2</annotation></semantics></math> 对，对第 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> 个位置的每一对 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>q</mi><mrow><mn>2</mn><mi>i</mi></mrow></msub><mo>,</mo><msub><mi>q</mi><mrow><mn>2</mn><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(q_{2i},q_{2i+1})</annotation></semantics></math> 旋转一个角度 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><msub><mi>θ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">m\theta_i</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><msup><mi>q</mi><mo>′</mo></msup><mrow><mn>2</mn><mi>i</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><msup><mi>q</mi><mo>′</mo></msup><mrow><mn>2</mn><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">cos</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><msub><mi>θ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="center" style="text-align: center"><mi>−</mi><mrow><mi mathvariant="normal">sin</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><msub><mi>θ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">sin</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><msub><mi>θ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="center" style="text-align: center"><mrow><mi mathvariant="normal">cos</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><msub><mi>θ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>q</mi><mrow><mn>2</mn><mi>i</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>q</mi><mrow><mn>2</mn><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\begin{bmatrix}q'_{2i}\\q'_{2i+1}\end{bmatrix}=\begin{bmatrix}\cos(m\theta_i)&-\sin(m\theta_i)\\\sin(m\theta_i)&\cos(m\theta_i)\end{bmatrix}\begin{bmatrix}q_{2i}\\q_{2i+1}\end{bmatrix}</annotation></semantics></math></p>
+<p>其中 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>i</mi></msub><mo>=</mo><msup><mn>10000</mn><mrow><mo>−</mo><mn>2</mn><mi>i</mi><mo>/</mo><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\theta_i=10000^{-2i/d}</annotation></semantics></math>。</p>
+<p>这样设计后，两个位置 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>,</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">m,n</annotation></semantics></math> 的 Q 和 K 做内积，结果只依赖它们的<strong>相对距离</strong> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">m-n</annotation></semantics></math>。相对位置被直接写进了相似度打分里，这才是现代大模型普遍使用 RoPE 的原因。</p>
+
+<h2 id="从固定向量到动态读取">03 从固定向量到动态读取</h2>
+
+<h3 id="rnn-encoder-decoder-的老办法">RNN + Encoder-Decoder 的老办法</h3>
+<p>编码器把整句压成<strong>最后一个隐藏状态</strong> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐡</mi><mi>n</mi></msub><annotation encoding="application/x-tex">\mathbf{h}_n</annotation></semantics></math>，解码器每一步都只看这一个向量：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">整句</mtext><mo>→</mo><msub><mi>𝐡</mi><mi>n</mi></msub><mo>→</mo><mtext mathvariant="normal">Decoder 每一步都用它</mtext></mrow><annotation encoding="application/x-tex">\text{整句} \rightarrow \mathbf{h}_n \rightarrow \text{Decoder 每一步都用它}</annotation></semantics></math></p>
+<p>句子一长，靠前的信息在逐步压缩中被覆盖，传到最后一个向量时基本丢失。</p>
+
+<h3 id="attention-改了什么">Attention 改了什么</h3>
+<p>加入 Attention 之后，解码器不再只能看最后一个隐藏状态，而是能访问编码器的<strong>所有</strong>隐藏状态，每一步按需加权读取：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">整句</mtext><mo>→</mo><msub><mi>𝐡</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>𝐡</mi><mi>n</mi></msub><mo>→</mo><mtext mathvariant="normal">每步算权重，按需读取</mtext></mrow><annotation encoding="application/x-tex">\text{整句} \rightarrow \mathbf{h}_1,\dots,\mathbf{h}_n \rightarrow \text{每步算权重，按需读取}</annotation></semantics></math></p>
+<p>原来的信息被原样保留，选择交给解码时的权重：</p>
+<pre class="mermaid"><code>flowchart LR
+    A["固定向量&lt;br/&gt;hₙ"] --&gt;|"一句话全塞进去"| B["信息有损"]
+    C["全体隐状态&lt;br/&gt;h₁…hₙ"] --&gt;|"每步动态加权"| D["按需取用"]</code></pre>
+
+<h2 id="transformer-替换的是-rnn">04 Transformer 替换的是 RNN，不是 Encoder-Decoder</h2>
+
+<h3 id="替换关系">替换关系</h3>
+<p>Encoder-Decoder 结构在 Transformer 之前就存在，Attention 也早于 Transformer 出现。Transformer 保留了两者，替换掉的是 RNN 那种必须一个接一个计算的序列建模方式：</p>
+<table>
+<thead>
+<tr><th>组成</th><th>Transformer 里的处理</th><th>是否被替换</th></tr>
+</thead>
+<tbody>
+<tr><td>RNN 的<strong>递归</strong>序列建模</td><td>Self-Attention 的两两交互</td><td>换掉了</td></tr>
+<tr><td>Encoder-Decoder 结构</td><td>保留，原始 Transformer 就是</td><td>保留</td></tr>
+<tr><td>Attention 机制</td><td>保留，还成了核心组件</td><td>保留</td></tr>
+</tbody>
+</table>
+
+<h3 id="rnn-attention-剩下的两个问题">RNN + Attention 剩下的两个问题</h3>
+<ol type="1">
+<li><strong>信息冗余</strong>：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐡</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>𝐡</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{h}_1,\dots,\mathbf{h}_n</annotation></semantics></math> 是逐步累积出来的，相邻隐状态大量重叠，attending 一整排同样的东西效率很低。</li>
+<li><strong>无法并行</strong>：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐡</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mathbf{h}_i</annotation></semantics></math> 依赖 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐡</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">\mathbf{h}_{i-1}</annotation></semantics></math>，整句必须排队计算，GPU 的大量算力闲置。</li>
+</ol>
+<p>Self-Attention 一次把任意两个 token 直接连起来，两步一起解决：任意两点的路径长度变成 1，且所有位置可以同时计算。</p>
+
+<h2 id="qkv-的直觉">05 Q、K、V 的直觉</h2>
+
+<h3 id="查字典">查字典</h3>
+<table>
+<thead>
+<tr><th>角色</th><th>直觉</th><th>作用</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Query</strong>（查询）</td><td>我要找什么</td><td>当前 token 发出的需求</td></tr>
+<tr><td><strong>Key</strong>（键）</td><td>每条信息的标签</td><td>供匹配的索引</td></tr>
+<tr><td><strong>Value</strong>（值）</td><td>真正的内容</td><td>匹配上之后取走的东西</td></tr>
+</tbody>
+</table>
+<p>用 Q 和每个 K 算相似度，softmax 归一成权重，再对所有 V 加权求和。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Attn</mtext><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo>,</mo><mi>K</mi><mo>,</mo><mi>V</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mtext mathvariant="normal">softmax</mtext><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>Q</mi><msup><mi>K</mi><mi>⊤</mi></msup></mrow><msqrt><mi>d</mi></msqrt></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>V</mi></mrow><annotation encoding="application/x-tex">\text{Attn}(Q,K,V)=\text{softmax}\!\left(\frac{QK^\top}{\sqrt{d}}\right)V</annotation></semantics></math></p>
+
+<h3 id="为什么-q-和-k-要分开">为什么 Q 和 K 要分开</h3>
+<p>如果 Q、K 是同一个东西，内积只能刻画“我和谁像”这种对称关系，无法表达“<strong>我需要什么</strong>”和“<strong>你能提供什么</strong>”这种不对称的匹配。分开之后，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mi>Q</mi></msub><annotation encoding="application/x-tex">W_Q</annotation></semantics></math> 专门学“怎么提问”，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mi>K</mi></msub><annotation encoding="application/x-tex">W_K</annotation></semantics></math> 专门学“怎么挂标签”，两者各自独立优化。</p>
+
+<h3 id="为什么-v-又和-qk-不一样">为什么 V 又和 Q、K 不一样</h3>
+<p>K 承担索引的角色，用来匹配；V 承担内容的角色，用来返回。同一份信息，“怎么被找到”和“找到之后给出什么”本来就是两件事，用不同的投影才能让两者分别最优化。</p>
+<pre class="mermaid"><code>flowchart LR
+    X["输入 x"] --&gt;|"W_Q"| Q["Query&lt;br/&gt;我要找什么"]
+    X --&gt;|"W_K"| K["Key&lt;br/&gt;我挂什么标签"]
+    X --&gt;|"W_V"| V["Value&lt;br/&gt;我提供什么内容"]
+    Q --&gt; S["算相似度"]
+    K --&gt; S
+    S --&gt; W["权重"]
+    W --&gt; O["对 V 加权求和"]
+    V --&gt; O</code></pre>
+
+<h2 id="self-attention-与-cross-attention">06 Self-Attention 与 Cross-Attention</h2>
+
+<h3 id="层级关系">层级关系</h3>
+<pre class="text"><code>Attention（通用的信息选择机制）
+├── Self-Attention：同一个序列内部相互查看
+└── Cross-Attention：一个序列去读取另一个序列
+
+Transformer（用 Attention 搭起来的完整网络）
+├── Encoder：用 Self-Attention 处理输入序列
+└── Decoder：用 Self-Attention + Cross-Attention 读 Encoder</code></pre>
+
+<h3 id="四个维度的对比">四个维度的对比</h3>
+<table>
+<thead>
+<tr><th>维度</th><th>Self-Attention</th><th>Cross-Attention</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Q, K, V 来源</strong></td><td>同源：都来自同一个序列</td><td>异源：Q 来自目标序列，K、V 来自源序列</td></tr>
+<tr><td><strong>交互对象</strong></td><td>序列内部 token 之间</td><td>两个序列之间</td></tr>
+<tr><td><strong>典型位置</strong></td><td>Encoder、Decoder-Only、Decoder 第一层</td><td>Encoder-Decoder 的 Decoder 中间层</td></tr>
+<tr><td><strong>主要功能</strong></td><td>建模上下文、长距离依赖</td><td>用已知条件指导生成</td></tr>
+</tbody>
+</table>
+<p>判断方法只看 Q 从哪来、K 和 V 从哪来：三个来源相同就是 self，Q 一个来源、K/V 另一个来源就是 cross。</p>
+<p>Decoder-Only 模型（GPT 系列）没有独立的编码器，因此<strong>没有 Cross-Attention</strong>，只有带因果掩码的 Self-Attention。</p>
+
+<h2 id="缩放点积注意力">07 缩放点积注意力与 √d 缩放</h2>
+
+<h3 id="公式">公式</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Attention</mtext><mo stretchy="false" form="prefix">(</mo><mi>Q</mi><mo>,</mo><mi>K</mi><mo>,</mo><mi>V</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mtext mathvariant="normal">softmax</mtext><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>Q</mi><msup><mi>K</mi><mi>⊤</mi></msup></mrow><msqrt><msub><mi>d</mi><mtext mathvariant="normal">head</mtext></msub></msqrt></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>V</mi></mrow><annotation encoding="application/x-tex">\text{Attention}(Q,K,V)=\text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_{\text{head}}}}\right)V</annotation></semantics></math></p>
+<p>三步：算相似度 → softmax 成权重 → 对 V 加权求和。</p>
+
+<h3 id="为什么除以-sqrtd">为什么除以 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mi>d</mi></msqrt><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></h3>
+<p>点积是 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math> 个乘积之和。各分量独立、均值 0、方差 1 时，点积的方差约为 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>，也就是维度越高，分数的数值范围越大。</p>
+<p>softmax 对量级极其敏感：分数一大就退化成近似 one-hot，梯度几乎为 0，参数得不到有效更新。除以 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mi>d</mi></msqrt><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math> 把方差拉回 1 附近，让 softmax 保持在合适的温度。</p>
+
+<h3 id="两个容易搞错的点">两个容易搞错的点</h3>
+<p><strong>一、除的是 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">head</mtext></msub><annotation encoding="application/x-tex">d_{\text{head}}</annotation></semantics></math>，不是 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">model</mtext></msub><annotation encoding="application/x-tex">d_{\text{model}}</annotation></semantics></math></strong>。点积是在单个头内部做的，参与点积的维度就是 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">head</mtext></msub><annotation encoding="application/x-tex">d_{\text{head}}</annotation></semantics></math>（如 128），除错了维度缩放就对不上。</p>
+<p><strong>二、缩放要放在 softmax 之前</strong>。放到 softmax 之后没有意义，因为 softmax 已经把绝对量级消掉，只剩相对比例。</p>
+
+<h3 id="代码">代码</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>energy <span class="op">=</span> torch.einsum(<span class="st">&quot;nqhd,nkhd-&gt;nhqk&quot;</span>, [q, k])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>attention <span class="op">=</span> torch.softmax(energy <span class="op">/</span> math.sqrt(<span class="va">self</span>.head_dim), dim<span class="op">=</span><span class="dv">3</span>)</span></code></pre></div>
+
+<h2 id="多头注意力">08 多头注意力：为什么分头（含手算）</h2>
+
+<h3 id="做法">做法</h3>
+<p>把 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">model</mtext></msub><annotation encoding="application/x-tex">d_{\text{model}}</annotation></semantics></math> 切成 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math> 份，每份 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">head</mtext></msub><mo>=</mo><msub><mi>d</mi><mtext mathvariant="normal">model</mtext></msub><mi>/</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">d_{\text{head}}=d_{\text{model}}/h</annotation></semantics></math>，各头独立做一次注意力，拼接后再线性变换：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">MultiHead</mtext><mo>=</mo><mtext mathvariant="normal">Concat</mtext><mo stretchy="false" form="prefix">(</mo><msub><mtext mathvariant="normal">head</mtext><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mtext mathvariant="normal">head</mtext><mi>h</mi></msub><mo stretchy="false" form="postfix">)</mo><msub><mi>W</mi><mi>O</mi></msub></mrow><annotation encoding="application/x-tex">\text{MultiHead}=\text{Concat}(\text{head}_1,\dots,\text{head}_h)W_O</annotation></semantics></math></p>
+<pre class="mermaid"><code>flowchart LR
+    A["(B,S,3584)"] --&gt;|"W_Q W_K W_V"| B["(B,S,3584)"]
+    B --&gt;|"reshape"| C["(B,S,28,128)"]
+    C --&gt;|"transpose"| D["(B,28,S,128)"]
+    D --&gt;|"各头算注意力"| E["(B,28,S,128)"]
+    E --&gt;|"拼接 + W_O"| F["(B,S,3584)"]</code></pre>
+
+<h3 id="为什么分头更强">为什么分头更强</h3>
+<p>单个头只能表达一种相似度模式。多头让模型在不同的子空间同时关注不同关系，有的头盯着语法依存，有的头盯着指代，有的头盯着相邻位置。</p>
+<p>总参数量和计算量几乎不变，因为每个头的维度缩小了 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math> 倍。这是用同样的算力换取更多观察角度。</p>
+
+<h3 id="四个线性层">四个线性层</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mi>X</mi><msub><mi>W</mi><mi>Q</mi></msub><mo>,</mo><mspace width="1.0em"></mspace><mi>K</mi><mo>=</mo><mi>X</mi><msub><mi>W</mi><mi>K</mi></msub><mo>,</mo><mspace width="1.0em"></mspace><mi>V</mi><mo>=</mo><mi>X</mi><msub><mi>W</mi><mi>V</mi></msub><mo>,</mo><mspace width="1.0em"></mspace><mtext mathvariant="normal">Out</mtext><mo>=</mo><mtext mathvariant="normal">Concat</mtext><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">heads</mtext><mo stretchy="false" form="postfix">)</mo><msub><mi>W</mi><mi>O</mi></msub></mrow><annotation encoding="application/x-tex">Q=XW_Q,\quad K=XW_K,\quad V=XW_V,\quad \text{Out}=\text{Concat}(\text{heads})W_O</annotation></semantics></math></p>
+<table>
+<thead>
+<tr><th>层</th><th>作用</th></tr>
+</thead>
+<tbody>
+<tr><td><code>queries</code></td><td>生成“我要找什么”</td></tr>
+<tr><td><code>keys</code></td><td>生成“我有什么可被匹配”</td></tr>
+<tr><td><code>values</code></td><td>生成“匹配上之后提供什么内容”</td></tr>
+<tr><td><code>fc_out</code></td><td>把多头拼起来后融合，维度回到 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math></td></tr>
+</tbody>
+</table>
+<p>四个线性层的<strong>输出维度都是 <code>d_model</code></strong>，不是 <code>d_head</code>。一次 <code>nn.Linear(3584,3584)</code> 就把所有头一起算完，靠后面的 reshape 切分到各个头。</p>
+
+<h3 id="参数量">参数量（以 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>3584</mn></mrow><annotation encoding="application/x-tex">d=3584</annotation></semantics></math> 为例）</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><munder><mrow><mn>3</mn><mo>×</mo><msup><mn>3584</mn><mn>2</mn></msup></mrow><mo accent="true">⏟</mo></munder><mrow><mi>Q</mi><mo>,</mo><mi>K</mi><mo>,</mo><mi>V</mi></mrow></munder><mo>+</mo><munder><munder><mrow><msup><mn>3584</mn><mn>2</mn></msup><mo>+</mo><mn>3584</mn></mrow><mo accent="true">⏟</mo></munder><mrow><msub><mi>W</mi><mi>O</mi></msub><mo>+</mo><mi>b</mi></mrow></munder><mo>≈</mo><mn>5.1</mn><mo>×</mo><msup><mn>10</mn><mn>7</mn></msup></mrow><annotation encoding="application/x-tex">\underbrace{3\times 3584^2}_{Q,K,V}+\underbrace{3584^2+3584}_{W_O+b}\approx 5.1\times10^{7}</annotation></semantics></math></p>
+<p>约 5100 万参数，正好是 FFN（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><msup><mi>d</mi><mn>2</mn></msup><mo>≈</mo><mn>1.03</mn></mrow><annotation encoding="application/x-tex">8d^2\approx1.03</annotation></semantics></math> 亿）的一半，与“FFN 占一个 block 参数的 2/3”相符。</p>
+
+<h3 id="手算一遍">手算一遍：2 个 token、4 维、2 个头</h3>
+<p>取 <code>seq_len = 2</code>、<code>d_model = 4</code>、<code>head_num = 2</code>、<code>d_head = 2</code>。两个 token 为 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">x_1 = [1,0,1,0]</annotation></semantics></math>、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>2</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">x_2 = [0,1,0,1]</annotation></semantics></math>，令投影矩阵都是单位阵，于是 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mi>K</mi><mo>=</mo><mi>V</mi><mo>=</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">Q=K=V=X</annotation></semantics></math>。</p>
+<p>每个头拿 2 维，第 1 个头拿到的是</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\begin{bmatrix}1&amp;0\\0&amp;1\end{bmatrix}</annotation></semantics></math></p>
+<p>打分并缩放 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mn>2</mn></msqrt><annotation encoding="application/x-tex">\sqrt{2}</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>Q</mi><msup><mi>K</mi><mi>⊤</mi></msup></mrow><msqrt><mn>2</mn></msqrt></mfrac><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.707</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.707</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\frac{QK^\top}{\sqrt{2}}=\begin{bmatrix}0.707&amp;0\\0&amp;0.707\end{bmatrix}</annotation></semantics></math></p>
+<p>逐行 softmax：第一行 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.707</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.707, 0]</annotation></semantics></math> 变成 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.67</mn><mo>,</mo><mn>0.33</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.67, 0.33]</annotation></semantics></math>，第二行对称。<strong>这是不加掩码的版本</strong>；若加上因果掩码，第一行会变成 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[1,0]</annotation></semantics></math>。</p>
+<p>乘 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">head</mtext><mn>1</mn></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>0.67</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.33</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>0.33</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>0.67</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\text{head}_1=\begin{bmatrix}0.67&amp;0.33\\0.33&amp;0.67\end{bmatrix}</annotation></semantics></math></p>
+<p>第 2 个头的数值相同，因为输入的四个维度是对称的。拼接后 token 1 的向量是 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.67</mn><mo>,</mo><mn>0.33</mn><mo>,</mo><mn>0.67</mn><mo>,</mo><mn>0.33</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.67, 0.33, 0.67, 0.33]</annotation></semantics></math>，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mi>o</mi></msub><annotation encoding="application/x-tex">W_o</annotation></semantics></math> 取单位阵时这就是最终输出。</p>
+<p>那个 <strong>0.33 来自 token 2</strong>：token 1 的表示里混入了邻居的成分，这就是“看过上下文”在数值上的样子。</p>
+
+<h3 id="默写版最小实现">默写版：最小可运行实现</h3>
+<p>面试让手写时，写这一版就够（<code>d_model</code> 换成 512、<code>head_num</code> 换成 8 同样成立）：</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MultiHeadAttention(nn.Module):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d_model: <span class="bu">int</span> <span class="op">=</span> <span class="dv">512</span>, head_num: <span class="bu">int</span> <span class="op">=</span> <span class="dv">8</span>):</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> d_model <span class="op">%</span> head_num <span class="op">==</span> <span class="dv">0</span>, <span class="st">&quot;d_model 必须能被头数整除&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.h <span class="op">=</span> head_num</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.d_head <span class="op">=</span> d_model <span class="op">//</span> head_num</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w_q <span class="op">=</span> nn.Linear(d_model, d_model)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w_k <span class="op">=</span> nn.Linear(d_model, d_model)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w_v <span class="op">=</span> nn.Linear(d_model, d_model)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w_o <span class="op">=</span> nn.Linear(d_model, d_model)      <span class="co"># 拼接后融合</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, mask<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        B, S, _ <span class="op">=</span> x.shape</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ① 三个投影：仍是 d_model 维，靠 reshape 才分头</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> <span class="va">self</span>.w_q(x).view(B, S, <span class="va">self</span>.h, <span class="va">self</span>.d_head).transpose(<span class="dv">1</span>, <span class="dv">2</span>)   <span class="co"># (B,h,S,d_head)</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> <span class="va">self</span>.w_k(x).view(B, S, <span class="va">self</span>.h, <span class="va">self</span>.d_head).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> <span class="va">self</span>.w_v(x).view(B, S, <span class="va">self</span>.h, <span class="va">self</span>.d_head).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ② 打分 + 缩放：除的是 d_head，不是 d_model</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        score <span class="op">=</span> q <span class="op">@</span> k.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>) <span class="op">/</span> math.sqrt(<span class="va">self</span>.d_head)          <span class="co"># (B,h,S,S)</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ③ 掩码必须在 softmax 之前</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> mask <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>            score <span class="op">=</span> score.masked_fill(mask <span class="op">==</span> <span class="dv">0</span>, <span class="op">-</span><span class="fl">1e20</span>)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ④ 归一化 + 加权求和</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        attn <span class="op">=</span> torch.softmax(score, dim<span class="op">=-</span><span class="dv">1</span>)                               <span class="co"># (B,h,S,S)</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> attn <span class="op">@</span> v                                                    <span class="co"># (B,h,S,d_head)</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ⑤ 拼回多头：transpose 后必须 contiguous 才能 view</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> out.transpose(<span class="dv">1</span>, <span class="dv">2</span>).contiguous().view(B, S, <span class="va">self</span>.h <span class="op">*</span> <span class="va">self</span>.d_head)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ⑥ 最后一次线性融合</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.w_o(out)                                              <span class="co"># (B,S,d_model)</span></span></code></pre></div>
+
+<h4 id="形状流转">形状流转</h4>
+<table>
+<thead>
+<tr><th>步骤</th><th>形状</th></tr>
+</thead>
+<tbody>
+<tr><td>输入 <code>x</code></td><td><code>(B, S, d_model)</code></td></tr>
+<tr><td><code>w_q/w_k/w_v(x)</code></td><td><code>(B, S, d_model)</code></td></tr>
+<tr><td><code>.view(B, S, h, d_head)</code></td><td><code>(B, S, h, d_head)</code></td></tr>
+<tr><td><code>.transpose(1, 2)</code></td><td><code>(B, h, S, d_head)</code></td></tr>
+<tr><td><code>q @ k.transpose(-2,-1)</code></td><td><code>(B, h, S, S)</code></td></tr>
+<tr><td><code>softmax</code></td><td><code>(B, h, S, S)</code></td></tr>
+<tr><td><code>attn @ v</code></td><td><code>(B, h, S, d_head)</code></td></tr>
+<tr><td><code>transpose(1,2).view(B,S,-1)</code></td><td><code>(B, S, d_model)</code></td></tr>
+</tbody>
+</table>
+
+<h4 id="默写口诀与扣分点">默写口诀与常见错法</h4>
+<p>口诀：<strong>四个 Linear、两次 transpose、一次打分、先 mask 再 softmax、拼回来再过 w_o</strong>。</p>
+<table>
+<thead>
+<tr><th>常见错</th><th>后果</th></tr>
+</thead>
+<tbody>
+<tr><td>忘了 <code>/ sqrt(d_head)</code></td><td>分数过大，softmax 接近 one-hot，梯度消失</td></tr>
+<tr><td>用 <code>d_model</code> 去除</td><td>头数越多缩放越离谱，与设计不符</td></tr>
+<tr><td>mask 放在 softmax 之后</td><td>权重已被归一化，再置 0 会破坏和为 1</td></tr>
+<tr><td>省略 <code>transpose(1,2)</code></td><td>变成在 <code>S</code> 上分头，语义全错</td></tr>
+<tr><td><code>view</code> 前不 <code>contiguous()</code></td><td>transpose 后内存不连续，报错或拿到错误的数值</td></tr>
+<tr><td><code>w_o</code> 输出维度写成 <code>d_head</code></td><td>下一层维度对不上</td></tr>
+</tbody>
+</table>
+
+<h4 id="面试三十秒版">面试时的 30 秒版</h4>
+<p>“把 <code>d_model</code> 切成 <code>h</code> 份，每份 <code>d_head</code>；Q、K、V 各用独立的线性层投影，投影后仍是 <code>d_model</code> 维，再 reshape 成 <code>(B,h,S,d_head)</code> 分头；每个头算 <code>softmax(QKᵀ/√d_head)V</code>，各头独立；最后 transpose 回 <code>(B,S,d_model)</code> 拼接，过一次 <code>w_o</code> 融合。总参数量约 <code>4·d_model²</code>，与头数无关。”</p>
+
+<h2 id="einsum-与形状流转">09 einsum 与形状流转</h2>
+
+<h3 id="einsum-算注意力分数">einsum 算注意力分数</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>energy <span class="op">=</span> torch.einsum(<span class="st">&quot;nqhd,nkhd-&gt;nhqk&quot;</span>, [queries, keys])</span></code></pre></div>
+<p>字母含义：</p>
+<table>
+<thead>
+<tr><th>字母</th><th>含义</th><th>维度</th></tr>
+</thead>
+<tbody>
+<tr><td><code>n</code></td><td>batch</td><td>B</td></tr>
+<tr><td><code>q</code></td><td>query 序列长度</td><td>S</td></tr>
+<tr><td><code>k</code></td><td>key 序列长度</td><td>S</td></tr>
+<tr><td><code>h</code></td><td>head 数</td><td>28</td></tr>
+<tr><td><code>d</code></td><td>每个头的维度</td><td>128</td></tr>
+</tbody>
+</table>
+<p>对每个 batch、每个头，拿 Q 和 K 做内积，<code>d</code> 被求和消掉：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">energy</mtext><mrow><mi>n</mi><mi>h</mi><mi>q</mi><mi>k</mi></mrow></msub><mo>=</mo><munder><mo>∑</mo><mi>d</mi></munder><msub><mi>Q</mi><mrow><mi>n</mi><mi>q</mi><mi>h</mi><mi>d</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>K</mi><mrow><mi>n</mi><mi>k</mi><mi>h</mi><mi>d</mi></mrow></msub><mo>=</mo><msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Q</mi><mrow><mi>n</mi><mi>h</mi></mrow></msub><msubsup><mi>K</mi><mrow><mi>n</mi><mi>h</mi></mrow><mi>⊤</mi></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>q</mi><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\text{energy}_{nhqk}=\sum_{d}Q_{nqhd}\,K_{nkhd}=\left(Q_{nh}K_{nh}^{\top}\right)_{qk}</annotation></semantics></math></p>
+<p>输出写成 <code>nhqk</code> 而不是 <code>nqhk</code>，是为了让后面的 <code>softmax(dim=-1)</code> 直接作用在 <code>k</code> 这一维上。</p>
+<p>等价的 matmul 写法：</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> queries.permute(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>)   <span class="co"># (n, h, q, d)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> keys.permute(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">1</span>)      <span class="co"># (n, h, d, k)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>energy <span class="op">=</span> torch.matmul(q, k)       <span class="co"># (n, h, q, k)</span></span></code></pre></div>
+
+<h3 id="形状流转与内存">形状流转与内存连续性</h3>
+<p><code>reshape</code> 只改变看待张量的方式，不调整轴的顺序；要把 <code>(n, q, h, d)</code> 变成 <code>(n, h, q, d)</code>，必须显式 <code>transpose(1, 2)</code>，否则不同头的向量会被混在一起。transpose 只改轴的顺序、不改内存布局，之后的 <code>view</code> 要求内存连续，所以要先 <code>contiguous()</code>。</p>
+<pre><code>(B, S, 3584)
+   │ reshape
+   ▼
+(B, S, 28, 128)      ← 28 个头，每头 128 维
+   │ transpose
+   ▼
+(B, 28, S, 128)      ← 每个头独立算 attention</code></pre>
+
+<h2 id="mask">10 掩码：在 softmax 之前打到极小</h2>
+
+<h3 id="为什么要在-softmax-之前动手">为什么要在 softmax 之前动手</h3>
+<p>softmax 的形式是 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">attn</mtext><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mrow><msup><mi>e</mi><msub><mi>z</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></msup><mo>/</mo><munder><mo>∑</mo><mi>l</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mrow><mi>i</mi><mi>l</mi></mrow></msub></msup></mrow></mrow><annotation encoding="application/x-tex">\text{attn}_{ij}={e^{z_{ij}}}/{\sum_{l}e^{z_{il}}}</annotation></semantics></math>。要让某个位置的权重为 0，唯一的办法是让它对应的分数趋于负无穷，因为 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mrow><mi>−</mi><mi>∞</mi></mrow></msup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">e^{-\infty}=0</annotation></semantics></math>。</p>
+<p><code>masked_fill(mask == 0, -1e20)</code> 做的正是这件事：凡是 mask 为 0 的位置，分数直接替换成 -1e20。</p>
+
+<h3 id="具体过程">具体过程</h3>
+<p>假设某个 query 对 4 个 key 的分数，其中第 3、4 个是 padding：</p>
+<pre><code>mask      = [1, 1, 0, 0]
+energy    = [2.1, 0.7, 3.5, 1.9]        ← 原始分数，padding 位置分数也可能很高
+            ↓ masked_fill(mask == 0, -1e20)
+energy    = [2.1, 0.7, -1e20, -1e20]
+            ↓ softmax
+attn      = [0.79, 0.21, 0.0, 0.0]      ← 概率总和仍为 1</code></pre>
+<p><code>exp(-1e20)</code> 在 float32 里直接下溢成 <code>0.0</code>，这两个位置的权重是精确的 0。</p>
+
+<h3 id="为什么用-1e20">为什么用 -1e20，不用 -inf</h3>
+<p><code>float("-inf")</code> 理论上更直接，工程上却有风险：<code>-inf</code> 参与后续加减时容易产生 <code>nan</code>（例如 <code>inf - inf</code>）；整行全被 mask 时 softmax 也会得到 <code>nan</code>。<code>-1e20</code> 是一个足够负的有限数，指数之后同样下溢为 0，效果等价，数值上更安全。</p>
+
+<h3 id="mask-的形状与广播">mask 的形状与广播</h3>
+<p><code>energy</code> 的形状是 <code>(n, h, q, k)</code>，mask 通常是 <code>(n, 1, 1, k)</code> 或 <code>(n, 1, q, k)</code>。<code>masked_fill</code> 依赖 broadcasting，mask 会在 <code>h</code> 和 <code>q</code> 两个维度上自动复制，于是所有头、所有 query 共用同一套屏蔽规则。</p>
+
+<h3 id="两种-mask">两种 mask</h3>
+<table>
+<thead>
+<tr><th>类型</th><th>形状</th><th>作用</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>padding mask</strong></td><td><code>(n, 1, 1, k)</code></td><td>挡掉补齐的 0 位置</td></tr>
+<tr><td><strong>causal mask</strong></td><td><code>(n, 1, q, k)</code> 下三角</td><td>挡掉“未来”的 token</td></tr>
+</tbody>
+</table>
+<p>两者可以叠加：先做 padding mask，再做 causal mask，都是同一招——把不该看的分数打成 -1e20。</p>
+
+<h3 id="注意整行被挡">注意整行被挡的情况</h3>
+<p>padding 位置作为 query 时也会被 mask，这一整行都是 -1e20，softmax 之后是均匀分布或 <code>nan</code>。因为这些位置的输出最后会被丢弃（只取真实 token 的结果），通常不影响最终结果。严谨的实现会在 softmax 前把整行被挡的情况单独处理掉。</p>
+
+<h2 id="ffn">11 FFN：升维 → 激活 → 降维</h2>
+<p>FFN（前馈网络）就是两个线性层中间夹一个激活函数：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">FFN</mtext><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>W</mi><mn>2</mn></msub><mspace width="0.167em"></mspace><mi>σ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mn>1</mn></msub><mi>x</mi><mo>+</mo><msub><mi>b</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>b</mi><mn>2</mn></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>W</mi><mn>1</mn></msub><mo>∈</mo><msup><mi>ℝ</mi><mrow><mn>4</mn><mi>d</mi><mo>×</mo><mi>d</mi></mrow></msup><mo>,</mo><mspace width="0.222em"></mspace><msub><mi>W</mi><mn>2</mn></msub><mo>∈</mo><msup><mi>ℝ</mi><mrow><mi>d</mi><mo>×</mo><mn>4</mn><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\text{FFN}(x)=W_2\,\sigma(W_1x+b_1)+b_2,\qquad W_1\in\mathbb{R}^{4d\times d},\ W_2\in\mathbb{R}^{d\times 4d}</annotation></semantics></math></p>
+
+<h3 id="张量形状的变换">张量形状的变换</h3>
+<p>在实现里，这一步常常先把 <code>(B, S, d)</code> 展平成 <code>(B·S, d)</code>，做完两层线性再还原回 <code>(B, S, d)</code>：</p>
+<pre><code>(batch, seq_len, d)
+   │ 展平成 (batch·seq_len, d)
+   ▼
+(batch·seq_len, 4d)      ← W_1 升维 4 倍
+   │ 激活 σ()
+   ▼
+(batch·seq_len, 4d)
+   │ W_2 降维
+   ▼
+(batch·seq_len, d)
+   │ 还原形状
+   ▼
+(batch, seq_len, d)</code></pre>
+<p>每个 token 的向量独自经过这一组变换，token 之间不交换信息。</p>
+
+<h3 id="为什么升维再激活">为什么升维再激活</h3>
+<p><strong>① 引入非线性</strong></p>
+<p>Self-Attention 本质是加权求和，是线性操作。FFN 的激活函数（ReLU、GELU 等）把非线性引入整个网络。没有它，无论堆多少层 Transformer，整体仍等价于一个线性模型，无法学习复杂模式。这是 FFN 最根本的作用。</p>
+<p><strong>② 升维提供更大的表达空间</strong></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mn>1</mn></msub><annotation encoding="application/x-tex">W_1</annotation></semantics></math> 是线性变换，本身不增加信息量。升维带来的是更多可组合的特征方向：把向量展开到 4 倍宽的空间，激活函数在其中挑选、筛选，再降维重组，模型因此有了更强的特征加工能力。</p>
+<p><strong>③ 存储模型知识</strong></p>
+<p>标准 Transformer 中 FFN 的参数量约占一个 block 的 2/3，它承担了模型的大部分“记忆”，存放从训练数据里学到的各种模式和规律。</p>
+
+<h3 id="为什么不在原维度直接激活">为什么不在原维度直接激活</h3>
+<p>两个线性层若中间不夹非线性，会塌缩成一个矩阵 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mn>2</mn></msub><mi>σ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mn>1</mn></msub><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msub><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">|</mo><mrow><mi>σ</mi><mo>=</mo><mtext mathvariant="normal">恒等</mtext></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mn>2</mn></msub><msub><mi>W</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mi>x</mi></mrow><annotation encoding="application/x-tex">W_2\sigma(W_1x)\big|_{\sigma=\text{恒等}} = (W_2W_1)x</annotation></semantics></math>，参数白加。所以非线性必须作用在宽的那一层上，才有展开、筛选、重组的效果。</p>
+
+<h3 id="倍不是铁律">4 倍不是铁律</h3>
+<p>原始 Transformer 用了 4 倍，之后成为惯例。LLaMA 等模型改用 <strong>SwiGLU</strong>（带门控），为了让参数量持平，把中间维度改成 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mi>d</mi><mi>/</mi><mn>3</mn><mo>≈</mo><mn>2.67</mn><mi>d</mi></mrow><annotation encoding="application/x-tex">8d/3 \approx 2.67d</annotation></semantics></math>：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">SwiGLU</mtext><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>W</mi><mn>2</mn></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Swish</mtext><mo stretchy="false" form="prefix">(</mo><msub><mi>W</mi><mn>1</mn></msub><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>⊙</mo><msub><mi>W</mi><mn>3</mn></msub><mi>x</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{SwiGLU}(x)=W_2\big(\text{Swish}(W_1x)\odot W_3x\big)</annotation></semantics></math></p>
+
+<h2 id="add-norm">12 Add &amp; Norm 与 LayerNorm</h2>
+
+<h3 id="add-norm-是两个动作">Add &amp; Norm 是两个动作</h3>
+<p>Add（残差相加）加 Norm（层归一化）：</p>
+<pre><code>y = x + F(x)              ← Add：残差连接
+z = LayerNorm(y)          ← Norm：层归一化</code></pre>
+<p>先加残差，再归一化，输出的 <code>z</code> 才进入下一个子层。</p>
+
+<h3 id="作用位置">作用位置</h3>
+<p>一个 Transformer block 里有 2 次，N 层就是 <code>2N</code> 次：</p>
+<pre><code>① Multi-Head Attention 输出  →  Add &amp; Norm
+② Feed Forward 输出          →  Add &amp; Norm</code></pre>
+
+<h3 id="norm-对哪一维归一化">Norm 对哪一维归一化</h3>
+<p>对<strong>每个 token 自己的 3584 维向量</strong>做归一化，既不对 batch，也不对序列长度：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">LayerNorm</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>γ</mi><mo>⊙</mo><mfrac><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mi>μ</mi><mi>i</mi></msub></mrow><msqrt><mrow><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup><mo>+</mo><mi>ε</mi></mrow></msqrt></mfrac><mo>+</mo><mi>β</mi><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>μ</mi><mi>i</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>d</mi></mfrac><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>d</mi></munderover><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup><mo>=</mo><mfrac><mn>1</mn><mi>d</mi></mfrac><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>d</mi></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mi>μ</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\operatorname{LayerNorm}(x_i)=\gamma\odot\frac{x_i-\mu_i}{\sqrt{\sigma_i^2+\varepsilon}}+\beta,\qquad \mu_i=\frac{1}{d}\sum_{j=1}^{d}x_{ij},\quad \sigma_i^2=\frac{1}{d}\sum_{j=1}^{d}(x_{ij}-\mu_i)^2</annotation></semantics></math></p>
+<ul>
+<li>减均值、除标准差后，每个 token 的向量变成均值 0、方差 1，再被可学习的 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>,</mo><mi>β</mi></mrow><annotation encoding="application/x-tex">\gamma, \beta</annotation></semantics></math> 拉回可用的尺度，每维一个参数</li>
+<li>不同 token 之间互不影响，batch 大小、序列长度变化都不改变结果，这是 LayerNorm 比 BatchNorm 更适合 NLP 的原因</li>
+</ul>
+
+<h3 id="两个轴">两个轴：seq_len 与 dim</h3>
+<pre><code>X (8, 3584)
+  │
+  ├─ 第0个token ──▶ 沿 3584 维求均值/方差 ──▶ 归一化 ──▶ 还是 3584 维
+  ├─ 第1个token ──▶ 沿 3584 维求均值/方差 ──▶ 归一化 ──▶ 还是 3584 维
+  │   ...
+  └─ 第7个token ──▶ 沿 3584 维求均值/方差 ──▶ 归一化 ──▶ 还是 3584 维</code></pre>
+<table>
+<thead>
+<tr><th>操作</th><th>沿哪条轴</th></tr>
+</thead>
+<tbody>
+<tr><td>LayerNorm</td><td>dim（3584），每个 token 独立</td></tr>
+<tr><td>Attention 的 softmax</td><td>seq_len（8），每个 query 在所有 key 上归一</td></tr>
+<tr><td>BatchNorm（NLP 不用）</td><td>batch + seq，跨样本</td></tr>
+</tbody>
+</table>
+<p>形状是 <code>(seq_len, dim)</code>，LayerNorm 归一化的是 <code>dim</code>，<code>seq_len</code> 只表示有多少份需要各算一遍。</p>
+
+<h3 id="post-ln-与-pre-ln">Post-LN 与 Pre-LN</h3>
+<p>原始 Transformer 是 <strong>Post-LN</strong>，norm 放在残差之后；现代大模型（GPT、LLaMA、Qwen）基本都改成了 <strong>Pre-LN</strong>，先归一化再进子层：</p>
+<pre><code>Post-LN:  z = LN(x + F(x))
+Pre-LN:   z = x + F(LN(x))        ← 现代大模型</code></pre>
+<p>Post-LN 在深层容易梯度爆炸，需要靠 warmup 才能训练稳定；Pre-LN 把残差路径保持成一条纯粹的加法通路，梯度可以直接回传到底层，训练更稳定。</p>
+
+<h2 id="rmsnorm">13 RMSNorm</h2>
+<p>LLaMA 系列把 LayerNorm 换成 <strong>RMSNorm</strong>：不减均值，只除以均方根，省掉减均值和加 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math> 偏移这两步：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">RMSNorm</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mi>x</mi><msqrt><mrow><mfrac><mn>1</mn><mi>d</mi></mfrac><munder><mo>∑</mo><mi>j</mi></munder><msubsup><mi>x</mi><mi>j</mi><mn>2</mn></msubsup><mo>+</mo><mi>ε</mi></mrow></msqrt></mfrac><mo>⋅</mo><mi>γ</mi></mrow><annotation encoding="application/x-tex">\operatorname{RMSNorm}(x)=\frac{x}{\sqrt{\frac{1}{d}\sum_j x_j^2+\varepsilon}}\cdot\gamma</annotation></semantics></math></p>
+<p>它起到的作用：</p>
+<table>
+<thead>
+<tr><th>作用</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>稳定数值</td><td>每层输出的尺度被控制住，不会越传越大或越小</td></tr>
+<tr><td>稳定梯度</td><td>残差让梯度直通底层，norm 防止梯度爆炸</td></tr>
+<tr><td>降低耦合</td><td>各层输入分布固定，深层更容易训练</td></tr>
+</tbody>
+</table>
+
+<h2 id="输出头">14 输出头、logits 与 softmax</h2>
+<p>最后一层 Transformer block 的输出，经过一个线性层投影到词表空间，得到每个候选 token 的分数：</p>
+<pre><code>最后一层 Transformer block 输出
+        (B, S, d)          B=batch_size  S=seq_len  d=3584
+     │
+     │  Final LayerNorm（LLaMA/GPT 都有这一层），形状不变
+     ▼
+        (B, S, d)          ← Linear 的输入
+     │
+     │  Linear: d → V，对每个位置独立作用
+     ▼
+        (B, S, V)          ← logits，V ≈ 151936
+     │
+     │  只取最后一个位置 [:, -1, :]
+     ▼
+        (B, V)             ← softmax → 下一个 token 的概率</code></pre>
+
+<h3 id="linear-作用在最后一维">Linear 作用在最后一维</h3>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>lm_head <span class="op">=</span> nn.Linear(d, V)     <span class="co"># 权重 (V, d)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> lm_head(hidden)      <span class="co"># (B,S,3584) → (B,S,151936)</span></span></code></pre></div>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">logits</mtext><mo>=</mo><mi>h</mi><mspace width="0.167em"></mspace><msub><mi>W</mi><mtext mathvariant="normal">out</mtext></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>W</mi><mtext mathvariant="normal">out</mtext></msub><mo>∈</mo><msup><mi>ℝ</mi><mrow><mn>3584</mn><mo>×</mo><mi>V</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\text{logits}=h\,W_{\text{out}},\qquad W_{\text{out}}\in\mathbb{R}^{3584\times V}</annotation></semantics></math></p>
+<p><code>nn.Linear</code> 只作用在最后一维，<code>B</code> 和 <code>S</code> 当作批量维度原样保留，所以形状 <code>(B, S, d) → (B, S, V)</code>，<code>B</code>、<code>S</code> 都不变。</p>
+
+<h3 id="每个位置都被预测">每个位置都被预测，但只用最后一个</h3>
+<p><code>(B, S, V)</code> 里第 t 个位置表示“已知前 t 个 token，下一个词是什么”。训练时每个位置都算 loss；推理时只关心最后一个位置：</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>next_logits <span class="op">=</span> logits[:, <span class="op">-</span><span class="dv">1</span>, :]      <span class="co"># (B, V)</span></span></code></pre></div>
+
+<h3 id="logits-是什么">logits 是什么</h3>
+<p>logits 就是模型在 softmax 之前输出的原始分数，没有任何归一化。</p>
+<pre><code>logits = [2.3, -1.5, 8.7, 0.4]
+           ↑     ↑    ↑    ↑
+          "猫"  "狗" "天气" "的"</code></pre>
+<ul>
+<li>全是实数，可正可负</li>
+<li>加起来不等于 1，也不是百分比</li>
+<li>只有大小关系有意义：8.7 最大，表示“天气”得分最高</li>
+</ul>
+<p>softmax 之后才变成概率，总和为 1：</p>
+<pre><code>logits (V 维，原始分数) ──softmax──▶ probs (V 维，概率，总和=1) ──argmax/采样──▶ 下一个 token</code></pre>
+<p>模型内部一直用 logit 参与计算，只在需要解释或采样时才转成概率。</p>
+
+<h3 id="为什么叫-logits">为什么叫 logits</h3>
+<p>数学上它是 softmax 的逆运算：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">softmax</mtext><mo stretchy="false" form="prefix">(</mo><mi>z</mi><msub><mo stretchy="false" form="postfix">)</mo><mi>k</mi></msub><mo>=</mo><mfrac><msup><mi>e</mi><msub><mi>z</mi><mi>k</mi></msub></msup><mrow><munder><mo>∑</mo><mi>j</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup></mrow></mfrac><mspace width="1.0em"></mspace><mo>⇔</mo><mspace width="1.0em"></mspace><msub><mi>z</mi><mi>k</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><msub><mi>p</mi><mi>k</mi></msub><mo>+</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">\text{softmax}(z)_k=\frac{e^{z_k}}{\sum_j e^{z_j}} \quad\Longleftrightarrow\quad z_k=\log p_k + C</annotation></semantics></math></p>
+<p>logit 就是概率的对数再加一个常数（softmax 对整体平移不变）。词源是 <strong>log-odds</strong>（对数几率）。</p>
+
+<h3 id="softmax-与损失">Softmax 与损失</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>k</mi></msub><mi>/</mi><mi>T</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>V</mi></munderover><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>j</mi></msub><mi>/</mi><mi>T</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>,</mo><mspace width="2.0em"></mspace><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>V</mi></munderover><msub><mi>p</mi><mi>k</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">p_k=\frac{\exp\left(z_k/T\right)}{\sum_{j=1}^{V}\exp\left(z_j/T\right)},\qquad \sum_{k=1}^{V}p_k=1</annotation></semantics></math></p>
+<p>训练时用交叉熵（内部已含 log-softmax），<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>*</mo></msup><annotation encoding="application/x-tex">y^\ast</annotation></semantics></math> 是真值 token 的下标：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℒ</mi><mo>=</mo><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><msub><mi>p</mi><msup><mi>y</mi><mo>*</mo></msup></msub><mo>=</mo><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mfrac><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><msup><mi>y</mi><mo>*</mo></msup></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>V</mi></munderover><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathcal{L}=-\log p_{y^\ast} =-\log\frac{\exp\left(z_{y^\ast}\right)}{\sum_{j=1}^{V}\exp\left(z_j\right)}</annotation></semantics></math></p>
+
+<h3 id="和-embedding-的对称关系">和 embedding 的对称关系</h3>
+<pre><code>输入:  id ──查表──▶ 3584 维向量       (embedding,   V × d)
+输出:  3584 维向量 ──投影──▶ V 个分数  (lm_head,     d × V)</code></pre>
+<p>一头一尾，方向相反、矩阵形状互为转置，所以可以让两者共享权重（weight tying）：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">out</mtext></msub><mo>=</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">W_{\text{out}}=E</annotation></semantics></math>，省下 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>×</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">d\times V</annotation></semantics></math> 个参数。</p>
+
+<h2 id="encoder-decoder-与-decoder-only">15 Encoder-Decoder 与 Decoder-Only</h2>
+<p>问题与答案在输入里是否分开，决定了架构类型。</p>
+<table>
+<thead>
+<tr><th>架构类型</th><th>典型代表</th><th>问题与答案在 inputs 中是否分开？</th><th>交互方式</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>经典 Transformer（Encoder-Decoder）</strong></td><td>原始 Transformer、T5、BART</td><td>完全分开</td><td>问题进 Encoder，答案进 Decoder，通过 <strong>Cross-Attention</strong> 交互</td></tr>
+<tr><td><strong>现代大模型（Decoder-Only）</strong></td><td>GPT-4、LLaMA、Qwen、DeepSeek</td><td>不分开（合并为一整个序列）</td><td>问题和答案拼成一段话，通过 <strong>Masked Self-Attention</strong> 从左到右流动</td></tr>
+</tbody>
+</table>
+
+<h3 id="经典-transformer">经典 Transformer：问题走 Encoder，答案走 Decoder</h3>
+<ul>
+<li><strong>Encoder 的输入</strong>：只放问题或源文本。</li>
+<li><strong>Decoder 的输入</strong>：放已经生成的答案部分。训练时输入的是整体向右移一位的答案（Target）；推理时最初只接收一个起始符号 <code>&lt;bos&gt;</code>，然后逐步拿着已经生成的词，结合 Encoder 传来的问题信息（通过 Cross-Attention），逐字预测下一个答案词。</li>
+</ul>
+<pre><code>Encoder:  (B, S_src) → (B, S_src, d)         只编码问题
+Decoder:  (B, S_tgt) → (B, S_tgt, d)         生成答案
+                        ↑
+              Cross-Attention 读 Encoder 的 K、V</code></pre>
+
+<h3 id="decoder-only-的做法">Decoder-Only 的做法</h3>
+<pre><code>[&lt;|im_start|&gt; 问题 &lt;|im_end|&gt; 答案 ...]
+└────────────── 一整条序列 ──────────────┘</code></pre>
+<p>问题与答案在同一个序列里，用因果掩码保证每个位置只能看到左边，因此不需要额外的 Encoder，也不需要 Cross-Attention。</p>
+
+<h2 id="bert-与-gpt">16 BERT 与 GPT</h2>
+<p>BERT 把句子读成“理解”，GPT 接着往下“写”。两者的差别集中在架构来源、注意力掩码和训练目标三处。</p>
+
+<h3 id="架构层面">架构层面</h3>
+<table>
+<thead>
+<tr><th></th><th>BERT</th><th>GPT</th></tr>
+</thead>
+<tbody>
+<tr><td>来源</td><td>Transformer <strong>Encoder</strong></td><td>Transformer <strong>Decoder</strong></td></tr>
+<tr><td>Attention</td><td><strong>双向</strong>（全可见）</td><td><strong>单向因果</strong>（只能看左边）</td></tr>
+<tr><td>输入</td><td><code>[CLS] ... [SEP]</code></td><td><code>&lt;|im_start|&gt; ... &lt;|im_end|&gt;</code></td></tr>
+<tr><td>输出</td><td>每个位置一个 <code>d</code> 维向量</td><td>每个位置一个词表 logits</td></tr>
+</tbody>
+</table>
+
+<h3 id="最关键的区别">最关键的区别：attention mask</h3>
+<pre><code>BERT（双向）：每个 token 能看见所有 token
+   [ 1 1 1 1 1 ]
+   [ 1 1 1 1 1 ]    ← 全是 1，无遮挡
+   [ 1 1 1 1 1 ]
+
+GPT（因果）：只能看自己和左边
+   [ 1 0 0 0 0 ]
+   [ 1 1 0 0 0 ]    ← 下三角，右上角被 mask 成 -∞
+   [ 1 1 1 0 0 ]</code></pre>
+<p>这一个 mask 的差别，划定了两种模型的能力边界。</p>
+
+<h3 id="训练目标">训练目标</h3>
+<p><strong>BERT：完形填空（Masked LM）</strong>，随机遮住 15% 的 token，让模型用左右两边信息去猜：</p>
+<pre><code>输入: 我 爱 [MASK] 的 猫
+目标: 预测 [MASK] = "你"</code></pre>
+<p><strong>GPT：续写（Next Token Prediction）</strong>，永远从左到右预测下一个词：</p>
+<pre><code>输入: 我 爱 你 的
+目标: 预测下一个词 = "猫"</code></pre>
+
+<h3 id="能力对比">能力对比</h3>
+<table>
+<thead>
+<tr><th></th><th>BERT</th><th>GPT</th></tr>
+</thead>
+<tbody>
+<tr><td>理解（分类 / 抽取 / 相似度）</td><td>强</td><td>一般</td></tr>
+<tr><td>生成（写文章 / 对话）</td><td>不擅长</td><td>强</td></tr>
+<tr><td>取句子向量</td><td><code>[CLS]</code> 位置直接可用</td><td>要取最后一个 token</td></tr>
+<tr><td>微调方式</td><td>加分类头，改输出层</td><td>指令微调 / SFT / RLHF</td></tr>
+<tr><td>常见用途</td><td>搜索、检索、NER</td><td>通用大模型</td></tr>
+</tbody>
+</table>
+
+<h3 id="为什么-gpt-成了主流">为什么 GPT 成了主流</h3>
+<ol type="1">
+<li><strong>一个目标通吃</strong>：next token prediction 能覆盖几乎所有任务，只要手里有文本。</li>
+<li><strong>训练信号密</strong>：每个位置都产生一个 loss，BERT 只有 15% 的位置有监督信号。</li>
+<li><strong>能无限生成</strong>：自回归天然支持多轮对话和长文本生成。</li>
+<li><strong>scaling 更顺</strong>：单向 attention 结构简单，堆层数、堆参数的收益更稳定。</li>
+</ol>
+
+<h2 id="头数与-head_dim">17 头数与 head_dim 的经验值</h2>
+
+<h3 id="参数量与头数无关">参数量与头数无关</h3>
+<p>四个 <code>d_model × d_model</code> 矩阵（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mi>q</mi></msub><mo>,</mo><msub><mi>W</mi><mi>k</mi></msub><mo>,</mo><msub><mi>W</mi><mi>v</mi></msub><mo>,</mo><msub><mi>W</mi><mi>o</mi></msub></mrow><annotation encoding="application/x-tex">W_q, W_k, W_v, W_o</annotation></semantics></math>）合计 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mo>×</mo><msup><mtext mathvariant="normal">d_model</mtext><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">4\times d_{\text{model}}^2</annotation></semantics></math>。<strong>头数只决定怎么切分，不改变参数总量。</strong></p>
+
+<h3 id="但头多不等于更强">但头多不等于更强</h3>
+<p>头数太大时 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">head</mtext></msub><mo>=</mo><mtext mathvariant="normal">d_model</mtext><mi>/</mi><mtext mathvariant="normal">head_num</mtext></mrow><annotation encoding="application/x-tex">d_{\text{head}} = d_{\text{model}} / \text{head\_num}</annotation></semantics></math> 变小，单个头只剩几维，能表达的相似度模式非常有限，表达能力下降。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">head_num</mtext><mo>↑</mo><mspace width="0.278em"></mspace><mo>⇒</mo><mspace width="0.278em"></mspace><msub><mi>d</mi><mtext mathvariant="normal">head</mtext></msub><mo>↓</mo><mspace width="0.278em"></mspace><mo>⇒</mo><mspace width="0.278em"></mspace><mtext mathvariant="normal">单头能力</mtext><mo>↓</mo></mrow><annotation encoding="application/x-tex">\text{head\_num} \uparrow \;\Rightarrow\; d_{\text{head}} \downarrow \;\Rightarrow\; \text{单头能力} \downarrow</annotation></semantics></math></p>
+
+<h3 id="常见取法">常见取法</h3>
+<p>让 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">head</mtext></msub><annotation encoding="application/x-tex">d_{\text{head}}</annotation></semantics></math> 保持在 <strong>≈ 64</strong> 附近，头数按 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">head_num</mtext><mo>=</mo><mfrac><mtext mathvariant="normal">d_model</mtext><mn>64</mn></mfrac></mrow><annotation encoding="application/x-tex">\text{head\_num} = \frac{d_{\text{model}}}{64}</annotation></semantics></math> 取。例如 <code>d_model = 3584</code> 时可取 56 个头；实际模型常取 28 或 56，具体取决于厂商对 head_dim 的取舍。</p>
+
+<h2 id="数据流全景">18 数据流全景</h2>
+<pre class="mermaid"><code>flowchart TD
+    T["文本"] --&gt; ID["01 切词与词表 → id"]
+    ID --&gt; P["01 padding + attention mask"]
+    P --&gt; E["01 embedding 查表"]
+    E --&gt; PE["02 位置编码 / RoPE"]
+    PE --&gt; A["05-09 注意力&lt;br/&gt;Q K V / 多头 / mask / einsum"]
+    A --&gt; N1["12-13 Add &amp;amp; Norm"]
+    N1 --&gt; F["11 FFN"]
+    F --&gt; N2["12-13 Add &amp;amp; Norm"]
+    N2 --&gt; H["14 输出头 → logits"]
+    H --&gt; S["14 softmax / 交叉熵 / weight tying"]
+    S --&gt; O["下一个 token（采样见 [[采样策略]]）"]</code></pre>
+  </article>
+
+  <footer class="page-foot">
+    <div>Transformer 阅读笔记</div>
+    <div><a href="#top">回到顶部</a></div>
+  </footer>
+</main>
+
+<button class="nav-toggle" id="nav-toggle" type="button">目录</button>
+
+<script>
+(function () {
+  var article = document.querySelector('.content');
+
+  // mermaid 代码块交给渲染库处理，不当作普通代码
+  Array.prototype.slice.call(article.querySelectorAll('pre.mermaid')).forEach(function (pre) {
+    var box = document.createElement('div');
+    box.className = 'mermaid';
+    box.textContent = pre.textContent;
+    pre.parentNode.replaceChild(box, pre);
+  });
+
+  var toc = document.getElementById('toc');
+  var bar = document.getElementById('progress-bar');
+  var fill = document.getElementById('foot-fill');
+  var percent = document.getElementById('foot-percent');
+
+  var chapters = Array.prototype.slice.call(article.querySelectorAll('h2'));
+  var groupByHead = new Map();
+  var linkByHead = new Map();
+
+  chapters.forEach(function (head) {
+    if (!head.id) {
+      head.id = 'section-' + Math.random().toString(36).slice(2, 8);
+    }
+    // 章节开头的两位编号拆成独立的标签，形成视觉锚点
+    var m = /^(\d{2})\s+(.*)$/.exec(head.textContent);
+    if (m) {
+      head.textContent = '';
+      var num = document.createElement('span');
+      num.className = 'sec-num';
+      num.textContent = m[1];
+      head.appendChild(num);
+      head.appendChild(document.createTextNode(m[2]));
+    }
+    var group = document.createElement('div');
+    group.className = 'toc-group';
+
+    var link = document.createElement('a');
+    link.className = 'toc-chapter';
+    link.href = '#' + head.id;
+    link.textContent = head.textContent.replace(/^(\d{2})(?=\S)/, '$1 ');
+    group.appendChild(link);
+
+    groupByHead.set(head, group);
+    linkByHead.set(head, link);
+    toc.appendChild(group);
+
+    var cursor = head.nextElementSibling;
+    while (cursor && cursor.tagName !== 'H2') {
+      if (cursor.tagName === 'H3') {
+        if (!cursor.id) {
+          cursor.id = 'section-' + Math.random().toString(36).slice(2, 8);
+        }
+        var sub = document.createElement('a');
+        sub.className = 'toc-topic';
+        sub.href = '#' + cursor.id;
+        sub.textContent = cursor.textContent;
+        group.appendChild(sub);
+        linkByHead.set(cursor, sub);
+      }
+      cursor = cursor.nextElementSibling;
+    }
+  });
+
+  // 代码块：语言标签、行号、复制
+  function makeLine(content) {
+    var row = document.createElement('div');
+    row.className = 'code-line';
+    var label = document.createElement('span');
+    label.className = 'ln';
+    var text = document.createElement('span');
+    text.className = 'lc';
+    text.appendChild(content);
+    row.appendChild(label);
+    row.appendChild(text);
+    return row;
+  }
+
+  function buildLines(code) {
+    var container = document.createElement('div');
+    container.className = 'code-lines';
+
+    var spans = Array.prototype.slice.call(code.children).filter(function (node) {
+      return node.tagName === 'SPAN' && node.id;
+    });
+
+    if (spans.length) {
+      spans.forEach(function (span) {
+        container.appendChild(makeLine(span));
+      });
+    } else {
+      var raw = code.textContent;
+      while (raw.length && raw.charAt(raw.length - 1) === '\n') {
+        raw = raw.slice(0, -1);
+      }
+      raw.split('\n').forEach(function (line) {
+        var span = document.createElement('span');
+        span.textContent = line.length ? line : '\u00a0';
+        container.appendChild(makeLine(span));
+      });
+    }
+
+    code.replaceChildren(container);
+  }
+
+  function codeText(code) {
+    var rows = code.querySelectorAll('.code-line .lc');
+    if (!rows.length) { return code.textContent; }
+    return Array.prototype.map.call(rows, function (row) {
+      return row.textContent;
+    }).join('\n');
+  }
+
+  function languageOf(pre, code) {
+    var names = Array.prototype.concat.call(
+      Array.prototype.slice.call(pre.classList),
+      Array.prototype.slice.call(code.classList)
+    );
+    for (var i = 0; i < names.length; i++) {
+      if (names[i] !== 'sourceCode' && names[i] !== 'numberLines' && names[i] !== 'numberSource') {
+        return names[i];
+      }
+    }
+    return 'code';
+  }
+
+  Array.prototype.slice.call(article.querySelectorAll('pre')).forEach(function (pre) {
+    if (pre.closest('.code-block')) { return; }
+    var code = pre.querySelector('code');
+    if (!code) { return; }
+
+    var lang = languageOf(pre, code);
+    var target = pre.closest('div.sourceCode') || pre;
+
+    var block = document.createElement('div');
+    block.className = 'code-block';
+
+    var head = document.createElement('div');
+    head.className = 'code-head';
+
+    var tag = document.createElement('span');
+    tag.className = 'code-lang';
+    tag.textContent = lang === 'mermaid' ? '流程图源码' : lang;
+
+    var button = document.createElement('button');
+    button.className = 'copy-btn';
+    button.type = 'button';
+    button.textContent = '复制';
+    button.addEventListener('click', function () {
+      var text = codeText(code);
+      function done() {
+        button.textContent = '已复制';
+        button.classList.add('done');
+        setTimeout(function () {
+          button.textContent = '复制';
+          button.classList.remove('done');
+        }, 1500);
+      }
+      function fallback() {
+        var area = document.createElement('textarea');
+        area.value = text;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        document.body.removeChild(area);
+        done();
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(fallback);
+      } else {
+        fallback();
+      }
+    });
+
+    head.appendChild(tag);
+    head.appendChild(button);
+
+    var body = document.createElement('div');
+    body.className = 'code-body';
+
+    buildLines(code);
+
+    target.parentNode.insertBefore(block, target);
+    block.appendChild(head);
+    block.appendChild(body);
+    body.appendChild(pre);
+    if (target !== pre) {
+      target.remove();
+    }
+  });
+
+  Array.prototype.slice.call(article.querySelectorAll('table')).forEach(function (table) {
+    if (table.parentElement.classList.contains('table-wrap')) { return; }
+    var wrap = document.createElement('div');
+    wrap.className = 'table-wrap';
+    table.parentNode.insertBefore(wrap, table);
+    wrap.appendChild(table);
+  });
+
+  function offsetOf(element) {
+    return element.getBoundingClientRect().top + window.pageYOffset;
+  }
+
+  function onScroll() {
+    var top = window.pageYOffset;
+    var current = chapters[0] || null;
+    chapters.forEach(function (head) {
+      if (offsetOf(head) - 160 <= top) { current = head; }
+    });
+
+    chapters.forEach(function (head) {
+      var group = groupByHead.get(head);
+      if (group) { group.classList.toggle('open', head === current); }
+      var link = linkByHead.get(head);
+      if (link) { link.classList.toggle('active', head === current); }
+    });
+
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    var ratio = max > 0 ? Math.min(1, top / max) : 0;
+    bar.style.width = (ratio * 100) + '%';
+    fill.style.width = (ratio * 100) + '%';
+    percent.textContent = Math.round(ratio * 100) + '%';
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  document.getElementById('nav-toggle').addEventListener('click', function () {
+    document.body.classList.toggle('nav-open');
+  });
+  toc.addEventListener('click', function (event) {
+    if (event.target.tagName === 'A') {
+      document.body.classList.remove('nav-open');
+    }
+  });
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+if (window.mermaid) {
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+  mermaid.run({ querySelector: '.mermaid' });
+}
+</script>
+</body>
+</html>

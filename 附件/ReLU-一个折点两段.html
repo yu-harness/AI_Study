@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReLU 激活函数</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #2d3142;
+      --color-ink:     #f5f5f5;
+      --color-muted:   #bfc0c0;
+      --color-accent:  #f08a59;
+      --font-sans:     'Geist', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Sans SC', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 2.6vw + 0.75rem, 2.2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 800px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">激活函数 · ReLU</p>
+    <h1>一个折点，两段直线</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="relu-title relu-desc">
+        <title id="relu-title">ReLU 激活函数图像</title>
+        <desc id="relu-desc">ReLU 在 x 小于 0 时输出恒为 0，在 x 大于 0 时输出等于 x，两段在原点相接，整条曲线只有一处折点。</desc>
+        <defs>
+          <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#bfc0c0"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#2d3142"/>
+
+        <line x1="64" y1="352" x2="776" y2="352" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="416" y1="432" x2="416" y2="24" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <line x1="64" y1="346" x2="64" y2="358" stroke="#bfc0c0" stroke-width="1.2"/>
+        <line x1="240" y1="346" x2="240" y2="358" stroke="#bfc0c0" stroke-width="1.2"/>
+        <line x1="592" y1="346" x2="592" y2="358" stroke="#bfc0c0" stroke-width="1.2"/>
+        <line x1="768" y1="346" x2="768" y2="358" stroke="#bfc0c0" stroke-width="1.2"/>
+
+        <line x1="410" y1="272" x2="422" y2="272" stroke="#bfc0c0" stroke-width="1.2"/>
+        <line x1="410" y1="192" x2="422" y2="192" stroke="#bfc0c0" stroke-width="1.2"/>
+        <line x1="410" y1="112" x2="422" y2="112" stroke="#bfc0c0" stroke-width="1.2"/>
+        <line x1="410" y1="32" x2="422" y2="32" stroke="#bfc0c0" stroke-width="1.2"/>
+
+        <text x="64" y="382" fill="#bfc0c0" font-size="11" font-family="'Geist Mono', monospace" text-anchor="middle">-4</text>
+        <text x="240" y="382" fill="#bfc0c0" font-size="11" font-family="'Geist Mono', monospace" text-anchor="middle">-2</text>
+        <text x="592" y="382" fill="#bfc0c0" font-size="11" font-family="'Geist Mono', monospace" text-anchor="middle">2</text>
+        <text x="768" y="382" fill="#bfc0c0" font-size="11" font-family="'Geist Mono', monospace" text-anchor="middle">4</text>
+
+        <text x="400" y="276" fill="#bfc0c0" font-size="11" font-family="'Geist Mono', monospace" text-anchor="end">1</text>
+        <text x="400" y="196" fill="#bfc0c0" font-size="11" font-family="'Geist Mono', monospace" text-anchor="end">2</text>
+        <text x="400" y="116" fill="#bfc0c0" font-size="11" font-family="'Geist Mono', monospace" text-anchor="end">3</text>
+        <text x="400" y="36" fill="#bfc0c0" font-size="11" font-family="'Geist Mono', monospace" text-anchor="end">4</text>
+
+        <polyline points="64,352 416,352 768,32" fill="none" stroke="#f08a59" stroke-width="3" stroke-linejoin="miter"/>
+        <circle cx="416" cy="352" r="6" fill="#f08a59" stroke="#2d3142" stroke-width="2.5"/>
+
+        <text x="96" y="88" fill="#f5f5f5" font-size="17" font-family="'Geist Mono', monospace">f(x) = max(0, x)</text>
+
+        <text x="240" y="312" fill="#f5f5f5" font-size="15" font-family="'Geist', 'Noto Sans SC', sans-serif" text-anchor="middle">x &lt; 0　输出恒为 0　斜率 0</text>
+
+        <text x="474" y="192" fill="#f5f5f5" font-size="15" font-family="'Geist', 'Noto Sans SC', sans-serif">x &gt; 0　输出等于 x　斜率 1</text>
+
+        <text x="444" y="392" fill="#f08a59" font-size="13" font-family="'Geist', 'Noto Sans SC', sans-serif">折点 (0, 0)</text>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>
